@@ -176,6 +176,7 @@ void Condition::Wait(Lock* conditionLock) {
 	}
 	// okay to wait on CV
 	// Add thread to CV wait queue
+	currentThread->setStatus(BLOCKED);
 	this->waitQueue->Append(currentThread);
 	conditionLock->Release();
 	currentThread->Sleep();
