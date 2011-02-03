@@ -63,6 +63,8 @@ extern void MailTest(int networkID);
 
 extern void TestSuite();
 
+extern void Office();
+
 //----------------------------------------------------------------------
 // main
 // 	Bootstrap the operating system kernel.  
@@ -89,6 +91,7 @@ main(int argc, char **argv)
 #ifdef THREADS
     ThreadTest();
     TestSuite();
+    Office();
 #endif
 
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {

@@ -1,5 +1,6 @@
 #include "office.h"
 #include "thread.h"
+#include <stdio.h>
 
 // ApplicationClerk and PictureClerk lines
 Lock* appPicLineLock = new Lock("appPicLineLock");
@@ -19,9 +20,13 @@ int totalCustomersInOffice = 0;
 ClerkStatus appClerkStatuses[MAX_APP_CLERKS];
 ClerkStatus picClerkStatuses[MAX_PIC_CLERKS];
 
+extern void CustomerRun(int);
+extern void AppClerkRun(int);
+extern void PicClerkRun(int);
+
+void initializeArrays(int, int);
+
 void Office() {
-  
-  initializeArrays();
   
   int numAppClerks = 3; // WE WANT TO GET THESE FROM USER INPUT AND VALIDATE
   int numPicClerks = 3; //
@@ -30,20 +35,31 @@ void Office() {
   initializeArrays(numAppClerks, numPicClerks);
 
   // Fork the application clerks
+  
   for (int i = 0; i < numAppClerks; i++) {
-    Thread* t = new Thread("AppClerk1"); // HACK
+    char* name = new char[20];
+    snprintf(name, 20, "AppClerk%d", i);
+    Thread* t = new Thread(name); // HACK
     t->Fork((VoidFunctionPtr)AppClerkRun, i);
+    printf("Forked %s\n", name);
   }
 
+  // Fork the picture clerks
   for (int i = 0; i < numPicClerks; i++) {
-    Thread* t = new Thread("PicClerk1");
+    char* name = new char[20];
+    snprintf(name, 20, "PicClerk%d", i);
+    Thread* t = new Thread(name);
     t->Fork((VoidFunctionPtr)PicClerkRun, i);
+    printf("Forked %s\n", name);
   }
 
   // Fork the customers
   for (int i = 0; i < numCustomers; i++) {
-    Thread* t = new Thread("Customer1"); // HACK, need to get correct naming / numbering
+    char* name = new char[20];
+    snprintf(name, 20, "Customer%d", i);
+    Thread* t = new Thread(name); // HACK, need to get correct naming / numbering
     t->Fork((VoidFunctionPtr)CustomerRun, i);
+    printf("Forked %s\n", name);
   }
 }
 

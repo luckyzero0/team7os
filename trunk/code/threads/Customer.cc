@@ -1,7 +1,10 @@
 //Customer.cc
 #include "office.h"
+#include <iostream>
 
-void CustomerRun(){
+using namespace std;
+
+void CustomerRun(int index) {
 	cout<<"Entering the passport office..."<<endl;
 	
 	//customer start up code	
@@ -26,7 +29,7 @@ void CustomerRun(){
 		if(cashDollars > 100) //get in a privledged line
 		{						
 			cashDollars -= 500;
-			cout<<"Priveleged line, baby. CashDollars = $"<<cashDollars<<endl 
+			cout<<"Priveleged line, baby. CashDollars = $"<<cashDollars<<endl; 
 			privAppLineLength++;
 			cout<<"Waiting in the Priveledged Line for next available clerk"<<endl;
 			privAppLineCV->Wait(appPicLineLock);			
@@ -41,7 +44,7 @@ void CustomerRun(){
 		cout<<"Finding available clerk..."<<endl;		
 		for(int x = 0; x < MAX_APP_CLERKS; x++)
 		{
-			if(appClerkStatuses[x] == ClerkStatus.CLERK_AVAILABLE)
+			if(appClerkStatuses[x] == CLERK_AVAILABLE)
 			{
 				myClerk = x;
 				cout<<"Going to chill with App Clerk #"<<myClerk<<endl;				
