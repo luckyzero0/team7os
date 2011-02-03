@@ -20,14 +20,12 @@ void CustomerRun(){
 		{			
 			cashDollars -= 500;
 			privAppLineLength++;
-			privAppLineCV->Wait(appPicLineLock);
-			privAppLineLength--;
+			privAppLineCV->Wait(appPicLineLock);			
 		}
 		else //get in a normal line
 		{
 			regAppLineLength++;
-			regAppLineCV->Wait(appPicLineLock);
-			regAppLineLength--;
+			regAppLineCV->Wait(appPicLineLock);			
 		}						
 		//interact with clerk
 		appPicLineLock->Release();
