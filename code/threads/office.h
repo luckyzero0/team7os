@@ -12,10 +12,13 @@ enum ClerkStatus {CLERK_BUSY, CLERK_AVAILABLE, CLERK_ON_BREAK, CLERK_INVALID};
 extern Lock* appPicLineLock;
 extern Condition* regAppLineCV;
 extern Condition* privAppLineCV;
+
 extern Condition* regPicLineCV;
-extern Condition* privAppLineCV;
+extern Condition* privPicLineCV;
+
 extern int regAppLineLength;
 extern int privAppLineLength;
+
 extern int regPicLineLength;
 extern int privPicLineLength;
 

@@ -1,22 +1,37 @@
 //Customer.cc
+#include "office.h"
 
 void CustomerRun(){
 	
-	//customer start up code
+	//customer start up code	
+	srand( time(NULL) );
+	int cashDollars = ((rand() % 3) * 500) + 100;
 	//acquire ACPCLock
-	//totalCustomers++
-	//choose line
-	//release ACPCLock
+	appPicLineLock->Acquire();	
+	totalCustomersInOffice++;
 	
+	//choose line		
 		
-	//app/pic clerk		
+	//app clerk		
 	while(true)
-	{
+	{		
 		//check for senator
-		//choose normal or priveleged line
-		//get in line
+		if(cashDollars > 100) //get in a privledged line
+		{			
+			cashDollars -= 500;
+			privAppLineLength++;
+			privAppLineCV->Wait(appPicLineLock);
+			privAppLineLength--;
+		}
+		else //get in a normal line
+		{
+			regAppLineLength++;
+			regAppLineCV->Wait(appPicLineLock);
+			regAppLineLength--;
+		}						
 		//interact with clerk
-		
+		appPicLineLock->Release();
+		break;
 	}	
 	
 	//check for senator
