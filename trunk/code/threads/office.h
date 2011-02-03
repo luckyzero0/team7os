@@ -29,6 +29,10 @@ extern int totalCustomersInOffice;
 // ApplicationClerk and PictureClerk States
 extern ClerkStatus appClerkStatuses[];
 extern ClerkStatus picClerkStatuses[];
+extern Lock* appClerkLocks[];
+extern Lock* picClerkLocks[];
+extern Condition* appClerkCVs[];
+extern Condition* picClerkCVs[];
 
 extern void Office();
 

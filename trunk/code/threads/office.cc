@@ -19,6 +19,10 @@ int totalCustomersInOffice = 0;
 // ApplicationClerk and PictureClerk States
 ClerkStatus appClerkStatuses[MAX_APP_CLERKS];
 ClerkStatus picClerkStatuses[MAX_PIC_CLERKS];
+Lock* appClerkLocks[MAX_APP_CLERKS];
+Lock* picClerkLocks[MAX_PIC_CLERKS];
+Condition* appClerkCVs[MAX_APP_CLERKS];
+Condition* picClerkCVs[MAX_PIC_CLERKS];
 
 extern void CustomerRun(int);
 extern void AppClerkRun(int);
@@ -68,18 +72,34 @@ void initializeArrays(int numAppClerks, int numPicClerks) {
   for (int i = 0; i < MAX_APP_CLERKS; i++) {
     if (i < numAppClerks) {
       appClerkStatuses[i] = CLERK_AVAILABLE;
+      char* name = new char[20];
+      snprintf(name, 20, "AppClerkLock%d", i);
+      appClerkLocks[i] = new Lock(name);
+      name = new char[20];
+      snprintf(name, 20, "AppClerkCV%d", i);
+      appClerkCVs[i] = new Condition(name);
     }
     else {
       appClerkStatuses[i] = CLERK_INVALID;
+      appClerkLocks[i] = NULL;
+      appClerkCVs[i] = NULL;
     }
   }
   
   for (int i = 0; i < MAX_PIC_CLERKS; i++) {
     if (i < numPicClerks) {
       picClerkStatuses[i] = CLERK_AVAILABLE;
+      char* name = new char[20];
+      snprintf(name, 20, "PicClerkLock%d", i);
+      picClerkLocks[i] = new Lock(name);
+      name = new char[20];
+      snprintf(name, 20, "PicClerkCV%d", i);
+      picClerkCVs[i] = new Condition(name);
     }
     else {
       picClerkStatuses[i] = CLERK_INVALID;
+      picClerkLocks[i] = NULL;
+      picClerkCVs[i] = NULL;
     }
   }
 }
