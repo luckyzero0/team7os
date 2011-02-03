@@ -87,9 +87,9 @@ void doAppClerk(int* index, int* cashDollars)
 					printf("Customer[%d]: Going to chill with App Clerk #%d\n",*index,myClerk);
 					break;				
 				}
-			}
-			appClerkLocks[myClerk]->Acquire();
+			}			
 			appPicLineLock->Release();							
+			appClerkLocks[myClerk]->Acquire();
 			printf("Customer[%d]: Interacting with app clerk\n",*index);
 			//interact with clerk
 			appClerkData[myClerk] = *index; //could also just use the adr for a more ssn-like number
