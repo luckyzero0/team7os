@@ -79,7 +79,7 @@ void PicClerkRun(int index){
 			printf("PicClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privPicLineLength);
 			privPicLineCV->Signal(appPicLineLock);
 			picClerkLocks[index]->Acquire();
-			picPicClerkLock->Release();
+			appPicLineLock->Release();
 			picClerkCVs[index]->Wait(picClerkLocks[index]);
 			
 		}
@@ -91,7 +91,7 @@ void PicClerkRun(int index){
 			printf("PicClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,privPicLineLength);
 			regPicLineCV->Signal(appPicLineLock);
 			picClerkLocks[index]->Acquire();
-			picPicClerkLock->Release();
+			appPicLineLock->Release();
 			picClerkCVs[index]->Wait(picClerkLocks[index]);
 		}
 		/*else{
