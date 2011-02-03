@@ -17,7 +17,7 @@ void AppClerkRun(int index){
 			appClerkStatuses[index] = CLERK_AVAILABLE;
 			printf("AppClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privAppLineLength);
 			privAppLineCV->Signal(appPicLineLock);
-			printf("AppClerk %d: Acquiring my own lock%d\n",index);
+			printf("AppClerk %d: Acquiring my own lock\n",index);
 			appClerkLocks[index]->Acquire();
 			printf("AppClerk %d: Releasing appPicLineLock\n",index);
 			appPicLineLock->Release();
@@ -39,7 +39,7 @@ void AppClerkRun(int index){
 			appClerkStatuses[index] = CLERK_AVAILABLE;
 			printf("AppClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privAppLineLength);
 			privAppLineCV->Signal(appPicLineLock);
-			printf("AppClerk %d: Acquiring my own lock%d\n",index);
+			printf("AppClerk %d: Acquiring my own lock\n",index);
 			appClerkLocks[index]->Acquire();
 			printf("AppClerk %d: Releasing appPicLineLock\n",index);
 			appPicLineLock->Release();
