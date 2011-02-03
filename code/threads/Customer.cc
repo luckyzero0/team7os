@@ -3,9 +3,12 @@
 
 void CustomerRun(){
 	cout<<"Entering the passport office..."<<endl;
+	
 	//customer start up code	
 	srand( time(NULL) );
 	int cashDollars = ((rand() % 3) * 500) + 100;
+	int myClerk;
+	
 	cout<<"With $"<<cashDollars<<" in my pocket"<<endl;
 	//acquire ACPCLock
 	appPicLineLock->Acquire();	
@@ -36,15 +39,16 @@ void CustomerRun(){
 			regAppLineCV->Wait(appPicLineLock);			
 		}				
 		cout<<"Finding available clerk..."<<endl;		
-		for(int x = 0; x < (sizeof(appClerkStatuses)/sizeof(appClerkStatuses[0])); x++)
+		for(int x = 0; x < MAX_APP_CLERKS; x++)
 		{
 			if(appClerkStatuses[x] == ClerkStatus.CLERK_AVAILABLE)
 			{
-				cout<<"Going to chill with App Clerk #"<<x<<endl;
-				appPicLineLock->Release();			
+				myClerk = x;
+				cout<<"Going to chill with App Clerk #"<<myClerk<<endl;				
 				break;				
 			}
 		}
+		appPicLineLock->Release();			
 		cout<<"Interacting with app clerk"<<endl;
 		//interact with clerk
 		cout<<"Done and done."<<endl;
