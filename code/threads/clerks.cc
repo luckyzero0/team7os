@@ -55,12 +55,17 @@ void AppClerkRun(int index){
 					
 			
 		}
-		/*	else{
-		  printf("AppClerk %d: Going on Break!", index);
+		else{
+		  
+		      appPicLineLock->Release();
+		     
+		      if(appClerkStatuses[index]!=CLERK_ON_BREAK){
+			 printf("AppClerk %d: Going on Break!", index);
 			appClerkStatuses[index] = CLERK_ON_BREAK;
-			}*/
-		//	printf("AppClerk %d: Releasing Lock", index);
-		appPicLineLock->Release();
+		      }
+		}
+		//	
+		
 		currentThread->Yield();
       	}
 		
