@@ -6,7 +6,7 @@ void CustomerRun(){
 	
 	//customer start up code	
 	srand( time(NULL) );
-	int cashDollars = ((rand() % 3) * 500) + 100;
+	int cashDollars = ((rand() % 4) * 500) + 100;
 	int myClerk;
 	
 	cout<<"With $"<<cashDollars<<" in my pocket"<<endl;
