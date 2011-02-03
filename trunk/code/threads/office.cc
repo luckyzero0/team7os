@@ -13,6 +13,7 @@ int privAppLineLength = 0;
 int regPicLineLength = 0;
 int privPicLineLength = 0;
 
+
 // Total Number of Things in The Office
 int totalCustomersInOffice = 0;
 
@@ -35,6 +36,7 @@ void Office() {
   int numAppClerks = 3; // WE WANT TO GET THESE FROM USER INPUT AND VALIDATE
   int numPicClerks = 3; //
   int numCustomers = 1;
+  srand(time(NULL));
   
   initializeArrays(numAppClerks, numPicClerks);
 
