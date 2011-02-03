@@ -6,25 +6,25 @@
 
 void AppClerkRun(int index){
   	while (true){
-	  //  printf("\nAppClerk %d: has acquired the appPicLineLock", index);
+	  //  printf("AppClerk %d: has acquired the appPicLineLock\n", index);
 		appPicLineLock->Acquire();
 		
 		if (privAppLineLength>0){
 		 
-	                printf("\nAppClerk %d: has spotted customer in privAppLine(length = %d)",index,privAppLineLength);
+	        printf("AppClerk %d: has spotted customer in privAppLine(length = %d)\n",index,privAppLineLength);
 			privAppLineLength--;
-			printf("\nAppClerk %d: Becoming Available!",index);
+			printf("AppClerk %d: Becoming Available!\n",index);
 			appClerkStatuses[index] = CLERK_AVAILABLE;
-			printf("\nAppClerk %d: Signaling Condition variable (length of priv line is now %d)", index,privAppLineLength);
+			printf("AppClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privAppLineLength);
 			privAppLineCV->Signal(appPicLineLock);
 			
 		}
 		else if (regAppLineLength>0){
-		        printf("\nAppClerk %d: has spotted customer in regAppLine (length = %d)",index, regAppLineLength);
+		    printf("AppClerk %d: has spotted customer in regAppLine (length = %d)\n",index, regAppLineLength);
 			regAppLineLength--;
-			printf("\nAppClerk %d: Becoming Available!",index);
+			printf("AppClerk %d: Becoming Available!\n",index);
 			appClerkStatuses[index] = CLERK_AVAILABLE;
-			printf("\nAppClerk %d: Signaling Condition variable (length of reg line is now %d)", index,privAppLineLength);
+			printf("AppClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,privAppLineLength);
 			regAppLineCV->Signal(appPicLineLock);
 			
 		}
@@ -42,23 +42,30 @@ void AppClerkRun(int index){
 }
 
 void PicClerkRun(int index){
-  /*	while (true){
+  	while (true){
 		appPicLineLock->Acquire();
 		if (privPicLineLength>0){
+		 printf("PicClerk %d: has spotted customer in privPicLine(length = %d)\n",index,privPicLineLength);
 			privPicLineLength--;
+			printf("PicClerk %d: Becoming Available!\n",index);
 			picClerkStatuses[index] = CLERK_AVAILABLE;
+			printf("PicClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privPicLineLength);
 			privPicLineCV->Signal(appPicLineLock);
 			
 		}
 		else if (regAppLineLength>0){
+			printf("PicClerk %d: has spotted customer in regPicLine (length = %d)\n",index, regPicLineLength);
 			regPicLineLength--;
+			printf("PicClerk %d: Becoming Available!\n",index);
 			picClerkStatuses[index] = CLERK_AVAILABLE;
+			printf("PicClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,privPicLineLength);
 			regPicLineCV->Signal(appPicLineLock);			
 		}
-		else{
+		/*else{
+			printf("PicClerk %d: Going on Break!", index);
 			picClerkStatuses[index] = CLERK_ON_BREAK;
-		}
+		}*/
 		appPicLineLock->Release();
 		currentThread->Yield();
-	}*/
+	}
 }
