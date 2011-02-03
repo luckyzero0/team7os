@@ -7,7 +7,7 @@
 #define MAX_PIC_CLERKS (10)
 
 enum ClerkStatus {CLERK_BUSY, CLERK_AVAILABLE, CLERK_ON_BREAK, CLERK_INVALID};
-
+enum ClerkType {APPLICATION, PICTURE, PASSPORT, CASHIER};
 // ApplicationClerk and PictureClerk lines
 extern Lock* appPicLineLock;
 
