@@ -1,11 +1,12 @@
-// File for the Application, Picture, 
-
+// File for the Application, Picture,
+#include "system.h" 
+#include "thread.h"
 #include "office.h"
 #include <stdio.h>
 
 void AppClerkRun(int index){
-	while (true){
-	        printf("\nAppClerk %d: has acquired the appPicLineLock", index);
+  	while (true){
+	  //  printf("\nAppClerk %d: has acquired the appPicLineLock", index);
 		appPicLineLock->Acquire();
 		
 		if (privAppLineLength>0){
@@ -27,20 +28,21 @@ void AppClerkRun(int index){
 			regAppLineCV->Signal(appPicLineLock);
 			
 		}
-		else{
+		/*	else{
 		  printf("AppClerk %d: Going on Break!", index);
 			appClerkStatuses[index] = CLERK_ON_BREAK;
-		}
-		printf("AppClerk %d: Releasing Lock", index);
+			}*/
+		//	printf("AppClerk %d: Releasing Lock", index);
 		appPicLineLock->Release();
-	}
+		currentThread->Yield();
+      	}
 		
 		
 		
 }
 
 void PicClerkRun(int index){
-	while (true){
+  /*	while (true){
 		appPicLineLock->Acquire();
 		if (privPicLineLength>0){
 			privPicLineLength--;
@@ -56,6 +58,7 @@ void PicClerkRun(int index){
 		else{
 			picClerkStatuses[index] = CLERK_ON_BREAK;
 		}
-		picPicLineLock->Release();
-	}
+		appPicLineLock->Release();
+		currentThread->Yield();
+	}*/
 }
