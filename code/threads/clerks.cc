@@ -1,4 +1,4 @@
-// File for the Application, Picture,
+// File for the Application, Picture, Passport and Cashier Clerks
 #include "system.h" 
 #include "thread.h"
 #include "office.h"
@@ -53,7 +53,7 @@ void PicClerkRun(int index){
 			privPicLineCV->Signal(appPicLineLock);
 			
 		}
-		else if (regAppLineLength>0){
+		else if (regPicLineLength>0){
 			printf("PicClerk %d: has spotted customer in regPicLine (length = %d)\n",index, regPicLineLength);
 			regPicLineLength--;
 			printf("PicClerk %d: Becoming Available!\n",index);
