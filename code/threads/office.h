@@ -33,6 +33,7 @@ extern Lock* appClerkLocks[];
 extern Lock* picClerkLocks[];
 extern Condition* appClerkCVs[];
 extern Condition* picClerkCVs[];
+extern int appClerkData[];
 
 extern void Office();
 
