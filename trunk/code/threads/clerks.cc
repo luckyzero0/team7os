@@ -29,7 +29,7 @@ void AppClerkRun(int index){
 				regAppLineCV->Signal(appPicLineLock);
 			}
 			//Customer - Clerk interaction
-		
+
 			printf("AppClerk %d: Acquiring my own lock\n",index);
 			appClerkLocks[index]->Acquire();
 			printf("AppClerk %d: Releasing appPicLineLock\n",index);
@@ -63,6 +63,7 @@ void AppClerkRun(int index){
 }
 
 void PicClerkRun(int index){
+
 	while (true){
 		appPicLineLock->Acquire();
 
@@ -87,20 +88,29 @@ void PicClerkRun(int index){
 			}
 
 			//Customer - Clerk Interaction
-		
+
 			printf("PicClerk %d: Acquiring my own lock\n",index);
 			picClerkLocks[index]->Acquire();
-			printf("PicClerk %d: Releasing picPicLineLock\n",index);
+			printf("PicClerk %d: Releasing appPicLineLock\n",index);
 			appPicLineLock->Release();
+
+			printf("PicClerk %d: Putting myself to sleep...\n",index);
+			picClerkCVs[index]->Wait(picClerkLocks[index]);
+			int count = 1;
 			do{
-				printf("PicClerk %d: Taking Customer's picture! Putting myself to sleep...\n",index);
+				printf("PicClerk %d: Taking picture of customer for the %dst/nd/rd/th time (Signalling my CV)!\n",index, count);
+				picClerkCVs[index]->Signal(picClerkLocks[index]);
+				printf("PicClerk %d: Going to sleep...\n",index);
 				picClerkCVs[index]->Wait(picClerkLocks[index]);
+
+
 				if(picClerkData[index] == TRUE)
 					printf("PicClerk %d: Just woke up, Customer liked their picture!\n",index);
-				else{
+				else
 					printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
-					currentThread->Yield();
-				}
+
+				count++;
+				
 			}while(picClerkData[index] == FALSE);
 
 			printf("PicClerk %d: Signaling my picClerkCV\n", index);
@@ -116,7 +126,7 @@ void PicClerkRun(int index){
 				printf("PicClerk %d: Going on Break!\n", index);
 				picClerkStatuses[index] = CLERK_ON_BREAK;
 			}
-		
+
 		}
 
 		currentThread->Yield();
