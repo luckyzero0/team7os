@@ -67,6 +67,9 @@ void AppClerkRun(int index){
 
 }
 
+void appClerkFileData(){
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -199,6 +202,11 @@ void PassClerkRun(int index){
 				printf("PassClerk %d: Customer with SSN %d has everything filed correctly!\n",index, SSN);
 				passPunish[SSN] = FALSE;
 				passFiled[SSN] = TRUE; //**********THIS SHOULD BE FORKED IN THE FUTURE*****************
+
+				//DEBUG
+					for (int i=0; i<10; i++){
+					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n", appFiled[i], picFiled[i], passFiled[i]);
+				}
 			}
 
 			//printf("PassClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
