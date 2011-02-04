@@ -110,7 +110,7 @@ void PicClerkRun(int index){
 					if(happyWithPhoto[index] == TRUE){
 						int SSN = picClerkSSNs[index];
 						picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
-						printf("PicClerk %d: Just woke up, Customer liked their picture!\n",index);
+						printf("PicClerk %d: Just woke up, Customer with SSN %d liked their picture!\n",index, SSN);
 					}
 					else{
 						printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
