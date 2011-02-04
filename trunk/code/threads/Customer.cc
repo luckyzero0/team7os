@@ -4,6 +4,9 @@
 
 using namespace std;
 void doAppClerk(int* index, int* cashDollars);
+void doPicClerk(int* index, int* cashDollars);
+void doPPClerk(int* index, int* cashDollars);
+void doCashierClerk(int* index, int* cashDollars);
 void CustomerRun(int index) {	
 	
 	printf("Customer[%d]: Entering the passport office...\n",index);
@@ -19,44 +22,41 @@ void CustomerRun(int index) {
 	
 	//choose line		
 	printf("Customer[%d]: Deciding between AppClerk and PictureClerk...\n", index);
-	if(rand()%2 == 0)
+	if(cashDollars > 100) //find priveledged line with shortest length
 	{
-		clerkStatus = APPLICATION;
+		if(privAppLineLength<=privPicLineLength)
+		{
+			printf("Customer[%d]: Going to AppClerk first.\n",index);
+			doAppClerk(&index, &cashDollars);
+			doPicClerk(&index, &cashDollars);
+		}
+		else
+		{
+			printf("Customer[%d]: Going to PicClerk first.\n",index);
+			doPicClerk(&index, &cashDollars);
+			doAppClerk(&index, &cashDollars);			
+		}	
 	}
-	else
+	else//find regular line with shortest length
 	{
-		clerkStatus = PICTURE;
-	}
-	
-	doAppClerk(&index, &cashDollars);
-	
-	//check for senator
-	
-	
-	
-	//choose normal or priv line
-	
-	//wait
-	
-	//interact with clerk
-	
-	//check for senator
-	
-	//go to other clerk
-	
-	//choose line
-	
-	//wait
-	
-	//interact with clerk
-	
-	//etc etc
-	
+		if(regAppLineLength<=regPicLineLength)
+		{
+			printf("Customer[%d]: Going to AppClerk first.\n",index);
+			doAppClerk(&index, &cashDollars);
+			doPicClerk(&index, &cashDollars);
+		}
+		else
+		{
+			printf("Customer[%d]: Going to PicClerk first.\n",index);
+			doPicClerk(&index, &cashDollars);
+			doAppClerk(&index, &cashDollars);			
+		}	
+	}		
 }
 
 void doAppClerk(int* index, int* cashDollars)
 {
-	int myClerk;
+	int myClerk = 9001;
 	printf("Customer[%d]: Going to the AppClerk\n",*index);
 		while(true)
 		{		
@@ -74,23 +74,26 @@ void doAppClerk(int* index, int* cashDollars)
 			{
 				printf("Customer[%d]: Regular line, suckas. CashDollars = $%d\n",*index,*cashDollars);
 				regAppLineLength++;
-				printf("Customer[%d]: Waiting in the Priveledged Line for next available AppClerk\n",*index);
+				printf("Customer[%d]: Waiting in the Regular Line for next available AppClerk\n",*index);
 				regAppLineCV->Wait(appPicLineLock);			
 			}				
 			printf("Customer[%d]: Finding available AppClerk...\n",*index);
 			for(int x = 0; x < MAX_APP_CLERKS; x++)
-			{
+			{				
 				if(appClerkStatuses[x] == CLERK_AVAILABLE)
 				{
-					myClerk = x;
-					appClerkStatuses[myClerk] = CLERK_BUSY;
-					printf("Customer[%d]: Going to chill with App Clerk #%d\n",*index,myClerk);
+					myClerk = x;					
+					printf("Customer[%d]: Going to chill with AppClerk[%d]\n",*index,myClerk);					
+					appClerkStatuses[myClerk] = CLERK_BUSY;					
 					break;				
 				}
+				else
+					printf("Customer[%d]: AppClerk[%d] is unavailable\n",*index,x);
+				
 			}			
 			appPicLineLock->Release();							
 			appClerkLocks[myClerk]->Acquire();
-			printf("Customer[%d]: Interacting with app clerk\n",*index);
+			printf("Customer[%d]: Interacting with AppClerk[%d]\n",*index,myClerk);
 			//interact with clerk
 			appClerkData[myClerk] = *index; //could also just use the adr for a more ssn-like number
 			printf("Customer[%d]: Application handed in like a boss.\n", *index);			
@@ -100,6 +103,7 @@ void doAppClerk(int* index, int* cashDollars)
 			//more shit			
 			printf("Customer[%d]: Done and done.\n",*index);
 			appClerkLocks[myClerk]->Release();
+			printf("Customer[%d]: Going to next clerk...\n",*index);
 			break;
 		}
 }
@@ -116,24 +120,24 @@ void doPicClerk(int* index, int* cashDollars)
 			{						
 				*cashDollars -= 500;
 				printf("Customer[%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
-				privAppLineLength++;
+				privPicLineLength++;
 				printf("Customer[%d]: Waiting in the Priveledged Line for next available PicClerk\n",*index);
-				privAppLineCV->Wait(appPicLineLock);			
+				privPicLineCV->Wait(appPicLineLock);			
 			}
 			else //get in a normal line
 			{
 				printf("Customer[%d]: Regular line, suckas. CashDollars = $%d\n",*index,*cashDollars);
-				regAppLineLength++;
+				regPicLineLength++;
 				printf("Customer[%d]: Waiting in the Priveledged Line for next available PicClerk\n",*index);
-				regAppLineCV->Wait(appPicLineLock);			
+				regPicLineCV->Wait(appPicLineLock);			
 			}				
 			printf("Customer[%d]: Finding available PicClerk...\n",*index);
 			for(int x = 0; x < MAX_APP_CLERKS; x++)
 			{
-				if(appClerkStatuses[x] == CLERK_AVAILABLE)
+				if(picClerkStatuses[x] == CLERK_AVAILABLE)
 				{
 					myClerk = x;
-					appClerkStatuses[myClerk] = CLERK_BUSY;
+					picClerkStatuses[myClerk] = CLERK_BUSY;
 					printf("Customer[%d]: Going to chill with Pic Clerk #%d\n",*index,myClerk);
 					break;				
 				}
@@ -142,10 +146,23 @@ void doPicClerk(int* index, int* cashDollars)
 			picClerkLocks[myClerk]->Acquire();		
 			printf("Customer[%d]: Interacting with Pic Clerk\n",*index);
 			//interact with clerk
-			printf("Customer[%d]: Getting my picture taken...\n",*index);
-			//did I like my picture?
-			//if not, retake it
-			//else
+			
+			while(picClerkData[myClerk] == FALSE)
+			{
+				printf("Customer[%d]: Getting my picture taken...\n",*index);
+				picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);
+				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);
+				//did I like my picture?
+				if(true)
+				{
+					picClerkData[myClerk] = TRUE;
+					printf("Customer[%d]: This picture is awesome!\n", *index);
+				}
+				else
+				{
+					printf("Customer[%d]: This picture sucks! Take it again!\n",*index);
+				}						
+			}
 			
 			printf("Customer[%d]: Picture taken. Like a boss.\n",*index);
 			picClerkLocks[myClerk]->Release();			
