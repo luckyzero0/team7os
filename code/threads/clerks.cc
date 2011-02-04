@@ -102,17 +102,17 @@ void PicClerkRun(int index){
 				printf("PicClerk %d: Taking picture of customer for the %dst/nd/rd/th time (Signalling my CV)!\n",index, count);
 				picClerkCVs[index]->Signal(picClerkLocks[index]);
 				printf("PicClerk %d: Going to sleep...\n",index);
-				picClerkCVs[index]->Wait(picClerkLocks[index]);e
+				picClerkCVs[index]->Wait(picClerkLocks[index]);
 
 
-					if(happyWithPic[index] == TRUE)
+					if(happyWithPhoto[index] == TRUE)
 						printf("PicClerk %d: Just woke up, Customer liked their picture!\n",index);
 					else
 						printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
 
 				count++;
 
-			}while(happyWithPic[index] == FALSE);
+			}while(happyWithPhoto[index] == FALSE);
 			int SSN = picClerkSSNs[index];
 			picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
 			picClerkCVs[index]->Signal(picClerkLocks[index]);
@@ -163,7 +163,7 @@ void PassClerkRun(int index){
 			printf("PassClerk %d: Acquiring my own lock\n",index);
 			passClerkLocks[index]->Acquire();
 			printf("PassClerk %d: Releasing passLineLock\n",index);
-			passPicLineLock->Release();
+			passLineLock->Release();
 			printf("PassClerk %d: Putting myself to sleep...\n",index);
 			passClerkCVs[index]->Wait(passClerkLocks[index]);
 			printf("PassClerk %d: Just woke up!\n",index);
