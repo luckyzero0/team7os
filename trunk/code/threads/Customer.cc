@@ -151,14 +151,15 @@ void doPicClerk(int* index, int* cashDollars)
 			}
 			appPicLineLock->Release();		
 			picClerkLocks[myClerk]->Acquire();		
-			picClerkSSNs[myClerk] = *index;			
+			picClerkSSNs[myClerk] = *index;		
+			picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);	
+			picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);				
 			printf("Customer[%d]: Interacting with Pic Clerk\n",*index);
 			//interact with clerk
 			
 			while(happyWithPhoto[myClerk] == FALSE)
 			{
-				printf("Customer[%d]: Getting my picture taken...\n",*index);	
-				
+				printf("Customer[%d]: Getting my picture taken...\n",*index);					
 				picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);
 				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);				
 				//did I like my picture?
