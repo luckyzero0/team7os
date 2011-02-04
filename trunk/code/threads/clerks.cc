@@ -46,6 +46,7 @@ void AppClerkRun(int index){
 			printf("AppClerk %d: Signaling my appClerkCV\n", index);
 			appClerkCVs[index]->Signal(appClerkLocks[index]);
 			printf("AppClerk %d: Releasing my own lock\n", index);
+			appClerkCVs[index]->Release();
 
 		}
 		else{ //No one in line
