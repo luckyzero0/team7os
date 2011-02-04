@@ -55,7 +55,7 @@ void CustomerRun(int index) {
 	}		
 	
 	//hit up the passport clerk
-	doPassPortClerk(&index, &cashDollars);
+	//doPassPortClerk(&index, &cashDollars);
 }
 
 void doAppClerk(int* index, int* cashDollars)
