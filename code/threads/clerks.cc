@@ -4,6 +4,33 @@
 #include "office.h"
 #include <stdio.h>
 
+void appClerkFileData(int ssn){
+	int randomNum = rand()%80 + 20;
+	for(int i = 0; i< randomNum; i++){
+		currentThread->Yield();
+	}
+	appFiled[ssn] = TRUE; 
+	
+}
+
+void picClerkFileData(int ssn){
+	int randomNum = rand()%80 + 20;
+	for(int i = 0; i< randomNum; i++){
+		currentThread->Yield();
+	}
+	picFiled[ssn] = TRUE; 
+	
+}
+
+void passClerkFileData(int ssn){
+	int randomNum = rand()%80 + 20;
+	for(int i = 0; i< randomNum; i++){
+		currentThread->Yield();
+	}
+	passFiled[ssn] = TRUE; 
+	
+}
+
 void AppClerkRun(int index){
 	while (true){
 		//  printf("AppClerk %d: has acquired the appPicLineLock\n", index);
@@ -39,7 +66,9 @@ void AppClerkRun(int index){
 			printf("AppClerk %d: Just woke up!\n",index);
 			int SSN = appClerkSSNs[index];
 			printf("AppClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
-			appFiled[SSN] = TRUE; //***********NEEDS TO BE FORKED IN THE FUTURE***********************
+			//appFiled[SSN] = TRUE; //***********NEEDS TO BE FORKED IN THE FUTURE***********************
+			Thread* newThread = new Thread("Filing Thread");
+			newThread->Fork((VoidFunctionPtr)appClerkFileData,SSN);
 			for (int i=0; i<10; i++){
 			  printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
 			}
@@ -67,8 +96,7 @@ void AppClerkRun(int index){
 
 }
 
-void appClerkFileData(){
-}
+
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -120,7 +148,9 @@ void PicClerkRun(int index){
 					  printf("SSN >= 6!  Cannot BE SO! FAIL!");
 					  exit(0);
 					}
-					picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
+					//picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
+					Thread* t = new Thread("Pass Filing Thread");
+					t->Fork((VoidFunctionPtr)picClerkFileData,SSN);
 					for (int i=0; i<10; i++){
 						printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
 					}
