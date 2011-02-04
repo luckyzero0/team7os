@@ -223,6 +223,7 @@ void doPassPortClerk(int *index, int* cashDollars){
 			}			
 			passLineLock->Release();							
 			passClerkLocks[myClerk]->Acquire();
+			passClerkSSNs[myClerk] = *index;
 			printf("Customer[%d]: Interacting with PassClerk[%d]\n",*index,myClerk);
 			//interact with clerk			
 			passClerkCVs[myClerk]->Signal(passClerkLocks[myClerk]);
