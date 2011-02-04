@@ -178,6 +178,9 @@ void PassClerkRun(int index){
 			printf("PassClerk %d: Just woke up!\n",index);
 			int SSN = passClerkSSNs[index];
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
+				for (int i=0; i<10; i++){
+					printf("AppFiled: %d,    PicFiled: %d\n"),appFiled[SSN],picFiled[SSN]);
+				}
 				printf("PassClerk %d: Customer with SSN %d does not have both picture and application filed! *SPANK*\n", index, SSN);
 				passPunish[SSN] = TRUE;
 			}
