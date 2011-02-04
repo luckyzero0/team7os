@@ -31,8 +31,8 @@ extern int privPicLineLength;
 extern Lock* passLineLock;
 extern Condition* privPassLineCV;
 extern Condition* regPassLineCV;
-extern int privAppLineLength;
-extern int regAppLineLength;
+extern int privPassLineLength;
+extern int regPassLineLength;
 
 // Total Number of Things in The Office
 extern int totalCustomersInOffice;
