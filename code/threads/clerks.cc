@@ -54,7 +54,7 @@ void AppClerkRun(int index){
 				appClerkStatuses[index] = CLERK_ON_BREAK;
 			}
 		}
-		//	
+			
 
 		currentThread->Yield();
 	}
@@ -62,6 +62,9 @@ void AppClerkRun(int index){
 
 
 }
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void PicClerkRun(int index){
 
@@ -134,9 +137,12 @@ void PicClerkRun(int index){
 	}
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 void PassClerkRun(int index){
 	while (true){
-		//  printf("PassClerk %d: has acquired the passPicLineLock\n", index);
+		//  printf("PassClerk %d: has acquired the passLineLock\n", index);
 		passLineLock->Acquire();
 
 		//Checking if anyone is in line
@@ -193,7 +199,7 @@ void PassClerkRun(int index){
 				passClerkStatuses[index] = CLERK_ON_BREAK;
 			}
 		}
-		//	
+			
 
 		currentThread->Yield();
 	}
