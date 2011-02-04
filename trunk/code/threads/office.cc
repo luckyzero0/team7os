@@ -25,7 +25,7 @@ Lock* picClerkLocks[MAX_PIC_CLERKS];
 Condition* appClerkCVs[MAX_APP_CLERKS];
 Condition* picClerkCVs[MAX_PIC_CLERKS];
 int appClerkData[MAX_APP_CLERKS];
-int picClerkData[MAX_PIC_CLERKS];
+bool picClerkData[MAX_PIC_CLERKS];
 
 extern void CustomerRun(int);
 extern void AppClerkRun(int);
@@ -106,6 +106,7 @@ void initializeArrays(int numAppClerks, int numPicClerks) {
       picClerkLocks[i] = NULL;
       picClerkCVs[i] = NULL;
     }
+	picClerkData[i] = FALSE;
     
   }
 }

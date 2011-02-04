@@ -5,6 +5,8 @@
 
 #define MAX_APP_CLERKS (10)
 #define MAX_PIC_CLERKS (10)
+#define TRUE (1)
+#define FALSE (0)
 
 enum ClerkStatus {CLERK_BUSY, CLERK_AVAILABLE, CLERK_ON_BREAK, CLERK_INVALID};
 enum ClerkType {APPLICATION, PICTURE, PASSPORT, CASHIER};
@@ -34,6 +36,7 @@ extern Lock* picClerkLocks[];
 extern Condition* appClerkCVs[];
 extern Condition* picClerkCVs[];
 extern int appClerkData[];
+extern int picClerkData[];
 
 extern void Office();
 
