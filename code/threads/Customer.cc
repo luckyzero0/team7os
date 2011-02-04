@@ -188,6 +188,7 @@ void doPassPortClerk(int *index, int* cashDollars){
 	printf("Customer[%d]: Going to the PassportClerk\n",*index);
 		while(true)
 		{		
+			printf("Customer[%d]: Acquiring PassLineLock...\n",*index);		
 			passLineLock->Acquire();
 			printf("Customer[%d]: What line should I choose for the PassportClerk?\n",*index);
 			//check for senator
@@ -230,19 +231,19 @@ void doPassPortClerk(int *index, int* cashDollars){
 			passClerkCVs[myClerk]->Signal(passClerkLocks[myClerk]);
 			passClerkCVs[myClerk]->Wait(passClerkLocks[myClerk]);
 			//get passport from clerk, if not ready, go to the back of the line?
-			if(passPunish[myClerk])
+			if(!passPunish[myClerk])
 			{
-				printf("Customer[%d]: NOT READY!? Going back to the end of the line...\n",*index);	
-				for(int x = 0; x < rand()%800+200; x++)
-					currentThread->Yield();						
-				continue;
+				printf("Customer[%d]: Passport. GET!.\n", *index);			
+				
+				printf("Customer[%d]: Done and done.\n",*index);
+				passClerkLocks[myClerk]->Release();
+				printf("Customer[%d]: Going to next clerk...\n",*index);
+				break;				
 			}
-			printf("Customer[%d]: Passport. GET!.\n", *index);			
-			//more shit			
-			printf("Customer[%d]: Done and done.\n",*index);
 			passClerkLocks[myClerk]->Release();
-			printf("Customer[%d]: Going to next clerk...\n",*index);
-			break;
+			printf("Customer[%d]: NOT READY!? Going back to the end of the line...\n",*index);					
+			for(int x = 0; x < rand()%800+200; x++)
+				currentThread->Yield();															
 		}
 	
 }
