@@ -13,6 +13,11 @@ int privAppLineLength = 0;
 int regPicLineLength = 0;
 int privPicLineLength = 0;
 
+Lock* passLineLock = new Lock("passLineLock");
+Condition* regPassLineCV = new Condition("regPassLineCV");
+Condition* privPassLineCV = new Condition("privPassLineCV");
+int regPassLineLength = 0;
+int privPassLineLength = 0;
 
 // Total Number of Things in The Office
 int totalCustomersInOffice = 0;
@@ -24,24 +29,37 @@ Lock* appClerkLocks[MAX_APP_CLERKS];
 Lock* picClerkLocks[MAX_PIC_CLERKS];
 Condition* appClerkCVs[MAX_APP_CLERKS];
 Condition* picClerkCVs[MAX_PIC_CLERKS];
-int appClerkData[MAX_APP_CLERKS];
-int picClerkData[MAX_PIC_CLERKS];
+int appClerkSSNs[MAX_APP_CLERKS];
+int picClerkSSNs[MAX_PIC_CLERKS];
+int picClerkHappyWithPhoto[MAX_PIC_CLERKS];
+
+ClerkStatus passClerkStatuses[MAX_PASS_CLERKS];
+Lock* passClerkLocks[MAX_PASS_CLERKS];
+Condition* passClerkCVs[MAX_PASS_CLERKS];
+int passClerkSSNs[MAX_PASS_CLERKS];
+int passPunish[MAX_PASS_CLERKS];
+
+int appFiled[MAX_CUSTOMERS];
+int picFiled[MAX_CUSTOMERS];
+int passFiled[MAX_CUSTOMERS];
 
 extern void CustomerRun(int);
 extern void AppClerkRun(int);
 extern void PicClerkRun(int);
+extern void PassClerkRun(int);
 
-void initializeArrays(int, int);
+void initializeClerkArrays(int, int, int);
+void initializeCustomerArrays();
 
 void Office() {
   
   int numAppClerks = 3; // WE WANT TO GET THESE FROM USER INPUT AND VALIDATE
   int numPicClerks = 3; //
-  int numCustomers = 1;
-  srand(time(NULL));
+  int numPassClerks = 3;
+  int numCustomers = 6;
   
-  initializeArrays(numAppClerks, numPicClerks);
-
+  initializeClerkArrays(numAppClerks, numPicClerks, numPassClerks);
+  initializeCustomerArrays();
   // Fork the application clerks
   
   for (int i = 0; i < numAppClerks; i++) {
@@ -61,6 +79,14 @@ void Office() {
     printf("Forked %s\n", name);
   }
 
+  for (int i = 0; i < numPassClerks; i++) {
+    char* name = new char[20];
+    snprintf(name, 20, "PassClerk%d", i);
+    Thread* t = new Thread(name);
+    t->Fork((VoidFunctionPtr)PassClerkRun, i);
+    printf("Forked %s\n", name);
+  }
+
   // Fork the customers
   for (int i = 0; i < numCustomers; i++) {
     char* name = new char[20];
@@ -71,7 +97,7 @@ void Office() {
   }
 }
 
-void initializeArrays(int numAppClerks, int numPicClerks) {
+void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks) {
 
   for (int i = 0; i < MAX_APP_CLERKS; i++) {
     if (i < numAppClerks) {
@@ -88,7 +114,7 @@ void initializeArrays(int numAppClerks, int numPicClerks) {
       appClerkLocks[i] = NULL;
       appClerkCVs[i] = NULL;
     }
-    appClerkData[i] = 0;
+    appClerkSSNs[i] = -1;
   }
   
   for (int i = 0; i < MAX_PIC_CLERKS; i++) {
@@ -106,7 +132,35 @@ void initializeArrays(int numAppClerks, int numPicClerks) {
       picClerkLocks[i] = NULL;
       picClerkCVs[i] = NULL;
     }
-	picClerkData[i] = FALSE;
+    picClerkSSNs[i] = -1;
+    picClerkHappyWithPic[i] = FALSE;
     
+  }
+
+  for (int i = 0; i < MAX_PASS_CLERKS; i++) {
+    if (i < numPassClerks) {
+      passClerkStatuses[i] = CLERK_AVAILABLE;
+      char* name = new char[20];
+      snprintf(name, 20, "PassClerkLock%d", i);
+      picClerkLocks[i] = new Lock(name);
+      name = new char[20];
+      snprintf(name, 20, "PassClerkCV%d", i);
+      picClerkCVs[i] = new Condition(name);
+    }
+    else {
+      passClerkStatuses[i] = CLERK_INVALID;
+      passClerkLocks[i] = NULL;
+      passClerkCVs[i] = NULL;
+    }
+    passClerkSSNs[i] = -1;
+    passPunish[i] = TRUE;
+  }
+}
+
+void initializeCustomerArrays() {
+  for (int i = 0; i < MAX_CUSTOMERS; i++) {
+    appFiled[i] = FALSE;
+    picFiled[i] = FALSE;
+    passFiled[i] = FALSE;
   }
 }

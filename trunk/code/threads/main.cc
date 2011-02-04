@@ -89,8 +89,8 @@ main(int argc, char **argv)
     (void) Initialize(argc, argv);
     
 #ifdef THREADS
-    ThreadTest();
-    TestSuite();
+    //   ThreadTest();
+    // TestSuite();
     Office();
 #endif
 
