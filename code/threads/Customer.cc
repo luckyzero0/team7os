@@ -156,12 +156,15 @@ void doPicClerk(int* index, int* cashDollars)
 			picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);				
 			printf("Customer[%d]: Interacting with Pic Clerk\n",*index);
 			//interact with clerk
+				
 			
 			while(happyWithPhoto[myClerk] == FALSE)
 			{
-				printf("Customer[%d]: Getting my picture taken...\n",*index);					
+
+				printf("Customer[%d]: Getting my picture taken...\n",*index);
 				picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);
-				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);				
+				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);		
+						
 				//did I like my picture?
 				if(rand()%10 > 5)
 				{
@@ -172,9 +175,10 @@ void doPicClerk(int* index, int* cashDollars)
 				{
 					printf("Customer[%d]: This picture sucks! Take it again!\n",*index);
 				}						
-				picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);
-				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);								
+						
 			}
+
+			happyWithPhoto[myClerk] = FALSE;
 			
 			printf("Customer[%d]: Picture taken. Like a boss.\n",*index);
 			picClerkLocks[myClerk]->Release();			
