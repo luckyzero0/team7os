@@ -223,14 +223,14 @@ void PassClerkRun(int index){
 			int SSN = passClerkSSNs[index];
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
-					printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
+					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n",appFiled[i],picFiled[i], passFiled[i]);
 				}
 				printf("PassClerk %d: Customer with SSN %d does not have both picture and application filed! *SPANK*\n", index, SSN);
-				passPunish[SSN] = TRUE;
+				passPunish[index] = TRUE;
 			}
 			else{
 				printf("PassClerk %d: Customer with SSN %d has everything filed correctly!\n",index, SSN);
-				passPunish[SSN] = FALSE;
+				passPunish[index] = FALSE;
 				passFiled[SSN] = TRUE; //**********THIS SHOULD BE FORKED IN THE FUTURE*****************
 
 				//DEBUG
