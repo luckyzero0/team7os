@@ -43,7 +43,7 @@ void AppClerkRun(int index){
 			printf("AppClerk %d: Signaling my appClerkCV\n", index);
 			appClerkCVs[index]->Signal(appClerkLocks[index]);
 			printf("AppClerk %d: Releasing my own lock\n", index);
-			appClerkLocks[index]->Release();
+			
 		}
 		else{ //No one in line
 
@@ -106,21 +106,24 @@ void PicClerkRun(int index){
 				picClerkCVs[index]->Signal(picClerkLocks[index]);
 				printf("PicClerk %d: Going to sleep...\n",index);
 				picClerkCVs[index]->Wait(picClerkLocks[index]);
-
-
-					if(happyWithPhoto[index] == TRUE)
+				
+					if(happyWithPhoto[index] == TRUE){
+						int SSN = picClerkSSNs[index];
+						picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
 						printf("PicClerk %d: Just woke up, Customer liked their picture!\n",index);
-					else
+					}
+					else{
 						printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
+					}
 
 				count++;
 
 			}while(happyWithPhoto[index] == FALSE);
-			int SSN = picClerkSSNs[index];
-			picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
+			
 			picClerkCVs[index]->Signal(picClerkLocks[index]);
 			printf("PicClerk %d: Releasing my own lock\n", index);
 			picClerkLocks[index]->Release();
+			
 		}
 
 		else{ //No one in line
@@ -189,6 +192,7 @@ void PassClerkRun(int index){
 			passClerkCVs[index]->Signal(passClerkLocks[index]);
 			printf("PassClerk %d: Releasing my own lock\n", index);
 			passClerkLocks[index]->Release();
+			
 		}
 		else{ //No one in line
 
