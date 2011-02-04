@@ -112,9 +112,9 @@ void PicClerkRun(int index){
 				printf("AppClerk %d: Going on Break!\n", index);
 				appClerkStatuses[index] = CLERK_ON_BREAK;
 			}
+		
 		}
 
-		appPicLineLock->Release();
 		currentThread->Yield();
 	}
 }
