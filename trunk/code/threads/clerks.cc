@@ -109,9 +109,13 @@ void PicClerkRun(int index){
 
 				if(happyWithPhoto[index] == TRUE){
 					int SSN = picClerkSSNs[index];
+					if (SSN >= 6) { // HACK, REMOVE LATER
+					  printf("SSN >= 6!  Cannot BE SO! FAIL!");
+					  exit(0);
+					}
 					picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
 					for (int i=0; i<10; i++){
-						printf("AppFiled: %d,    PicFiled: %d\n",appFiled[SSN],picFiled[SSN]);
+						printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
 					}
 					printf("PicClerk %d: Just woke up, Customer with SSN %d liked their picture!\n",index, SSN);
 				}
@@ -182,7 +186,7 @@ void PassClerkRun(int index){
 			int SSN = passClerkSSNs[index];
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
-					printf("AppFiled: %d,    PicFiled: %d\n",appFiled[SSN],picFiled[SSN]);
+					printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
 				}
 				printf("PassClerk %d: Customer with SSN %d does not have both picture and application filed! *SPANK*\n", index, SSN);
 				passPunish[SSN] = TRUE;
