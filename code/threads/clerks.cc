@@ -39,6 +39,7 @@ void AppClerkRun(int index){
 			printf("AppClerk %d: Just woke up!\n",index);
 			int SSN = appClerkSSNs[index];
 			printf("AppClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
+			appFiled[SSN] = TRUE; //***********NEEDS TO BE FORKED IN THE FUTURE***********************
 			printf("AppClerk %d: Signaling my appClerkCV\n", index);
 			appClerkCVs[index]->Signal(appClerkLocks[index]);
 			printf("AppClerk %d: Releasing my own lock\n", index);
@@ -101,19 +102,19 @@ void PicClerkRun(int index){
 				printf("PicClerk %d: Taking picture of customer for the %dst/nd/rd/th time (Signalling my CV)!\n",index, count);
 				picClerkCVs[index]->Signal(picClerkLocks[index]);
 				printf("PicClerk %d: Going to sleep...\n",index);
-				picClerkCVs[index]->Wait(picClerkLocks[index]);
+				picClerkCVs[index]->Wait(picClerkLocks[index]);e
 
 
-				if(picClerkHappyWithPhoto[index] == TRUE)
-					printf("PicClerk %d: Just woke up, Customer liked their picture!\n",index);
-				else
-					printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
+					if(happyWithPic[index] == TRUE)
+						printf("PicClerk %d: Just woke up, Customer liked their picture!\n",index);
+					else
+						printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
 
 				count++;
-				
-			}while(picClerkHappyWithPhoto[index] == FALSE);
 
-			printf("PicClerk %d: Signaling my picClerkCV\n", index);
+			}while(happyWithPic[index] == FALSE);
+			int SSN = picClerkSSNs[index];
+			picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
 			picClerkCVs[index]->Signal(picClerkLocks[index]);
 			printf("PicClerk %d: Releasing my own lock\n", index);
 			picClerkLocks[index]->Release();
@@ -166,8 +167,18 @@ void PassClerkRun(int index){
 			printf("PassClerk %d: Putting myself to sleep...\n",index);
 			passClerkCVs[index]->Wait(passClerkLocks[index]);
 			printf("PassClerk %d: Just woke up!\n",index);
-			int SSN = passClerkData[index];
-			printf("PassClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
+			int SSN = passClerkSSNs[index];
+			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
+				printf("PassClerk %d: Customer with SSN %d does not have both picture and application filed! *SPANK*\n", index, SSN);
+				passPunish[SSN] = TRUE;
+			}
+			else{
+				printf("PassClerk %d: Customer with SSN %d has everything filed correctly!\n",index, SSN);
+				passPunish[SSN] = FALSE;
+				passFiled[SSN] = TRUE; //**********THIS SHOULD BE FORKED IN THE FUTURE*****************
+			}
+
+			//printf("PassClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
 			printf("PassClerk %d: Signaling my passClerkCV\n", index);
 			passClerkCVs[index]->Signal(passClerkLocks[index]);
 			printf("PassClerk %d: Releasing my own lock\n", index);
