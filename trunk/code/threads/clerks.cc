@@ -123,7 +123,7 @@ void PicClerkRun(int index){
 					printf("PicClerk %d: Just woke up, Customer with SSN %d liked their picture!\n",index, SSN);
 				}
 				else{
-					printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
+					printf("PicClerk %d: Just woke up, Customer did not like their picture.\n",index);
 				}
 
 				count++;
