@@ -65,7 +65,7 @@ void PicClerkRun(int index){
 		appPicLineLock->Acquire();
 
 		//Checking if anyone is line
-		if(privPicLineLength+regPicLine>0){
+		if(privPicLineLength+regPicLineLength>0){
 
 			if (privPicLineLength>0){	//Checking if anyone is in priv line
 				printf("PicClerk %d: has spotted customer in privPicLine(length = %d)\n",index,privPicLineLength);
