@@ -142,10 +142,10 @@ void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks
       passClerkStatuses[i] = CLERK_AVAILABLE;
       char* name = new char[20];
       snprintf(name, 20, "PassClerkLock%d", i);
-      picClerkLocks[i] = new Lock(name);
+      passClerkLocks[i] = new Lock(name);
       name = new char[20];
       snprintf(name, 20, "PassClerkCV%d", i);
-      picClerkCVs[i] = new Condition(name);
+      passClerkCVs[i] = new Condition(name);
     }
     else {
       passClerkStatuses[i] = CLERK_INVALID;
