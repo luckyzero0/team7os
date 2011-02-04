@@ -40,6 +40,9 @@ void AppClerkRun(int index){
 			int SSN = appClerkSSNs[index];
 			printf("AppClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
 			appFiled[SSN] = TRUE; //***********NEEDS TO BE FORKED IN THE FUTURE***********************
+			for (int i=0; i<10; i++){
+			  printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
+			}
 			printf("AppClerk %d: Signaling my appClerkCV\n", index);
 			appClerkCVs[index]->Signal(appClerkLocks[index]);
 			printf("AppClerk %d: Releasing my own lock\n", index);
