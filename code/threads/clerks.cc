@@ -43,7 +43,7 @@ void AppClerkRun(int index){
 			printf("AppClerk %d: Signaling my appClerkCV\n", index);
 			appClerkCVs[index]->Signal(appClerkLocks[index]);
 			printf("AppClerk %d: Releasing my own lock\n", index);
-			
+
 		}
 		else{ //No one in line
 
@@ -54,7 +54,7 @@ void AppClerkRun(int index){
 				appClerkStatuses[index] = CLERK_ON_BREAK;
 			}
 		}
-			
+
 
 		currentThread->Yield();
 	}
@@ -106,24 +106,27 @@ void PicClerkRun(int index){
 				picClerkCVs[index]->Signal(picClerkLocks[index]);
 				printf("PicClerk %d: Going to sleep...\n",index);
 				picClerkCVs[index]->Wait(picClerkLocks[index]);
-				
-					if(happyWithPhoto[index] == TRUE){
-						int SSN = picClerkSSNs[index];
-						picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
-						printf("PicClerk %d: Just woke up, Customer with SSN %d liked their picture!\n",index, SSN);
+
+				if(happyWithPhoto[index] == TRUE){
+					int SSN = picClerkSSNs[index];
+					picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
+					for (int i=0; i<10; i++){
+						printf("AppFiled: %d,    PicFiled: %d\n",appFiled[SSN],picFiled[SSN]);
 					}
-					else{
-						printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
-					}
+					printf("PicClerk %d: Just woke up, Customer with SSN %d liked their picture!\n",index, SSN);
+				}
+				else{
+					printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
+				}
 
 				count++;
 
 			}while(happyWithPhoto[index] == FALSE);
-			
+
 			picClerkCVs[index]->Signal(picClerkLocks[index]);
 			printf("PicClerk %d: Releasing my own lock\n", index);
 			picClerkLocks[index]->Release();
-			
+
 		}
 
 		else{ //No one in line
@@ -195,7 +198,7 @@ void PassClerkRun(int index){
 			passClerkCVs[index]->Signal(passClerkLocks[index]);
 			printf("PassClerk %d: Releasing my own lock\n", index);
 			passClerkLocks[index]->Release();
-			
+
 		}
 		else{ //No one in line
 
@@ -206,7 +209,7 @@ void PassClerkRun(int index){
 				passClerkStatuses[index] = CLERK_ON_BREAK;
 			}
 		}
-			
+
 
 		currentThread->Yield();
 	}
