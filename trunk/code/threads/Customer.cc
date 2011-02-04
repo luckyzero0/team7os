@@ -16,9 +16,7 @@ void CustomerRun(int index) {
 	int cashDollars = ((rand() % 4) * 500) + 100;	
 	int clerkStatus;
 		
-	printf("Customer[%d]: With $%d in my pocket\n",index,cashDollars);
-	//acquire ACPCLock
-	appPicLineLock->Acquire();	
+	printf("Customer[%d]: With $%d in my pocket\n",index,cashDollars);	
 	totalCustomersInOffice++;
 	
 	//choose line		
@@ -27,14 +25,14 @@ void CustomerRun(int index) {
 	{
 		if(privAppLineLength<=privPicLineLength)
 		{
-			printf("Customer[%d]: Going to AppClerk first.\n",index);
-			doAppClerk(&index, &cashDollars);
+			printf("Customer[%d]: Going to AppClerk first.\n",index);			
+			doAppClerk(&index, &cashDollars);			
 			doPicClerk(&index, &cashDollars);
 		}
 		else
 		{
-			printf("Customer[%d]: Going to PicClerk first.\n",index);
-			doPicClerk(&index, &cashDollars);
+			printf("Customer[%d]: Going to PicClerk first.\n",index);			
+			doPicClerk(&index, &cashDollars);			
 			doAppClerk(&index, &cashDollars);			
 		}	
 	}
@@ -60,8 +58,10 @@ void CustomerRun(int index) {
 
 void doAppClerk(int* index, int* cashDollars)
 {
+	
 	int myClerk = -1;
 	printf("Customer[%d]: Going to the AppClerk\n",*index);
+	appPicLineLock->Acquire();	
 		while(true)
 		{		
 			printf("Customer[%d]: What line should I choose for the AppClerk?\n",*index);
@@ -116,6 +116,7 @@ void doPicClerk(int* index, int* cashDollars)
 {
 	int myClerk;
 	printf("Customer[%d]: Going to the PicClerk\n",*index);
+	appPicLineLock->Acquire();	
 		while(true)
 		{		
 			printf("Customer[%d]: What line should I choose for the PicClerk?\n",*index);
