@@ -182,13 +182,13 @@ void doPicClerk(int* index, int* cashDollars)
 		}
 }
 
-void doPassPortClerk(int *index, int* cashDollars){
-	passLineLock->Acquire();
+void doPassPortClerk(int *index, int* cashDollars){	
 	int myClerk = -1;
 	bool privLined = false;
 	printf("Customer[%d]: Going to the PassportClerk\n",*index);
 		while(true)
 		{		
+			passLineLock->Acquire();
 			printf("Customer[%d]: What line should I choose for the PassportClerk?\n",*index);
 			//check for senator
 			if(*cashDollars > 100 || privLined) //get in a privledged line
