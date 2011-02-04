@@ -138,7 +138,8 @@ void doPicClerk(int* index, int* cashDollars)
 			}				
 			printf("Customer[%d]: Finding available PicClerk...\n",*index);
 			for(int x = 0; x < MAX_PIC_CLERKS; x++)
-			{
+			{					
+				
 				if(picClerkStatuses[x] == CLERK_AVAILABLE)
 				{
 					myClerk = x;					
@@ -152,8 +153,7 @@ void doPicClerk(int* index, int* cashDollars)
 			appPicLineLock->Release();		
 			picClerkLocks[myClerk]->Acquire();		
 			picClerkSSNs[myClerk] = *index;		
-			picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);	
-			picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);				
+			
 			printf("Customer[%d]: Interacting with Pic Clerk\n",*index);
 			//interact with clerk
 				
@@ -174,7 +174,10 @@ void doPicClerk(int* index, int* cashDollars)
 				else
 				{
 					printf("Customer[%d]: This picture sucks! Take it again!\n",*index);
-				}						
+				}		
+				
+				picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);	
+				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);						
 						
 			}
 
