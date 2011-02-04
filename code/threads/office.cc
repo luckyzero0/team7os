@@ -87,6 +87,9 @@ void Office() {
     printf("Forked %s\n", name);
   }
 
+  for (int i=0; i<10; i++){
+    printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);   
+  }
   // Fork the customers
   for (int i = 0; i < numCustomers; i++) {
     char* name = new char[20];
