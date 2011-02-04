@@ -112,7 +112,7 @@ void PicClerkRun(int index){
 		else{ //No one in line
 			appPicLineLock->Release();
 
-			if(appClerkStatuses[index]!=CLERK_ON_BREAK){
+			if(picClerkStatuses[index]!=CLERK_ON_BREAK){
 				printf("PicClerk %d: Going on Break!\n", index);
 				picClerkStatuses[index] = CLERK_ON_BREAK;
 			}
