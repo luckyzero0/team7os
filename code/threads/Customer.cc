@@ -1,5 +1,6 @@
 //Customer.cc
 #include "office.h"
+#include "system.h"
 #include <iostream>
 
 using namespace std;
@@ -231,7 +232,9 @@ void doPassPortClerk(int *index, int* cashDollars){
 			//get passport from clerk, if not ready, go to the back of the line?
 			if(passPunish[myClerk])
 			{
-				printf("Customer[%d]: NOT READY!? Going back to the end of the line...\n",*index);				
+				printf("Customer[%d]: NOT READY!? Going back to the end of the line...\n",*index);	
+				for(int x = 0; x < rand()%800+200; x++)
+					currentThread->Yield();						
 				continue;
 			}
 			printf("Customer[%d]: Passport. GET!.\n", *index);			
