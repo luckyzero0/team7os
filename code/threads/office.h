@@ -46,7 +46,7 @@ extern Condition* appClerkCVs[];
 extern Condition* picClerkCVs[];
 extern int appClerkSSNs[];
 extern int picClerkSSNs[];
-extern int picClerkHappyWithPhoto[];
+extern int happyWithPhoto[];
 
 extern ClerkStatus passClerkStatuses[];
 extern Lock* passClerkLocks[];
