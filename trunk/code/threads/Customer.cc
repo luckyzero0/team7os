@@ -56,7 +56,7 @@ void CustomerRun(int index) {
 
 void doAppClerk(int* index, int* cashDollars)
 {
-	int myClerk = 9001;
+	int myClerk = -1;
 	printf("Customer[%d]: Going to the AppClerk\n",*index);
 		while(true)
 		{		
@@ -136,11 +136,13 @@ void doPicClerk(int* index, int* cashDollars)
 			{
 				if(picClerkStatuses[x] == CLERK_AVAILABLE)
 				{
-					myClerk = x;
-					picClerkStatuses[myClerk] = CLERK_BUSY;
-					printf("Customer[%d]: Going to chill with Pic Clerk #%d\n",*index,myClerk);
+					myClerk = x;					
+					printf("Customer[%d]: Going to chill with PicClerk[%d]\n",*index,myClerk);					
+					appClerkStatuses[myClerk] = CLERK_BUSY;					
 					break;				
 				}
+				else
+					printf("Customer[%d]: PicClerk[%d] is unavailable\n",*index,x);
 			}
 			appPicLineLock->Release();		
 			picClerkLocks[myClerk]->Acquire();		
@@ -149,9 +151,9 @@ void doPicClerk(int* index, int* cashDollars)
 			
 			while(picClerkData[myClerk] == FALSE)
 			{
-				printf("Customer[%d]: Getting my picture taken...\n",*index);
+				printf("Customer[%d]: Getting my picture taken...\n",*index);				
 				picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);
-				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);
+				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);				
 				//did I like my picture?
 				if(true)
 				{
@@ -162,6 +164,8 @@ void doPicClerk(int* index, int* cashDollars)
 				{
 					printf("Customer[%d]: This picture sucks! Take it again!\n",*index);
 				}						
+				picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);
+				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);								
 			}
 			
 			printf("Customer[%d]: Picture taken. Like a boss.\n",*index);
