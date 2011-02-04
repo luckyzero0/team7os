@@ -95,7 +95,6 @@ void PicClerkRun(int index){
 					printf("PicClerk %d: Just woke up, Customer liked their picture!\n",index);
 				else{
 					printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
-					getch();
 					currentThread->Yield();
 				}
 			}while(picClerkData[index] == FALSE);
