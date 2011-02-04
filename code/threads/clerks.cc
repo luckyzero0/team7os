@@ -93,8 +93,10 @@ void PicClerkRun(int index){
 				picClerkCVs[index]->Wait(picClerkLocks[index]);
 				if(picClerkData[index] == TRUE)
 					printf("PicClerk %d: Just woke up, Customer liked their picture!\n",index);
-				else
+				else{
 					printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
+					currentThread->Yield();
+				}
 			}while(picClerkData[index] == FALSE);
 
 			printf("PicClerk %d: Signaling my picClerkCV\n", index);
