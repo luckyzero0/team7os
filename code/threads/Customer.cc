@@ -5,7 +5,7 @@
 using namespace std;
 void doAppClerk(int* index, int* cashDollars);
 void doPicClerk(int* index, int* cashDollars);
-void doPPClerk(int* index, int* cashDollars);
+void doPassPortClerk(int* index, int* cashDollars);
 void doCashierClerk(int* index, int* cashDollars);
 void CustomerRun(int index) {	
 	
@@ -52,6 +52,9 @@ void CustomerRun(int index) {
 			doAppClerk(&index, &cashDollars);			
 		}	
 	}		
+	
+	//hit up the passport clerk
+	doPassPortClerk(&index, &cashDollars);
 }
 
 void doAppClerk(int* index, int* cashDollars)
@@ -95,7 +98,7 @@ void doAppClerk(int* index, int* cashDollars)
 			appClerkLocks[myClerk]->Acquire();
 			printf("Customer[%d]: Interacting with AppClerk[%d]\n",*index,myClerk);
 			//interact with clerk
-			appClerkData[myClerk] = *index; //could also just use the adr for a more ssn-like number
+			appClerkSSNs[myClerk] = *index; //could also just use the adr for a more ssn-like number
 			printf("Customer[%d]: Application handed in like a boss.\n", *index);			
 			appClerkCVs[myClerk]->Signal(appClerkLocks[myClerk]);
 			appClerkCVs[myClerk]->Wait(appClerkLocks[myClerk]);
@@ -132,13 +135,13 @@ void doPicClerk(int* index, int* cashDollars)
 				regPicLineCV->Wait(appPicLineLock);			
 			}				
 			printf("Customer[%d]: Finding available PicClerk...\n",*index);
-			for(int x = 0; x < MAX_APP_CLERKS; x++)
+			for(int x = 0; x < MAX_PIC_CLERKS; x++)
 			{
 				if(picClerkStatuses[x] == CLERK_AVAILABLE)
 				{
 					myClerk = x;					
 					printf("Customer[%d]: Going to chill with PicClerk[%d]\n",*index,myClerk);					
-					appClerkStatuses[myClerk] = CLERK_BUSY;					
+					picClerkStatuses[myClerk] = CLERK_BUSY;					
 					break;				
 				}
 				else
@@ -149,15 +152,15 @@ void doPicClerk(int* index, int* cashDollars)
 			printf("Customer[%d]: Interacting with Pic Clerk\n",*index);
 			//interact with clerk
 			
-			while(picClerkData[myClerk] == FALSE)
+			while(happyWithPhoto[myClerk] == FALSE)
 			{
 				printf("Customer[%d]: Getting my picture taken...\n",*index);				
 				picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);
 				picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);				
 				//did I like my picture?
-				if(true)
+				if(rand()%10 > 5)
 				{
-					picClerkData[myClerk] = TRUE;
+					happyWithPhoto[myClerk] = TRUE;
 					printf("Customer[%d]: This picture is awesome!\n", *index);
 				}
 				else
@@ -176,3 +179,64 @@ void doPicClerk(int* index, int* cashDollars)
 		}
 }
 
+void doPassPortClerk(int *index, int* cashDollars){
+	passLineLock->Acquire();
+	int myClerk = -1;
+	bool privLined = false;
+	printf("Customer[%d]: Going to the PassportClerk\n",*index);
+		while(true)
+		{		
+			printf("Customer[%d]: What line should I choose for the PassportClerk?\n",*index);
+			//check for senator
+			if(*cashDollars > 100 || privLined) //get in a privledged line
+			{	
+				if(!privLined)
+					*cashDollars -= 500;					
+				privLined = true;				
+				printf("Customer[%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
+				privPassLineLength++;
+				printf("Customer[%d]: Waiting in the Priveledged Line for next available PassportClerk\n",*index);
+				privPassLineCV->Wait(passLineLock);			
+			}
+			else //get in a normal line
+			{
+				printf("Customer[%d]: Regular line, suckas. CashDollars = $%d\n",*index,*cashDollars);
+				regPassLineLength++;
+				printf("Customer[%d]: Waiting in the Regular Line for next available PassportClerk\n",*index);
+				regPassLineCV->Wait(passLineLock);			
+			}				
+			printf("Customer[%d]: Finding available PassClerk...\n",*index);
+			for(int x = 0; x < MAX_PASS_CLERKS; x++)
+			{				
+				if(passClerkStatuses[x] == CLERK_AVAILABLE)
+				{
+					myClerk = x;					
+					printf("Customer[%d]: Going to chill with PassClerk[%d]\n",*index,myClerk);					
+					passClerkStatuses[myClerk] = CLERK_BUSY;					
+					break;				
+				}
+				else
+					printf("Customer[%d]: PassClerk[%d] is unavailable\n",*index,x);
+				
+			}			
+			passLineLock->Release();							
+			passClerkLocks[myClerk]->Acquire();
+			printf("Customer[%d]: Interacting with PassClerk[%d]\n",*index,myClerk);
+			//interact with clerk			
+			passClerkCVs[myClerk]->Signal(passClerkLocks[myClerk]);
+			passClerkCVs[myClerk]->Wait(passClerkLocks[myClerk]);
+			//get passport from clerk, if not ready, go to the back of the line?
+			if(passPunish[myClerk])
+			{
+				printf("Customer[%d]: NOT READY!? Going back to the end of the line...\n",*index);				
+				continue;
+			}
+			printf("Customer[%d]: Passport. GET!.\n", *index);			
+			//more shit			
+			printf("Customer[%d]: Done and done.\n",*index);
+			passClerkLocks[myClerk]->Release();
+			printf("Customer[%d]: Going to next clerk...\n",*index);
+			break;
+		}
+	
+}

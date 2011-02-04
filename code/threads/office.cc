@@ -31,7 +31,7 @@ Condition* appClerkCVs[MAX_APP_CLERKS];
 Condition* picClerkCVs[MAX_PIC_CLERKS];
 int appClerkSSNs[MAX_APP_CLERKS];
 int picClerkSSNs[MAX_PIC_CLERKS];
-int picClerkHappyWithPhoto[MAX_PIC_CLERKS];
+int happyWithPhoto[MAX_PIC_CLERKS];
 
 ClerkStatus passClerkStatuses[MAX_PASS_CLERKS];
 Lock* passClerkLocks[MAX_PASS_CLERKS];
@@ -133,7 +133,7 @@ void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks
       picClerkCVs[i] = NULL;
     }
     picClerkSSNs[i] = -1;
-    picClerkHappyWithPic[i] = FALSE;
+    happyWithPhoto[i] = FALSE;
     
   }
 
