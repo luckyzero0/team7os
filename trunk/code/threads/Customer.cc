@@ -131,7 +131,7 @@ void doPicClerk(int* index, int* cashDollars)
 			{
 				printf("Customer[%d]: Regular line, suckas. CashDollars = $%d\n",*index,*cashDollars);
 				regPicLineLength++;
-				printf("Customer[%d]: Waiting in the Priveledged Line for next available PicClerk\n",*index);
+				printf("Customer[%d]: Waiting in the Regluar Line for next available PicClerk\n",*index);
 				regPicLineCV->Wait(appPicLineLock);			
 			}				
 			printf("Customer[%d]: Finding available PicClerk...\n",*index);
