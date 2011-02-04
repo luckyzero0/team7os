@@ -131,6 +131,9 @@ void Lock::Acquire() {
 void Lock::Release() {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (this->owner != currentThread) {
+	  if (this->owner == NULL) {
+	    printf("Lock %s: has a NULL owner!\n", this->getName());
+	  }
 	  printf("Cannot release lock from a non-owning thread!\n");
 		interrupt->SetLevel(oldLevel);
 		return;
