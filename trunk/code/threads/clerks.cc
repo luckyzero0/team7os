@@ -37,7 +37,7 @@ void AppClerkRun(int index){
 			printf("AppClerk %d: Putting myself to sleep...\n",index);
 			appClerkCVs[index]->Wait(appClerkLocks[index]);
 			printf("AppClerk %d: Just woke up!\n",index);
-			int SSN = appClerkData[index];
+			int SSN = appClerkSSNs[index];
 			printf("AppClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
 			printf("AppClerk %d: Signaling my appClerkCV\n", index);
 			appClerkCVs[index]->Signal(appClerkLocks[index]);
@@ -104,14 +104,14 @@ void PicClerkRun(int index){
 				picClerkCVs[index]->Wait(picClerkLocks[index]);
 
 
-				if(picClerkData[index] == TRUE)
+				if(picClerkHappyWithPhoto[index] == TRUE)
 					printf("PicClerk %d: Just woke up, Customer liked their picture!\n",index);
 				else
 					printf("PicClerk %d: Just woke up, Customer did not like their picture. Taking picture again.\n",index);
 
 				count++;
 				
-			}while(picClerkData[index] == FALSE);
+			}while(picClerkHappyWithPhoto[index] == FALSE);
 
 			printf("PicClerk %d: Signaling my picClerkCV\n", index);
 			picClerkCVs[index]->Signal(picClerkLocks[index]);
@@ -131,4 +131,62 @@ void PicClerkRun(int index){
 
 		currentThread->Yield();
 	}
+}
+
+void PassClerkRun(int index){
+	while (true){
+		//  printf("PassClerk %d: has acquired the passPicLineLock\n", index);
+		passLineLock->Acquire();
+
+		//Checking if anyone is in line
+		if (privPassLineLength+regPassLineLength>0){
+
+			if (privPassLineLength>0){ //Checking if anyone is in priv line
+				printf("PassClerk %d: has spotted customer in privPassLine(length = %d)\n",index,privPassLineLength);
+				privPassLineLength--;
+				printf("PassClerk %d: Becoming Available!\n",index);
+				passClerkStatuses[index] = CLERK_AVAILABLE;
+				printf("PassClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privPassLineLength);
+				privPassLineCV->Signal(passLineLock);
+			}
+			else{ //Check if anyone is in reg line
+				printf("PassClerk %d: has spotted customer in regPassLine (length = %d)\n",index, regPassLineLength);
+				regPassLineLength--;
+				printf("PassClerk %d: Becoming Available!\n",index);
+				passClerkStatuses[index] = CLERK_AVAILABLE;
+				printf("PassClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regPassLineLength);
+				regPassLineCV->Signal(passLineLock);
+			}
+			//Customer - Clerk interaction
+
+			printf("PassClerk %d: Acquiring my own lock\n",index);
+			passClerkLocks[index]->Acquire();
+			printf("PassClerk %d: Releasing passLineLock\n",index);
+			passPicLineLock->Release();
+			printf("PassClerk %d: Putting myself to sleep...\n",index);
+			passClerkCVs[index]->Wait(passClerkLocks[index]);
+			printf("PassClerk %d: Just woke up!\n",index);
+			int SSN = passClerkData[index];
+			printf("PassClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
+			printf("PassClerk %d: Signaling my passClerkCV\n", index);
+			passClerkCVs[index]->Signal(passClerkLocks[index]);
+			printf("PassClerk %d: Releasing my own lock\n", index);
+			passClerkLocks[index]->Release();
+		}
+		else{ //No one in line
+
+			passLineLock->Release();
+
+			if(passClerkStatuses[index]!=CLERK_ON_BREAK){
+				printf("PassClerk %d: Going on Break!\n", index);
+				passClerkStatuses[index] = CLERK_ON_BREAK;
+			}
+		}
+		//	
+
+		currentThread->Yield();
+	}
+
+
+
 }
