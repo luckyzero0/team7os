@@ -250,8 +250,9 @@ void doPassPortClerk(int *index, int* cashDollars){
 				break;				
 			}
 			passClerkLocks[myClerk]->Release();
-			printf("Customer[%d]: NOT READY!? Going back to the end of the line...\n",*index);					
-			for(int x = 0; x < rand()%800+200; x++)
+			printf("Customer[%d]: NOT READY!? Going back to the end of the line...\n",*index);
+			int rand = rand()%80+20;					
+			for(int x = 0; x < rand; x++)
 				currentThread->Yield();															
 		}
 	
