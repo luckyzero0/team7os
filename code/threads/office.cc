@@ -54,6 +54,7 @@ int cashPunish[MAX_CASH_CLERKS];
 int appFiled[MAX_CUSTOMERS];
 int picFiled[MAX_CUSTOMERS];
 int passFiled[MAX_CUSTOMERS];
+int cashFiled[MAX_CUSTOMERS];
 
 extern void CustomerRun(int);
 extern void AppClerkRun(int);
@@ -203,5 +204,6 @@ void initializeCustomerArrays() {
     appFiled[i] = FALSE;
     picFiled[i] = FALSE;
     passFiled[i] = FALSE;
+    cashFiled[i] = FALSE;
   }
 }
