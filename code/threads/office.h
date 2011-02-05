@@ -38,7 +38,7 @@ extern Lock* cashLineLock;
 extern Condition* privCashLineCV;
 extern Condition* regCashLineCV;
 extern int privCashLineLength;
-extern int regPassLineLength;
+extern int regCashLineLength;
 
 // Total Number of Things in The Office
 extern int totalCustomersInOffice;
