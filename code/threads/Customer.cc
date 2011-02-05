@@ -304,8 +304,8 @@ void doCashierClerk(int* index, int* cashDollars)
 			cashClerkSSNs[myClerk] = *index;
 			printf("Customer[%d]: Interacting with CashClerk[%d]\n",*index,myClerk);			
 			//interact with clerk			
-			cashClerkCVs[myClerk]->Signal(passClerkLocks[myClerk]);
-			cashClerkCVs[myClerk]->Wait(passClerkLocks[myClerk]);
+			cashClerkCVs[myClerk]->Signal(cashClerkLocks[myClerk]);
+			cashClerkCVs[myClerk]->Wait(cashClerkLocks[myClerk]);
 			//pay for passport. If it's not processed, get back in line
 			if(!cashPunish[myClerk])
 			{
