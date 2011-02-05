@@ -257,3 +257,67 @@ void doPassPortClerk(int *index, int* cashDollars){
 		}
 	
 }
+
+
+void doCashierClerk(int* index, int* cashDollars)
+{
+	
+	int myClerk = -1;
+	printf("Customer[%d]: Going to the CashClerk\n",*index);
+	cashLineLock->Acquire();	
+		while(true)
+		{		
+			printf("Customer[%d]: What line should I choose for the CashClerk?\n",*index);
+			//check for senator
+			if(*cashDollars > 100) //get in a privledged line
+			{						
+				*cashDollars -= 500;
+				printf("Customer[%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
+				privCashLineLength++;
+				printf("Customer[%d]: Waiting in the Priveledged Line for next available CashClerk\n",*index);
+				privCashLineCV->Wait(cashLineLock);			
+			}
+			else //get in a normal line
+			{
+				printf("Customer[%d]: Regular line, suckas. CashDollars = $%d\n",*index,*cashDollars);
+				regCashLineLength++;
+				printf("Customer[%d]: Waiting in the Regular Line for next available CashClerk\n",*index);
+				regCashLineCV->Wait(cashLineLock);			
+			}				
+			printf("Customer[%d]: Finding available CashClerk...\n",*index);
+			for(int x = 0; x < MAX_CASH_CLERKS; x++)
+			{				
+				if(cashClerkStatuses[x] == CLERK_AVAILABLE)
+				{
+					myClerk = x;					
+					printf("Customer[%d]: Going to chill with CashClerk[%d]\n",*index,myClerk);					
+					cashClerkStatuses[myClerk] = CLERK_BUSY;					
+					break;				
+				}
+				else
+					printf("Customer[%d]: CashClerk[%d] is unavailable\n",*index,x);
+				
+			}			
+			cashLineLock->Release();							
+			cashClerkLocks[myClerk]->Acquire();
+			cashClerkSSNs[myClerk] = *index;
+			printf("Customer[%d]: Interacting with CashClerk[%d]\n",*index,myClerk);			
+			//interact with clerk			
+			cashClerkCVs[myClerk]->Signal(passClerkLocks[myClerk]);
+			cashClerkCVs[myClerk]->Wait(passClerkLocks[myClerk]);
+			//pay for passport. If it's not processed, get back in line
+			if(!cashPunish[myClerk])
+			{
+				cashDollars-=100;
+				printf("Customer[%d]: Passport paid for like a pro. CashDollars = [$%d]\n", *index, *cashDollars);											
+				cashClerkLocks[myClerk]->Release();
+				printf("Customer[%d]: GTFOing the office...\n",*index);
+				break;				
+			}
+			cashClerkLocks[myClerk]->Release();
+			printf("Customer[%d]: NOT READY!? Going back to the end of the line...\n",*index);
+			int rando = rand()%80+20;					
+			for(int x = 0; x < rando; x++)
+				currentThread->Yield();																				
+		}
+}
