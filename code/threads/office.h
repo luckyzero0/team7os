@@ -69,6 +69,7 @@ extern int cashPunish[];
 extern int appFiled[];
 extern int picFiled[];
 extern int passFiled[];
+extern int cashFiled[];
 
 extern void Office();
 
