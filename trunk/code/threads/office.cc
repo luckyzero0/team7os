@@ -19,6 +19,12 @@ Condition* privPassLineCV = new Condition("privPassLineCV");
 int regPassLineLength = 0;
 int privPassLineLength = 0;
 
+Lock* cashLineLock = new Lock("cashLineLock");
+Condition* regCashLineCV = new Condition("regCashLineCV");
+Condition* privCashLineCV = new Condition("privCashLineCV");
+int regCashLineLength = 0;
+int privCashLineLength = 0;
+
 // Total Number of Things in The Office
 int totalCustomersInOffice = 0;
 
@@ -39,6 +45,12 @@ Condition* passClerkCVs[MAX_PASS_CLERKS];
 int passClerkSSNs[MAX_PASS_CLERKS];
 int passPunish[MAX_PASS_CLERKS];
 
+ClerkStatus cashClerkStatuses[MAX_CASH_CLERKS];
+Lock* cashClerkLocks[MAX_CASH_CLERKS];
+Condition* cashClerkCVs[MAX_CASH_CLERKS];
+int cashClerkSSNs[MAX_CASH_CLERKS];
+int cashPunish[MAX_CASH_CLERKS];
+
 int appFiled[MAX_CUSTOMERS];
 int picFiled[MAX_CUSTOMERS];
 int passFiled[MAX_CUSTOMERS];
@@ -46,9 +58,10 @@ int passFiled[MAX_CUSTOMERS];
 extern void CustomerRun(int);
 extern void AppClerkRun(int);
 extern void PicClerkRun(int);
+extern void CashClerkRun(int);
 extern void PassClerkRun(int);
 
-void initializeClerkArrays(int, int, int);
+void initializeClerkArrays(int, int, int, int);
 void initializeCustomerArrays();
 
 void Office() {
@@ -56,9 +69,10 @@ void Office() {
   int numAppClerks = 3; // WE WANT TO GET THESE FROM USER INPUT AND VALIDATE
   int numPicClerks = 3; //
   int numPassClerks = 3;
+  int numCashClerks = 3;
   int numCustomers = 6;
   
-  initializeClerkArrays(numAppClerks, numPicClerks, numPassClerks);
+  initializeClerkArrays(numAppClerks, numPicClerks, numPassClerks, numCashClerks);
   initializeCustomerArrays();
   // Fork the application clerks
   
@@ -87,9 +101,14 @@ void Office() {
     printf("Forked %s\n", name);
   }
 
-  for (int i=0; i<10; i++){
-    printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);   
+  for (int i = 0; i < numCashClerks; i++) {
+    char* name = new char[20];
+    snprintf(name, 20, "CashClerk%d", i);
+    Thread* t = new Thread(name);
+    t->Fork((VoidFunctionPtr)CashClerkRun, i);
+    printf("Forked %s\n", name);
   }
+
   // Fork the customers
   for (int i = 0; i < numCustomers; i++) {
     char* name = new char[20];
@@ -100,7 +119,7 @@ void Office() {
   }
 }
 
-void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks) {
+void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks, int numCashClerks) {
 
   for (int i = 0; i < MAX_APP_CLERKS; i++) {
     if (i < numAppClerks) {
@@ -157,6 +176,25 @@ void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks
     }
     passClerkSSNs[i] = -1;
     passPunish[i] = TRUE;
+  }
+
+  for (int i = 0; i < MAX_CASH_CLERKS; i++) {
+    if (i < numCashClerks) {
+      cashClerkStatuses[i] = CLERK_AVAILABLE;
+      char* name = new char[20];
+      snprintf(name, 20, "CashClerkLock%d", i);
+      cashClerkLocks[i] = new Lock(name);
+      name = new char[20];
+      snprintf(name, 20, "CashClerkCV%d", i);
+      cashClerkCVs[i] = new Condition(name);
+    }
+    else {
+      cashClerkStatuses[i] = CLERK_INVALID;
+      cashClerkLocks[i] = NULL;
+      cashClerkCVs[i] = NULL;
+    }
+    cashClerkSSNs[i] = -1;
+    cashPunish[i] = TRUE;
   }
 }
 
