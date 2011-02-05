@@ -54,6 +54,8 @@ void CustomerRun(int index) {
 	
 	//hit up the passport clerk
 	doPassPortClerk(&index, &cashDollars);
+	
+	//proceed to cashier
 	doCashierClerk(&index, &cashDollars);
 }
 
@@ -309,7 +311,8 @@ void doCashierClerk(int* index, int* cashDollars)
 			//pay for passport. If it's not processed, get back in line
 			if(!cashPunish[myClerk])
 			{
-				cashDollars-=100;
+				
+				*cashDollars-=100;
 				printf("Customer[%d]: Passport paid for like a pro. CashDollars = [$%d]\n", *index, *cashDollars);											
 				cashClerkLocks[myClerk]->Release();
 				printf("Customer[%d]: GTFOing the office...\n",*index);
