@@ -1,0 +1,5 @@
+//manager.cc
+
+void ManagerRun(){
+
+}
