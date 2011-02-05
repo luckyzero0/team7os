@@ -7,7 +7,7 @@
 #define MAX_APP_CLERKS (10)
 #define MAX_PIC_CLERKS (10)
 #define MAX_PASS_CLERKS (10)
-#define MAX_CASHIER_CLERKS (10)
+#define MAX_CASH_CLERKS (10)
 #define MAX_CUSTOMERS (100)
 
 
@@ -34,6 +34,12 @@ extern Condition* regPassLineCV;
 extern int privPassLineLength;
 extern int regPassLineLength;
 
+extern Lock* cashLineLock;
+extern Condition* privCashLineCV;
+extern Condition* regCashLineCV;
+extern int privCashLineLength;
+extern int regPassLineLength;
+
 // Total Number of Things in The Office
 extern int totalCustomersInOffice;
 
@@ -54,6 +60,11 @@ extern Condition* passClerkCVs[];
 extern int passClerkSSNs[];
 extern int passPunish[];
 
+extern ClerkStatus cashClerkStatuses[];
+extern Lock* cashClerkLocks[];
+extern Condition* cashClerkCVs[];
+extern int cashClerkSSNs[];
+extern int cashPunish[];
 
 extern int appFiled[];
 extern int picFiled[];
