@@ -36,19 +36,26 @@ Lock* picClerkLocks[MAX_PIC_CLERKS];
 Condition* appClerkCVs[MAX_APP_CLERKS];
 Condition* picClerkCVs[MAX_PIC_CLERKS];
 int appClerkSSNs[MAX_APP_CLERKS];
+int appClerkMoney[MAX_APP_CLERKS];
+int appClerkBribed[MAX_APP_CLERKS];
 int picClerkSSNs[MAX_PIC_CLERKS];
+int picClerkMoney[MAX_PIC_CLERKS];
+int picClerkBribed[MAX_PIC_CLERKS];
 int happyWithPhoto[MAX_PIC_CLERKS];
 
 ClerkStatus passClerkStatuses[MAX_PASS_CLERKS];
 Lock* passClerkLocks[MAX_PASS_CLERKS];
 Condition* passClerkCVs[MAX_PASS_CLERKS];
 int passClerkSSNs[MAX_PASS_CLERKS];
+int passClerkMoney[MAX_PASS_CLERKS];
+int passClerkBribed[MAX_PASS_CLERKS];
 int passPunish[MAX_PASS_CLERKS];
 
 ClerkStatus cashClerkStatuses[MAX_CASH_CLERKS];
 Lock* cashClerkLocks[MAX_CASH_CLERKS];
 Condition* cashClerkCVs[MAX_CASH_CLERKS];
 int cashClerkSSNs[MAX_CASH_CLERKS];
+int cashClerkMoney[MAX_CASH_CLERKS];
 int cashPunish[MAX_CASH_CLERKS];
 
 int appFiled[MAX_CUSTOMERS];
@@ -138,6 +145,8 @@ void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks
       appClerkCVs[i] = NULL;
     }
     appClerkSSNs[i] = -1;
+    appClerkMoney[i] = 0;
+    appClerkBribed[i] = FALSE;
   }
   
   for (int i = 0; i < MAX_PIC_CLERKS; i++) {
@@ -156,6 +165,8 @@ void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks
       picClerkCVs[i] = NULL;
     }
     picClerkSSNs[i] = -1;
+    picClerkMoney[i] = 0;
+    picClerkBribed[i] = FALSE;
     happyWithPhoto[i] = FALSE;
     
   }
@@ -176,6 +187,8 @@ void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks
       passClerkCVs[i] = NULL;
     }
     passClerkSSNs[i] = -1;
+    passClerkMoney[i] = 0;
+    passClerkBribed[i] = FALSE;
     passPunish[i] = TRUE;
   }
 
@@ -195,6 +208,7 @@ void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks
       cashClerkCVs[i] = NULL;
     }
     cashClerkSSNs[i] = -1;
+    cashClerkMoney[i] = 0;
     cashPunish[i] = TRUE;
   }
 }
