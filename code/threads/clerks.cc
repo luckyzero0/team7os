@@ -297,7 +297,7 @@ void CashClerkRun(int index){
 			int SSN = cashClerkSSNs[index];
 			if(passFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
-					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
+					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashPunish: %d\n", appFiled[i], picFiled[i], passFiled[i], cashPunish[i]);
 				}
 				printf("CashClerk %d: Customer with SSN %d does not have both picture and application filed! *SPANK*\n", index, SSN);
 				cashPunish[index] = TRUE;
@@ -305,16 +305,16 @@ void CashClerkRun(int index){
 			else{
 				printf("CashClerk %d: Customer with SSN %d has everything filed correctly!\n",index, SSN);
 				cashPunish[index] = FALSE;
-				cashFiled[SSN] = TRUE; //**********THIS SHOULD BE FORKED IN THE FUTURE*****************
-				printf("CashClerk %d: Charging Customer %d $100! Cha Ching.\n", 
+			
+				printf("CashClerk %d: Charging Customer with SSN %d $100! Cha Ching.\n", SSN); 
 
 				//DEBUG
 					for (int i=0; i<10; i++){
-						printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
+						printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashPunish: %d\n", appFiled[i], picFiled[i], passFiled[i], cashPunish[i]);
 				}
 			}
 
-			//printf("CashClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
+			
 			printf("CashClerk %d: Signaling my cashClerkCV\n", index);
 			cashClerkCVs[index]->Signal(cashClerkLocks[index]);
 			printf("CashClerk %d: Releasing my own lock\n", index);
