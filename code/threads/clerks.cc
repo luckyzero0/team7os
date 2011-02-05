@@ -64,6 +64,10 @@ void AppClerkRun(int index){
 			printf("AppClerk %d: Putting myself to sleep...\n",index);
 			appClerkCVs[index]->Wait(appClerkLocks[index]);
 			printf("AppClerk %d: Just woke up!\n",index);
+			if (appClerkBribed[index] == TRUE){
+				printf("AppClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d", index, appClerkMoney[index]);
+				appClerkBribed[index] = FALSE;
+			}
 			int SSN = appClerkSSNs[index];
 			printf("AppClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
 			//appFiled[SSN] = TRUE; //***********NEEDS TO BE FORKED IN THE FUTURE***********************
@@ -135,6 +139,10 @@ void PicClerkRun(int index){
 
 			printf("PicClerk %d: Putting myself to sleep...\n",index);
 			picClerkCVs[index]->Wait(picClerkLocks[index]);
+			if (picClerkBribed[index] == TRUE){
+				printf("PicClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d", index, picClerkMoney[index]);
+				picClerkBribed[index] = FALSE;
+			}
 			int count = 1;
 			do{
 				printf("PicClerk %d: Taking picture of customer for the %dst/nd/rd/th time (Signalling my CV)!\n",index, count);
@@ -217,6 +225,10 @@ void PassClerkRun(int index){
 			printf("PassClerk %d: Putting myself to sleep...\n",index);
 			passClerkCVs[index]->Wait(passClerkLocks[index]);
 			printf("PassClerk %d: Just woke up!\n",index);
+			if (passClerkBribed[index] == TRUE){
+				printf("PassClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d", index, passClerkMoney[index]);
+				passClerkBribed[index] = FALSE;
+			}
 			int SSN = passClerkSSNs[index];
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
@@ -265,19 +277,21 @@ void CashClerkRun(int index){
 	while (true){
 		//  printf("CashClerk %d: has acquired the cashLineLock\n", index);
 		cashLineLock->Acquire();
+		              
+				//There is no priv cash line, as customers don't have enough money     
 
 		//Checking if anyone is in line
-		if (privCashLineLength+regCashLineLength>0){
+		//if (privCashLineLength+regCashLineLength>0){
 
-			if (privCashLineLength>0){ //Checking if anyone is in priv line
+			/*if (privCashLineLength>0){ //Checking if anyone is in priv line
 				printf("CashClerk %d: has spotted customer in privCashLine(length = %d)\n",index,privCashLineLength);
 				privCashLineLength--;
 				printf("CashClerk %d: Becoming Available!\n",index);
 				cashClerkStatuses[index] = CLERK_AVAILABLE;
 				printf("CashClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privCashLineLength);
 				privCashLineCV->Signal(cashLineLock);
-			}
-			else{ //Check if anyone is in reg line
+			}*/
+			if (regCashLineLength>0){ //Check if anyone is in reg line
 				printf("CashClerk %d: has spotted customer in regCashLine (length = %d)\n",index, regCashLineLength);
 				regCashLineLength--;
 				printf("CashClerk %d: Becoming Available!\n",index);
@@ -306,7 +320,7 @@ void CashClerkRun(int index){
 				printf("CashClerk %d: Customer with SSN %d has everything filed correctly!\n",index, SSN);
 				cashPunish[index] = FALSE;
 				cashFiled[SSN] = TRUE;
-				printf("CashClerk %d: Charging Customer with SSN %d $100! Cha Ching.\n", index, SSN); 
+				printf("CashClerk %d: Charging Customer with SSN %d $100! Cha Ching. Total amount of money collected: $%d\n", index, SSN, cashClerkMoney[index]); 
 
 				//DEBUG
 					for (int i=0; i<10; i++){
