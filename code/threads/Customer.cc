@@ -264,10 +264,10 @@ void doCashierClerk(int* index, int* cashDollars)
 {
 	
 	int myClerk = -1;
-	printf("Customer[%d]: Going to the CashClerk\n",*index);
-	cashLineLock->Acquire();	
+	printf("Customer[%d]: Going to the CashClerk\n",*index);	
 		while(true)
 		{		
+			cashLineLock->Acquire();	
 			printf("Customer[%d]: What line should I choose for the CashClerk?\n",*index);
 			//check for senator
 			if(*cashDollars > 100) //get in a privledged line
