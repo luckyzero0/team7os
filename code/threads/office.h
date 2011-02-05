@@ -35,9 +35,9 @@ extern int privPassLineLength;
 extern int regPassLineLength;
 
 extern Lock* cashLineLock;
-extern Condition* privCashLineCV;
+// extern Condition* privCashLineCV; -- THIS CAN NEVER HAPPEN
 extern Condition* regCashLineCV;
-extern int privCashLineLength;
+// extern int privCashLineLength; -- THIS CAN NEVER HAPPEN
 extern int regCashLineLength;
 
 // Total Number of Things in The Office
@@ -51,19 +51,26 @@ extern Lock* picClerkLocks[];
 extern Condition* appClerkCVs[];
 extern Condition* picClerkCVs[];
 extern int appClerkSSNs[];
+extern int appClerkMoney[];
+extern int appClerkBribed[];
 extern int picClerkSSNs[];
+extern int picClerkMoney[];
+extern int picClerkBribed[];
 extern int happyWithPhoto[];
 
 extern ClerkStatus passClerkStatuses[];
 extern Lock* passClerkLocks[];
 extern Condition* passClerkCVs[];
 extern int passClerkSSNs[];
+extern int passClerkMoney[];
+extern int passClerkBribed[];
 extern int passPunish[];
 
 extern ClerkStatus cashClerkStatuses[];
 extern Lock* cashClerkLocks[];
 extern Condition* cashClerkCVs[];
 extern int cashClerkSSNs[];
+extern int cashClerkMoney[];
 extern int cashPunish[];
 
 extern int appFiled[];
