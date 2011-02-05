@@ -327,14 +327,14 @@ void CashClerkRun(int index){
 					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
 				}
 
-
-
-				printf("CashClerk %d: Signaling my cashClerkCV\n", index);
-				cashClerkCVs[index]->Signal(cashClerkLocks[index]);
-				printf("CashClerk %d: Releasing my own lock\n", index);
-				cashClerkLocks[index]->Release();
-
 			}
+
+			printf("CashClerk %d: Signaling my cashClerkCV\n", index);
+			cashClerkCVs[index]->Signal(cashClerkLocks[index]);
+			printf("CashClerk %d: Releasing my own lock\n", index);
+			cashClerkLocks[index]->Release();
+
+
 		}
 		else{ //No one in line
 
