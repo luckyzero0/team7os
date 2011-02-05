@@ -61,7 +61,7 @@ void CustomerRun(int index) {
 
 void doAppClerk(int* index, int* cashDollars)
 {
-	
+	bool privLine = false;
 	int myClerk = -1;
 	printf("Customer[%d]: Going to the AppClerk\n",*index);
 	appPicLineLock->Acquire();	
@@ -70,12 +70,12 @@ void doAppClerk(int* index, int* cashDollars)
 			printf("Customer[%d]: What line should I choose for the AppClerk?\n",*index);
 			//check for senator
 			if(*cashDollars > 100) //get in a privledged line
-			{						
-				*cashDollars -= 500;
+			{					
+				privLine = true;					
 				printf("Customer[%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
 				privAppLineLength++;
 				printf("Customer[%d]: Waiting in the Priveledged Line for next available AppClerk\n",*index);
-				privAppLineCV->Wait(appPicLineLock);			
+				privAppLineCV->Wait(appPicLineLock);							
 			}
 			else //get in a normal line
 			{
@@ -100,6 +100,13 @@ void doAppClerk(int* index, int* cashDollars)
 			}			
 			appPicLineLock->Release();							
 			appClerkLocks[myClerk]->Acquire();
+			if(privLine)
+			{
+				printf("Customer[%d]: Paying AppClerk[%d] $500 to fastpass the line\n",*index, myClerk);				
+				appClerkMoney[myClerk] += 500;
+				appClerkBribed[myClerk] = true;
+				*cashDollars -= 500;
+			}
 			printf("Customer[%d]: Interacting with AppClerk[%d]\n",*index,myClerk);
 			//interact with clerk
 			appClerkSSNs[myClerk] = *index; //could also just use the adr for a more ssn-like number
@@ -118,6 +125,7 @@ void doAppClerk(int* index, int* cashDollars)
 void doPicClerk(int* index, int* cashDollars)
 {
 	int myClerk;
+	bool privLine = false;
 	printf("Customer[%d]: Going to the PicClerk\n",*index);
 	appPicLineLock->Acquire();	
 		while(true)
@@ -126,7 +134,7 @@ void doPicClerk(int* index, int* cashDollars)
 			//check for senator
 			if(*cashDollars > 100) //get in a privledged line
 			{						
-				*cashDollars -= 500;
+				privLine = true;
 				printf("Customer[%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
 				privPicLineLength++;
 				printf("Customer[%d]: Waiting in the Priveledged Line for next available PicClerk\n",*index);
@@ -156,7 +164,13 @@ void doPicClerk(int* index, int* cashDollars)
 			appPicLineLock->Release();		
 			picClerkLocks[myClerk]->Acquire();		
 			picClerkSSNs[myClerk] = *index;		
-			
+			if(privLine)
+			{
+				printf("Customer[%d]: Paying PicClerk[%d] $500 for fastpassing the line\n",*index, myClerk);				
+				picClerkMoney[myClerk] += 500;
+				picClerkBribed[myClerk] = true;
+				*cashDollars -= 500;
+			}
 			printf("Customer[%d]: Interacting with Pic Clerk\n",*index);
 			//interact with clerk
 				
@@ -197,6 +211,7 @@ void doPicClerk(int* index, int* cashDollars)
 void doPassPortClerk(int *index, int* cashDollars){	
 	int myClerk = -1;
 	bool privLined = false;
+	bool bribed = false;
 	printf("Customer[%d]: Going to the PassportClerk\n",*index);
 		while(true)
 		{		
@@ -205,9 +220,7 @@ void doPassPortClerk(int *index, int* cashDollars){
 			printf("Customer[%d]: What line should I choose for the PassportClerk?\n",*index);
 			//check for senator
 			if(*cashDollars > 100 || privLined) //get in a privledged line
-			{	
-				if(!privLined)
-					*cashDollars -= 500;					
+			{								
 				privLined = true;				
 				printf("Customer[%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
 				privPassLineLength++;
@@ -238,6 +251,14 @@ void doPassPortClerk(int *index, int* cashDollars){
 			passLineLock->Release();							
 			passClerkLocks[myClerk]->Acquire();
 			passClerkSSNs[myClerk] = *index;
+			if(privLined && !bribed)
+			{
+				bribed = true;
+				printf("Customer[%d]: Paying PassClerk[%d] $500 to fastpass the line\n",*index, myClerk);				
+				passClerkMoney[myClerk] += 500;
+				passClerkBribed[myClerk] = true;
+				*cashDollars -= 500;
+			}
 			printf("Customer[%d]: Interacting with PassClerk[%d]\n",*index,myClerk);
 			//interact with clerk			
 			passClerkCVs[myClerk]->Signal(passClerkLocks[myClerk]);
@@ -245,8 +266,7 @@ void doPassPortClerk(int *index, int* cashDollars){
 			//get passport from clerk, if not ready, go to the back of the line?
 			if(!passPunish[myClerk])
 			{
-				printf("Customer[%d]: Passport. GET!.\n", *index);			
-				
+				printf("Customer[%d]: Passport. GET!.\n", *index);						
 				printf("Customer[%d]: Done and done.\n",*index);
 				passClerkLocks[myClerk]->Release();
 				printf("Customer[%d]: Going to next clerk...\n",*index);
@@ -263,8 +283,7 @@ void doPassPortClerk(int *index, int* cashDollars){
 
 
 void doCashierClerk(int* index, int* cashDollars)
-{
-	
+{	
 	int myClerk = -1;
 	printf("Customer[%d]: Going to the CashClerk\n",*index);	
 		while(true)
@@ -272,15 +291,15 @@ void doCashierClerk(int* index, int* cashDollars)
 			cashLineLock->Acquire();	
 			printf("Customer[%d]: What line should I choose for the CashClerk?\n",*index);
 			//check for senator
-			if(*cashDollars > 100) //get in a privledged line
+			/*if(*cashDollars > 100) //get in a privledged line
 			{						
-				*cashDollars -= 500;
+				privLine = true;
 				printf("Customer[%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
 				privCashLineLength++;
 				printf("Customer[%d]: Waiting in the Priveledged Line for next available CashClerk\n",*index);
 				privCashLineCV->Wait(cashLineLock);			
 			}
-			else //get in a normal line
+			else*/ //you can never get in the priveledged line for the cashier, given a max of $1600
 			{
 				printf("Customer[%d]: Regular line, suckas. CashDollars = $%d\n",*index,*cashDollars);
 				regCashLineLength++;
@@ -303,7 +322,7 @@ void doCashierClerk(int* index, int* cashDollars)
 			}			
 			cashLineLock->Release();							
 			cashClerkLocks[myClerk]->Acquire();
-			cashClerkSSNs[myClerk] = *index;
+			cashClerkSSNs[myClerk] = *index;			
 			printf("Customer[%d]: Interacting with CashClerk[%d]\n",*index,myClerk);			
 			//interact with clerk			
 			cashClerkCVs[myClerk]->Signal(cashClerkLocks[myClerk]);
@@ -311,7 +330,7 @@ void doCashierClerk(int* index, int* cashDollars)
 			//pay for passport. If it's not processed, get back in line
 			if(!cashPunish[myClerk])
 			{
-				
+				cashClerkMoney[myClerk] += 100;				
 				*cashDollars-=100;
 				printf("Customer[%d]: Passport paid for like a pro. CashDollars = [$%d]\n", *index, *cashDollars);											
 				cashClerkLocks[myClerk]->Release();
