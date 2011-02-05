@@ -167,7 +167,6 @@ void PicClerkRun(int index){
 			picClerkCVs[index]->Signal(picClerkLocks[index]);
 			printf("PicClerk %d: Releasing my own lock\n", index);
 			picClerkLocks[index]->Release();
-
 		}
 
 		else{ //No one in line
@@ -177,9 +176,7 @@ void PicClerkRun(int index){
 				printf("PicClerk %d: Going on Break!\n", index);
 				picClerkStatuses[index] = CLERK_ON_BREAK;
 			}
-
 		}
-
 		currentThread->Yield();
 	}
 }
@@ -231,7 +228,9 @@ void PassClerkRun(int index){
 			else{
 				printf("PassClerk %d: Customer with SSN %d has everything filed correctly!\n",index, SSN);
 				passPunish[index] = FALSE;
-				passFiled[SSN] = TRUE; //**********THIS SHOULD BE FORKED IN THE FUTURE*****************
+				//passFiled[SSN] = TRUE; //**********THIS SHOULD BE FORKED IN THE FUTURE*****************
+				Thread* newThread = new Thread("Passport Filing Thread");
+				newThread->Fork((VoidFunctionPtr)passClerkFileData,SSN);
 
 				//DEBUG
 					for (int i=0; i<10; i++){
@@ -255,11 +254,83 @@ void PassClerkRun(int index){
 				passClerkStatuses[index] = CLERK_ON_BREAK;
 			}
 		}
-
-
 		currentThread->Yield();
 	}
+}
 
+//--------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------
 
+void CashClerkRun(int index){
+	while (true){
+		//  printf("CashClerk %d: has acquired the cashLineLock\n", index);
+		cashLineLock->Acquire();
+
+		//Checking if anyone is in line
+		if (privCashLineLength+regCashLineLength>0){
+
+			if (privCashLineLength>0){ //Checking if anyone is in priv line
+				printf("CashClerk %d: has spotted customer in privCashLine(length = %d)\n",index,privCashLineLength);
+				privCashLineLength--;
+				printf("CashClerk %d: Becoming Available!\n",index);
+				cashClerkStatuses[index] = CLERK_AVAILABLE;
+				printf("CashClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privCashLineLength);
+				privCashLineCV->Signal(cashLineLock);
+			}
+			else{ //Check if anyone is in reg line
+				printf("CashClerk %d: has spotted customer in regCashLine (length = %d)\n",index, regCashLineLength);
+				regCashLineLength--;
+				printf("CashClerk %d: Becoming Available!\n",index);
+				cashClerkStatuses[index] = CLERK_AVAILABLE;
+				printf("CashClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regCashLineLength);
+				regCashLineCV->Signal(cashLineLock);
+			}
+			//Customer - Clerk interaction
+
+			printf("CashClerk %d: Acquiring my own lock\n",index);
+			cashClerkLocks[index]->Acquire();
+			printf("CashClerk %d: Releasing cashLineLock\n",index);
+			cashLineLock->Release();
+			printf("CashClerk %d: Putting myself to sleep...\n",index);
+			cashClerkCVs[index]->Wait(cashClerkLocks[index]);
+			printf("CashClerk %d: Just woke up!\n",index);
+			int SSN = cashClerkSSNs[index];
+			if(passFiled[SSN] == FALSE){
+				for (int i=0; i<10; i++){
+					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
+				}
+				printf("CashClerk %d: Customer with SSN %d does not have both picture and application filed! *SPANK*\n", index, SSN);
+				cashPunish[index] = TRUE;
+			}
+			else{
+				printf("CashClerk %d: Customer with SSN %d has everything filed correctly!\n",index, SSN);
+				cashPunish[index] = FALSE;
+				cashFiled[SSN] = TRUE; //**********THIS SHOULD BE FORKED IN THE FUTURE*****************
+				printf("CashClerk %d: Charging Customer %d $100! Cha Ching.\n", 
+
+				//DEBUG
+					for (int i=0; i<10; i++){
+						printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
+				}
+			}
+
+			//printf("CashClerk %d: Just receieved Customer's SSN: %d\n",index, SSN);
+			printf("CashClerk %d: Signaling my cashClerkCV\n", index);
+			cashClerkCVs[index]->Signal(cashClerkLocks[index]);
+			printf("CashClerk %d: Releasing my own lock\n", index);
+			cashClerkLocks[index]->Release();
+
+		}
+		else{ //No one in line
+
+			cashLineLock->Release();
+
+			if(cashClerkStatuses[index]!=CLERK_ON_BREAK){
+				printf("CashClerk %d: Going on Break!\n", index);
+				cashClerkStatuses[index] = CLERK_ON_BREAK;
+			}
+		}
+		currentThread->Yield();
+	}
 
 }
