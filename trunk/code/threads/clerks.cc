@@ -33,7 +33,7 @@ void passClerkFileData(int ssn){
 
 void AppClerkRun(int index){
 	while (true){
-		//  printf("AppClerk %d: has acquired the appPicLineLock\n", index);
+		printf("AppClerk %d: has acquired the appPicLineLock\n", index);
 		appPicLineLock->Acquire();
 
 		//Checking if anyone is in line
