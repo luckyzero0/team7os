@@ -93,7 +93,7 @@ void CustomerRun(int index) {
 	}
 	else//find regular line with shortest length
 	{
-		appPicLineLock()->Acquire();
+		appPicLineLock->Acquire();
 		if(regAppLineLength<=regPicLineLength)
 		{
 			appPicLineLock->Release();
