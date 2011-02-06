@@ -41,9 +41,21 @@ extern Condition* regCashLineCV;
 // extern int privCashLineLength; -- THIS CAN NEVER HAPPEN
 extern int regCashLineLength;
 
-// Total Number of Things in The Office
-extern Lock* totalCustomersLock;
-extern int totalCustomersInOffice;
+// Senators in office and waiting room
+extern Lock* senatorWaitingRoomLock;
+extern Condition* senatorWaitingRoomCV;
+extern int senatorsInWaitingRoom;
+
+extern Lock* senatorOfficeLock;
+extern int senatorsInOffice;
+
+// Customers in office and waiting room
+extern Lock* customerWaitingRoomLock;
+extern Condition* customerWaitingRoomCV;
+extern int customersInWaitingRoom;
+
+extern Lock* customerOfficeLock;
+extern int customersInOffice;
 
 extern int numCustomers;
 extern int numAppClerks;

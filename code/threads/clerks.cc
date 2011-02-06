@@ -33,11 +33,11 @@ void passClerkFileData(int ssn){
 
 char* getCustomerType(){
 	int check=0;
-	totalSenatorsLock->Acquire();
-	if (totalSenatorsInOffice>0){
+	senatorOfficeLock->Acquire();
+	if (senatorsInOffice>0){
 		check = 1;
 	}
-	totalSenatorsLock->Release();
+	senatorOfficeLock->Release();
 	if (check == 0){
 		return "Customer";
 	}else{
@@ -84,7 +84,7 @@ void AppClerkRun(int index){
 				appClerkBribed[index] = FALSE;
 			}
 			int SSN = appClerkSSNs[index];
-			printf("AppClerk %d: Just receieved %s's SSN: %d\n",index, getCustomerType() SSN);
+			printf("AppClerk %d: Just receieved %s's SSN: %d\n",index, getCustomerType(), SSN);
 			//appFiled[SSN] = TRUE; //***********NEEDS TO BE FORKED IN THE FUTURE***********************
 			Thread* newThread = new Thread("Filing Thread");
 			newThread->Fork((VoidFunctionPtr)appClerkFileData,SSN);
@@ -322,7 +322,7 @@ void CashClerkRun(int index){
 				for (int i=0; i<10; i++){
 					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
 				}
-				printf("CashClerk %d: %s with SSN %d does not have both picture and application filed! *SPANK*\n", index, getCustomerType() SSN);
+				printf("CashClerk %d: %s with SSN %d does not have both picture and application filed! *SPANK*\n", index, getCustomerType(), SSN);
 				cashPunish[index] = TRUE;
 			}
 			else{

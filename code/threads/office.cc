@@ -29,9 +29,21 @@ Condition* privCashLineCV = new Condition("privCashLineCV");
 int regCashLineLength = 0;
 int privCashLineLength = 0;
 
-// Total Number of Things in The Office
-Lock* totalCustomersLock = new Lock("totalCustomers");
-int totalCustomersInOffice = 0;
+// Senators in office and waiting room
+Lock* senatorWaitingRoomLock = new Lock("senatorWaitingRoomLock");
+Condition* senatorWaitingRoomCV = new Condition("senatorWaitingRoomCV");
+int senatorsInWaitingRoom = 0;
+
+Lock* senatorOfficeLock = new Lock("senatorOfficeLock");
+int senatorsInOffice = 0;
+
+// Customers in office and waiting room
+Lock* customerWaitingRoomLock = new Lock("customerWaitingRoomLock");
+Condition* customerWaitingRoomCV = new Condition("customerWaitingRoomCV");
+int customersInWaitingRoom = 0;
+
+Lock* customerOfficeLock = new Lock("customerOfficeLock");
+int customersInOffice = 0;
 
 // ApplicationClerk and PictureClerk States
 ClerkStatus appClerkStatuses[MAX_APP_CLERKS];
