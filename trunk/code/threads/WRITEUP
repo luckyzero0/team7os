@@ -1,0 +1,43 @@
+#WRITEUP#
+
+Writeup for Project 1, Spring2011
+02/06/2011
+
+
+Team 24:	Nick Bopp		nbopp@usc.edu
+
+			Mihir Sheth		mihirshe@usc.edu
+
+			James Cramer	jcramer@usc.edu
+
+
+---USAGE---
+
+????
+
+
+---DOCUMENTATION---
+
+I. REQUIREMENTS
+
+	The assignment requires a simplified simulation of a passport office. The purpose of the assignment is to introduce an environment where race conditions occur frequently, and need to be indentified and solved. Customers must enter the office, get in a line for a clerk without running into other customers, and interact with each clerk sequentially until they leave the office. Clerks must ensure that they are only interacting with one customer at a time, as well as punishing customers who attempt to interact before their documents have been processed (passport/cashier clerk). If clerks have nothing to do, they go on break. The manager monitors the clerks and lines, and makes sure that if there are people in line, there is at least one clerk who is available, and will wake up clerks if there are none. The manager is also largely responsible for handling the senator scenario, in which he broadcasts customers in line to go to their waiting room. Senators throw a wrench in the simulation when they enter. They must wait in their own waiting room until all customers are in the customer waiting room. They can only go through the passport office when there are no customers in the office, but otherwise, they act similarly to customers.
+
+II. ASUMPTIONS
+
+	1.) Object oriented is for suckas.
+	2.) The simulation halts (ends) when there are no customers left. This is because all threads go to sleep when there are no customers, and nachos interprets this as the program terminating.
+	3.) Senators are forked after customers, and enter the passport office at the mercy of thread yielding.
+	4.) ????
+	5.) profit.
+
+III. DESIGN
+
+	We opted against object oriented design in favor of a C-style implementation, which will make adaptation in future assignments easier. Rather than encapsulating data within classes, most of the data, i.e. locks, CVs, states, etc,(except for a few local variables) is stored in global arrays/variables. The end result is that instead of classes, we have void xxRun() functions that are forked into threads that use the global arrays given the index numbers of the customers/clerks. Each function is essentially a dowhile(true) loop that runs until it reaches an end-state.
+
+IV. IMPLEMENTATION
+
+
+
+
+
+	
