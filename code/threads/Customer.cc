@@ -74,7 +74,7 @@ void CustomerRun(int index) {
 		appPicLineLock->Acquire();
 		if(privAppLineLength<=privPicLineLength)
 		{
-			appPicLineLock-Release();
+			appPicLineLock->Release();
 			printf("Customer[%d]: Going to AppClerk first.\n",index);			
 			doAppClerk(&index, &cashDollars);
 			waitAndRestart(); //SENATOR
@@ -83,7 +83,7 @@ void CustomerRun(int index) {
 		}
 		else
 		{
-			appPicLineLock-Release();
+			appPicLineLock->Release();
 			printf("Customer[%d]: Going to PicClerk first.\n",index);			
 			doPicClerk(&index, &cashDollars);
 			waitAndRestart(); //SENATOR
@@ -96,7 +96,7 @@ void CustomerRun(int index) {
 		appPicLineLock()->Acquire();
 		if(regAppLineLength<=regPicLineLength)
 		{
-			appPicLineLock-Release();
+			appPicLineLock->Release();
 			printf("Customer[%d]: Going to AppClerk first.\n",index);
 			doAppClerk(&index, &cashDollars);
 			waitAndRestart(); //SENATOR
@@ -105,7 +105,7 @@ void CustomerRun(int index) {
 		}
 		else
 		{
-			appPicLineLock-Release();
+			appPicLineLock->Release();
 			printf("Customer[%d]: Going to PicClerk first.\n",index);
 			doPicClerk(&index, &cashDollars);
 			waitAndRestart(); //SENATOR
