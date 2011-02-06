@@ -68,6 +68,7 @@ extern void AppClerkRun(int);
 extern void PicClerkRun(int);
 extern void CashClerkRun(int);
 extern void PassClerkRun(int);
+extern void ManagerRun(int);
 
 void initializeClerkArrays(int, int, int, int);
 void initializeCustomerArrays();
@@ -125,6 +126,9 @@ void Office() {
     t->Fork((VoidFunctionPtr)CustomerRun, i);
     printf("Forked %s\n", name);
   }
+
+  // Start a manager, just constructing the timer makes it run
+  Timer* timer = new Timer((VoidFunctionPtr)ManagerRun, 0, FALSE); 
 }
 
 void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks, int numCashClerks) {
