@@ -329,9 +329,11 @@ void doCashierClerk(int* index, int* cashDollars)
 			cashClerkCVs[myClerk]->Wait(cashClerkLocks[myClerk]);
 			//pay for passport. If it's not processed, get back in line
 			if(!cashPunish[myClerk])
-			{
+			{				
 				cashClerkMoney[myClerk] += 100;				
 				*cashDollars-=100;
+				cashClerkCVs[myClerk]->Signal(cashClerkLocks[myClerk]);
+				cashClerkCVs[myClerk]->Wait(cashClerkLocks[myClerk]);
 				printf("Customer[%d]: Passport paid for like a pro. CashDollars = [$%d]\n", *index, *cashDollars);											
 				cashClerkLocks[myClerk]->Release();
 				printf("Customer[%d]: GTFOing the office...\n",*index);
