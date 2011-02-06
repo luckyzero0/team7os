@@ -41,6 +41,7 @@ extern Condition* regCashLineCV;
 extern int regCashLineLength;
 
 // Total Number of Things in The Office
+extern Lock* totalCustomersLock;
 extern int totalCustomersInOffice;
 
 // ApplicationClerk and PictureClerk States
