@@ -44,6 +44,12 @@ extern int regCashLineLength;
 extern Lock* totalCustomersLock;
 extern int totalCustomersInOffice;
 
+extern int numCustomers;
+extern int numAppClerks;
+extern int numPicClerks;
+extern int numPassClerks;
+extern int numCashClerks;
+
 // ApplicationClerk and PictureClerk States
 extern ClerkStatus appClerkStatuses[];
 extern ClerkStatus picClerkStatuses[];
