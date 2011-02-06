@@ -9,7 +9,7 @@ static void doPassPortClerk(int* index, int* cashDollars);
 static void doCashierClerk(int* index, int* cashDollars);
 void SenatorRun(int index)
 {
-        tprintf("Senator[%d]: Acquiring customerOfficeLock\n", index);
+    tprintf("Senator[%d]: Acquiring customerOfficeLock\n", index);
 	customerOfficeLock->Acquire();
 	if (customersInOffice > 0){
 		tprintf("Senator[%d]: There are no other Customers in office, going to Senator waiting room\n", index);
@@ -20,7 +20,9 @@ void SenatorRun(int index)
 		senatorWaitingRoomCV->Wait(senatorWaitingRoomLock);
 		tprintf("Senator[%d]: Waking up, going to the passport office!\n", index);
 		senatorsInWaitingRoom--;
-		senatorWaitingRoomLock->Release();
+		
+	}else{
+		customerOfficeLock->Release();
 	}
 	
 		
@@ -36,6 +38,7 @@ void SenatorRun(int index)
 	senatorOfficeLock->Acquire();
 	senatorsInOffice++;
 	senatorOfficeLock->Release();
+	senatorWaitingRoomLock->Release(); //Ensures that senators are either in the waiting room or in the office
 	
 	//choose line		
 	printf("Senator[%d]: Deciding between AppClerk and PictureClerk...\n", index);
