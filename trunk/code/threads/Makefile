@@ -707,7 +707,8 @@ office.o: ../threads/office.cc ../threads/office.h ../threads/synch.h \
   /usr/include/sys/signal.h /usr/include/sys/iso/signal_iso.h \
   /usr/include/sys/unistd.h /usr/include/sys/ucontext.h \
   /usr/include/sys/regset.h /usr/include/v7/sys/privregs.h \
-  /usr/include/v7/sys/psr.h /usr/include/sys/fsr.h ../threads/list.h
+  /usr/include/v7/sys/psr.h /usr/include/sys/fsr.h ../threads/list.h \
+  ../machine/timer.h ../threads/utility.h
 clerks.o: ../threads/clerks.cc ../threads/system.h ../threads/copyright.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
   ../threads/copyright.h \

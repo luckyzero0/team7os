@@ -84,8 +84,8 @@ void Office() {
   
   initializeClerkArrays(numAppClerks, numPicClerks, numPassClerks, numCashClerks);
   initializeCustomerArrays();
+
   // Fork the application clerks
-  
   for (int i = 0; i < numAppClerks; i++) {
     char* name = new char[20];
     snprintf(name, 20, "AppClerk%d", i);
@@ -129,7 +129,8 @@ void Office() {
   }
 
   // Start a manager, just constructing the timer makes it run
-  Timer* timer = new Timer((VoidFunctionPtr)ManagerRun, 0, FALSE); 
+  Thread* t = new Thread("Manager");
+  t->Fork((VoidFunctionPtr)ManagerRun, 0);
 }
 
 void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks, int numCashClerks) {
