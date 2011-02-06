@@ -3,10 +3,6 @@
 #include "system.h"
 #include <iostream>
 
-#ifndef TEST
-#define TEST
-#endif
-
 void ManagerRun(int notUsed){
 	
 	while(true)
@@ -19,20 +15,21 @@ void ManagerRun(int notUsed){
 	    for (int i = 0; i < MAX_CUSTOMERS; i++) {
 	      printf("Customer[%2d]: AppFiled:%d, PicFiled:%d, PassFiled:%d, CashFiled:%d\n", i, appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
 	    }
-#ifdef TEST
-	    printf("Manager: In test mode -- tabulating totals.\n");
-	    int totalPassportMoney = 0;
-	    for (int i = 0; i < MAX_CASH_CLERKS; i++) {
-	      totalPassportMoney += cashClerkMoney[i];
+	    if(TESTING) {
+	      printf("Manager: In test mode -- tabulating totals.\n");
+	      int totalPassportMoney = 0;
+	      for (int i = 0; i < MAX_CASH_CLERKS; i++) {
+		totalPassportMoney += cashClerkMoney[i];
+	      }
+	      if (totalPassportMoney == numCustomers * 100) {
+		exit(0);
+	      } else {
+		exit(1);
+	      }
 	    }
-	    if (totalPassportMoney == numCustomers * 100) {
-	      exit(0);
-	    } else {
-	      exit(1);
+	    else {
+	      break;
 	    }
-#else
-	    break;
-#endif
 	  }
 	  totalCustomersLock->Release();
 		printf("Manager: Time to slavedrive my clerks. Checking the lines...\n");

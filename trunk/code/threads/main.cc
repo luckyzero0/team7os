@@ -53,10 +53,6 @@
 #include "utility.h"
 #include "system.h"
 
-#ifndef TEST
-#define TEST
-#endif
-
 
 // External functions used by this file
 
@@ -67,6 +63,7 @@ extern void MailTest(int networkID);
 
 extern void TestSuite();
 
+extern int TESTING;
 extern void Office();
 
 //----------------------------------------------------------------------
@@ -91,17 +88,14 @@ main(int argc, char **argv)
 
     DEBUG('t', "Entering main");
     (void) Initialize(argc, argv);
-    
-#ifdef THREADS
-    //   ThreadTest();
-    // TestSuite();
-    Office();
-#endif
+
 
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
 	argCount = 1;
         if (!strcmp(*argv, "-z"))               // print copyright
             printf (copyright);
+	if (!strcmp(*argv, "-T"))
+	  TESTING = TRUE;
 #ifdef USER_PROGRAM
         if (!strcmp(*argv, "-x")) {        	// run a user program
 	    ASSERT(argc > 1);
@@ -153,6 +147,12 @@ main(int argc, char **argv)
 #endif // NETWORK
     }
 
+    
+#ifdef THREADS
+    //   ThreadTest();
+    // TestSuite();
+    Office();
+#endif
     currentThread->Finish();	// NOTE: if the procedure "main" 
 				// returns, then the program "nachos"
 				// will exit (as any other normal program
