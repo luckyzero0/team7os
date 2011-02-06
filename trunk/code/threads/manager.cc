@@ -31,6 +31,7 @@ void ManagerRun(int notUsed){
 				}
 			}
 			printf("Manager: Checking next line...\n");
+			appPicLineLock->Release();
 		}	
 		else if(regAppLineLength+privAppLineLength > 0)
 		{
@@ -63,13 +64,16 @@ void ManagerRun(int notUsed){
 				printf("Manager: AppClerk[%x] is now available.\n",wakeup);
 				appClerkLocks[wakeup]->Release();				
 			}			
+			printf("Manager: Checking next line...\n");
+			appPicLineLock->Release();
 		}
 	
 		
 		printf("Manager: I spy [%d] customers in the PicLine\n", (regPicLineLength+privPicLineLength));
 		if(regPicLineLength + privPicLineLength > 3)
 		{
-			printf("Manager: Making sure the PicClerks are working\n");			
+			printf("Manager: Making sure the PicClerks are working\n");		
+			appPicLineLock->Acquire();	
 			printf("Manager: Acquired appPicLineLock\n");
 			for(int x = 0; x < MAX_PIC_CLERKS; x++)
 			{
@@ -86,11 +90,13 @@ void ManagerRun(int notUsed){
 				}
 			}
 			printf("Manager: Checking next line...\n");
+			appPicLineLock->Release();
 		}
 		else if(regPicLineLength+privPicLineLength > 0)
 		{
 			int wakeup = -1;
 			printf("Manager: Making sure the PicClerks are working\n");			
+			appPicLineLock->Acquire();
 			printf("Manager: Acquired appPicLineLock\n");
 			for(int x = 0; x < MAX_PIC_CLERKS; x++)
 			{
@@ -144,6 +150,7 @@ void ManagerRun(int notUsed){
 				}
 			}
 			printf("Manager: Checking next line...\n");
+			passLineLock->Release();
 		}
 		else if(regPassLineLength+privPassLineLength > 0)
 		{
@@ -180,7 +187,7 @@ void ManagerRun(int notUsed){
 			passLineLock->Release();
 		}
 		
-		printf("Manager: I spy [%d] customers in the CashLine\n", (regPassLineLength+privPassLineLength));
+		printf("Manager: I spy [%d] customers in the CashLine\n", (regCashLineLength));
 		if(regCashLineLength >= 3)
 		{
 			printf("Manager: Making sure the CashClerks are working\n");
@@ -201,6 +208,7 @@ void ManagerRun(int notUsed){
 				}
 			}
 			printf("Manager: Checking next line...\n");
+			cashLineLock->Acquire();
 		}
 		else if(regCashLineLength > 0)
 		{
