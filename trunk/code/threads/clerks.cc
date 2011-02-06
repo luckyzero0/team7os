@@ -173,7 +173,7 @@ void PicClerkRun(int index){
 		}
 
 		else{ //No one in line
-			picPicLineLock->Release();
+			appPicLineLock->Release();
 			picClerkLocks[index]->Acquire();
 			printf("PicClerk %d: Going on Break!\n", index);
 			picClerkStatuses[index] = CLERK_ON_BREAK;
@@ -254,7 +254,7 @@ void PassClerkRun(int index){
 
 		}
 		else{ //No one in line
-			passPicLineLock->Release();
+			passLineLock->Release();
 			passClerkLocks[index]->Acquire();
 			printf("PassClerk %d: Going on Break!\n", index);
 			passClerkStatuses[index] = CLERK_ON_BREAK;
@@ -334,7 +334,7 @@ void CashClerkRun(int index){
 		}
 		else{ //No one in line
 
-			CashLineLock->Release();
+			cashLineLock->Release();
 			cashClerkLocks[index]->Acquire();
 			printf("CashClerk %d: Going on Break!\n", index);
 			cashClerkStatuses[index] = CLERK_ON_BREAK;
