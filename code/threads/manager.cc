@@ -49,11 +49,17 @@ void ManagerRun(int notUsed){
 			for(int x = 0; x < MAX_APP_CLERKS; x++)
 			{
 				//search to see if any clerks are available
-				if(appClerkStatuses[x] == CLERK_AVAILABLE || appClerkStatuses[x] == CLERK_BUSY)
+				if(appClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
 					printf("Manager: AppClerk[%d] is available. Moving on.\n",x);					
 					wakeup = -1;
 					break;
+				}
+				else if (appClerkStatuses[x] == CLERK_BUSY)
+				{
+				  printf("Manager: AppClerk[%d] is busy. Moving on. \n", x);
+				  wakeup = -1;
+				  break;
 				}
 				else if(appClerkStatuses[x] == CLERK_ON_BREAK)
 				{
@@ -102,11 +108,17 @@ void ManagerRun(int notUsed){
 			for(int x = 0; x < MAX_PIC_CLERKS; x++)
 			{
 				//search to see if any clerks are available
-				if(picClerkStatuses[x] == CLERK_AVAILABLE || picClerkStatuses[x] == CLERK_BUSY)
+				if(picClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
 					printf("Manager: PicClerk[%d] is available. Moving on.\n",x);					
 					wakeup = -1;
 					break;
+				}
+				else if (picClerkStatuses[x] == CLERK_BUSY)
+				{
+				  printf("Manager: PicClerk[%d] is busy. Moving on. \n", x);
+				  wakeup = -1;
+				  break;
 				}
 				else if(picClerkStatuses[x] == CLERK_ON_BREAK)
 				{
@@ -156,11 +168,17 @@ void ManagerRun(int notUsed){
 			for(int x = 0; x < MAX_PASS_CLERKS; x++)
 			{
 				//search to see if any clerks are available
-				if(passClerkStatuses[x] == CLERK_AVAILABLE || passClerkStatuses[x] == CLERK_BUSY)
+				if(passClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
 					printf("Manager: PassClerk[%d] is available. Moving on.\n",x);					
 					wakeup = -1;
 					break;
+				}
+				else if (passClerkStatuses[x] == CLERK_BUSY)
+				{
+				  printf("Manager: AppClerk[%d] is busy. Moving on. \n", x);
+				  wakeup = -1;
+				  break;
 				}
 				else if(passClerkStatuses[x] == CLERK_ON_BREAK)
 				{
@@ -210,11 +228,17 @@ void ManagerRun(int notUsed){
 			for(int x = 0; x < MAX_CASH_CLERKS; x++)
 			{
 				//search to see if any clerks are available
-				if(cashClerkStatuses[x] == CLERK_AVAILABLE  || cashClerkStatuses[x] == CLERK_BUSY)
+				if(cashClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
 					printf("Manager: CashClerk[%d] is available. Moving on.\n",x);					
 					wakeup = -1;
 					break;
+				}
+				else if (cashClerkStatuses[x] == CLERK_BUSY)
+				{
+				  printf("Manager: AppClerk[%d] is busy. Moving on. \n", x);
+				  wakeup = -1;
+				  break;
 				}
 				else if(cashClerkStatuses[x] == CLERK_ON_BREAK)
 				{
