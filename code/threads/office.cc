@@ -2,7 +2,12 @@
 #include "thread.h"
 #include "timer.h"
 #include <stdio.h>
+
+#include <iostream>
+using namespace std;
+
 #include <stdarg.h>
+
 
 int TESTING = FALSE;
 
@@ -252,21 +257,160 @@ void initializeCustomerArrays() {
   }
 }
 
-void getInput(){	
-	printf("\n# of ApplicationClerks = ");
-	scanf("%d",&numAppClerks);
+void getInput(){			
+	 char buffer[10];
+	 
 	
-	printf("\n# of PictureClerks = ");
-	scanf("%d",&numPicClerks);
+	bool invalid;
+	while(true)
+	{	
+		memset(buffer, NULL, 10);
+		invalid = false;
+		printf("\n# of ApplicationClerks = ");		
+		scanf("%s", buffer);		
+					
+		//for whatever reason, nachos does not process cin.fail() checking
+		//like a normal OS.
+		for(int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
+		{
+			if(!isdigit(buffer[x]) && buffer[x] != NULL)
+			{
+				invalid = true;
+				printf("\nInvalid character. :: [%c]",buffer[x]);								
+			}
+			
+		}
+		if(invalid)
+			continue;
+		else		
+		{
+			numAppClerks = atoi(buffer);	
+			if(numAppClerks < MAX_APP_CLERKS)								
+				break;		
+			else			
+				printf("\nNumber too big.");				
+		}		
+	}
+			
+	while(true)
+	{	
+		memset(buffer, NULL, 10);
+		invalid = false;
+		printf("\n# of PictureClerks = ");		
+		scanf("%s", buffer);		
+					
+		//for whatever reason, nachos does not process cin.fail() checking
+		//like a normal OS.
+		for(int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
+		{
+			if(!isdigit(buffer[x]) && buffer[x] != NULL)
+			{
+				invalid = true;
+				printf("\nInvalid character. :: [%c]",buffer[x]);								
+			}
+			
+		}
+		if(invalid)
+			continue;
+		else		
+		{
+			numPicClerks = atoi(buffer);			
+			if(numPicClerks < MAX_PIC_CLERKS)								
+				break;		
+			else			
+				printf("\nNumber too big.");				
+		}		
+	}
 	
-	printf("\n# of PassportClerks = ");
-	scanf("%d",&numPassClerks);
+	while(true)
+	{	
+		memset(buffer, NULL, 10);
+		invalid = false;
+		printf("\n# of PassportClerks = ");		
+		scanf("%s", buffer);		
+					
+		//for whatever reason, nachos does not process cin.fail() checking
+		//like a normal OS.
+		for(int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
+		{
+			if(!isdigit(buffer[x]) && buffer[x] != NULL)
+			{
+				invalid = true;
+				printf("\nInvalid character. :: [%c]",buffer[x]);								
+			}
+			
+		}
+		if(invalid)
+			continue;
+		else		
+		{
+			numPassClerks = atoi(buffer);			
+			if(numPassClerks < MAX_PASS_CLERKS)								
+				break;		
+			else			
+				printf("\nNumber too big.");				
+		}		
+	}
+		 
+	while(true)
+	{	
+		memset(buffer, NULL, 10);
+		invalid = false;
+		printf("\n# of CashierClerks = ");		
+		scanf("%s", buffer);		
+					
+		//for whatever reason, nachos does not process cin.fail() checking
+		//like a normal OS.
+		for(int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
+		{
+			if(!isdigit(buffer[x]) && buffer[x] != NULL)
+			{
+				invalid = true;
+				printf("\nInvalid character. :: [%c]",buffer[x]);								
+			}
+			
+		}
+		if(invalid)
+			continue;
+		else		
+		{
+			numCashClerks = atoi(buffer);			
+			if(numCashClerks < MAX_CASH_CLERKS)								
+				break;		
+			else			
+				printf("\nNumber too big.");				
+		}		
+	}
 	
-	printf("\n# of CashierClerks = ");
-	scanf("%d",&numCashClerks);
-	
-	printf("\n# of Customers = ");
-	scanf("%d",&numCustomers);	
+	while(true)
+	{	
+		memset(buffer, NULL, 10);
+		invalid = false;
+		printf("\n# of Customers = ");		
+		scanf("%s", buffer);		
+					
+		//for whatever reason, nachos does not process cin.fail() checking
+		//like a normal OS.
+		for(int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
+		{
+			if(!isdigit(buffer[x]) && buffer[x] != NULL)
+			{
+				invalid = true;
+				printf("\nInvalid character. :: [%c]",buffer[x]);								
+			}
+			
+		}
+		if(invalid)
+			continue;
+		else		
+		{
+			numCustomers = atoi(buffer);			
+			if(numCustomers < MAX_CUSTOMERS)								
+				break;		
+			else			
+				printf("\nNumber too big.");				
+		}		
+	}
 	
 }
 
