@@ -27,6 +27,7 @@ int regCashLineLength = 0;
 int privCashLineLength = 0;
 
 // Total Number of Things in The Office
+Lock* totalCustomersLock = new Lock("totalCustomers");
 int totalCustomersInOffice = 0;
 
 // ApplicationClerk and PictureClerk States

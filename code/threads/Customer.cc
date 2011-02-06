@@ -16,8 +16,10 @@ void CustomerRun(int index) {
 	int cashDollars = ((rand() % 4) * 500) + 100;	
 	int clerkStatus;
 		
-	printf("Customer[%d]: With $%d in my pocket\n",index,cashDollars);	
+	printf("Customer[%d]: With $%d in my pocket\n",index,cashDollars);
+	totalCustomersLock->Acquire();
 	totalCustomersInOffice++;
+	totalCustomersLock->Release();
 	
 	//choose line		
 	printf("Customer[%d]: Deciding between AppClerk and PictureClerk...\n", index);
@@ -337,7 +339,9 @@ void doCashierClerk(int* index, int* cashDollars)
 				printf("Customer[%d]: Passport paid for like a pro. CashDollars = [$%d]\n", *index, *cashDollars);											
 				cashClerkLocks[myClerk]->Release();
 				printf("Customer[%d]: GTFOing the office...\n",*index);
+				totalCustomersLock->Acquire();
 				totalCustomersInOffice--;
+				totalCustomersLock->Release();
 				break;				
 			}
 			cashClerkLocks[myClerk]->Release();
