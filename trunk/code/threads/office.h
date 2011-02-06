@@ -63,6 +63,7 @@ extern int numAppClerks;
 extern int numPicClerks;
 extern int numPassClerks;
 extern int numCashClerks;
+extern int numSenators;
 
 // ApplicationClerk and PictureClerk States
 extern ClerkStatus appClerkStatuses[];

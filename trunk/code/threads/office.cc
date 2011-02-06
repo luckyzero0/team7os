@@ -150,8 +150,9 @@ void Office() {
     printf("Forked %s\n", name);
   }
 
+  int i;
   // Fork the customers
-  for (int i = 0; i < numCustomers; i++) {
+  for (i = 0; i < numCustomers; i++) {
     char* name = new char[20];
     snprintf(name, 20, "Customer%d", i);
     Thread* t = new Thread(name); // HACK, need to get correct naming / numbering
@@ -159,7 +160,7 @@ void Office() {
     printf("Forked %s\n", name);
   }
 
-  for (int i = 0; i < numSenators; i++) {
+  for (; i < numSenators + numCustomers; i++) {
     char* name = new char[20];
     snprintf(name, 20, "Customer%d", i);
     Thread* t = new Thread(name);

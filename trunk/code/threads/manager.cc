@@ -96,6 +96,19 @@ void ManagerRun(int notUsed){
 	{
 		tryToWakeUpSenators();
 		tryToWakeUpCustomers();
+
+		int totalCashCollected = 0;
+		for (int i = 0; i < numCashClerks; i++) {
+		  totalCashCollected += cashClerkMoney[i];
+		}
+		if (totalCashCollected == (numCustomers + numSenators) * 100) {
+		  printf("Manager: Successfully collected $%d from our people.  Shutting down the office.\n", totalCashCollected);
+		  if (TESTING) {
+		    exit(0);
+		  } else {
+		    break;
+		  }
+		}
 		/*
 		senatorWaitRoomLock->Acquire();
 		senatorOfficeLock->Acquire();
