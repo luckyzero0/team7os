@@ -65,6 +65,13 @@ int picFiled[MAX_CUSTOMERS];
 int passFiled[MAX_CUSTOMERS];
 int cashFiled[MAX_CUSTOMERS];
 
+int numAppClerks = 3; // WE WANT TO GET THESE FROM USER INPUT AND VALIDATE
+int numPicClerks = 3;
+int numPassClerks = 3;
+int numCashClerks = 3;
+int numCustomers = 20;
+  
+
 extern void CustomerRun(int);
 extern void AppClerkRun(int);
 extern void PicClerkRun(int);
@@ -74,14 +81,15 @@ extern void ManagerRun(int);
 
 void initializeClerkArrays(int, int, int, int);
 void initializeCustomerArrays();
+void getInput();
 
 void Office() {
   
-  int numAppClerks = 3; // WE WANT TO GET THESE FROM USER INPUT AND VALIDATE
-  int numPicClerks = 3; //
-  int numPassClerks = 3;
-  int numCashClerks = 3;
-  int numCustomers = 20;
+  #IFNDEF TEST
+  	getInput();
+  #ENDIF
+  
+  
   
   initializeClerkArrays(numAppClerks, numPicClerks, numPassClerks, numCashClerks);
   initializeCustomerArrays();
