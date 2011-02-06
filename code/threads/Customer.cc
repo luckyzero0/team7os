@@ -29,12 +29,12 @@ void CustomerRun(int index) {
 		{
 			printf("Customer[%d]: Going to AppClerk first.\n",index);			
 			doAppClerk(&index, &cashDollars);			
-			doPicClerk(&index, &cashDollars);
+		       	doPicClerk(&index, &cashDollars);
 		}
 		else
 		{
 			printf("Customer[%d]: Going to PicClerk first.\n",index);			
-			doPicClerk(&index, &cashDollars);			
+		       	doPicClerk(&index, &cashDollars);			
 			doAppClerk(&index, &cashDollars);			
 		}	
 	}
@@ -44,15 +44,15 @@ void CustomerRun(int index) {
 		{
 			printf("Customer[%d]: Going to AppClerk first.\n",index);
 			doAppClerk(&index, &cashDollars);
-			doPicClerk(&index, &cashDollars);
+		       	doPicClerk(&index, &cashDollars);
 		}
 		else
 		{
 			printf("Customer[%d]: Going to PicClerk first.\n",index);
-			doPicClerk(&index, &cashDollars);
+		       	doPicClerk(&index, &cashDollars);
 			doAppClerk(&index, &cashDollars);			
 		}	
-	}		
+	}
 	
 	//hit up the passport clerk
 	doPassPortClerk(&index, &cashDollars);
@@ -99,9 +99,9 @@ void doAppClerk(int* index, int* cashDollars)
 				else
 					printf("Customer[%d]: AppClerk[%d] is unavailable\n",*index,x);
 				
-			}			
-			appPicLineLock->Release();							
+			}
 			appClerkLocks[myClerk]->Acquire();
+			appPicLineLock->Release();							
 			if(privLine)
 			{
 				printf("Customer[%d]: Paying AppClerk[%d] $500 to fastpass the line\n",*index, myClerk);				
@@ -163,8 +163,8 @@ void doPicClerk(int* index, int* cashDollars)
 				else
 					printf("Customer[%d]: PicClerk[%d] is unavailable\n",*index,x);
 			}
-			appPicLineLock->Release();		
-			picClerkLocks[myClerk]->Acquire();		
+			picClerkLocks[myClerk]->Acquire();
+			appPicLineLock->Release();				
 			picClerkSSNs[myClerk] = *index;		
 			if(privLine)
 			{
@@ -249,9 +249,9 @@ void doPassPortClerk(int *index, int* cashDollars){
 				else
 					printf("Customer[%d]: PassClerk[%d] is unavailable\n",*index,x);
 				
-			}			
-			passLineLock->Release();							
+			}
 			passClerkLocks[myClerk]->Acquire();
+			passLineLock->Release();							
 			passClerkSSNs[myClerk] = *index;
 			if(privLined && !bribed)
 			{
@@ -322,8 +322,8 @@ void doCashierClerk(int* index, int* cashDollars)
 					printf("Customer[%d]: CashClerk[%d] is unavailable\n",*index,x);
 				
 			}			
-			cashLineLock->Release();							
 			cashClerkLocks[myClerk]->Acquire();
+			cashLineLock->Release();							
 			cashClerkSSNs[myClerk] = *index;			
 			printf("Customer[%d]: Interacting with CashClerk[%d]\n",*index,myClerk);			
 			//interact with clerk			

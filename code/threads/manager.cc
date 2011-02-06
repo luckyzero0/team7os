@@ -15,7 +15,19 @@ void ManagerRun(int notUsed){
 	    for (int i = 0; i < MAX_CUSTOMERS; i++) {
 	      printf("Customer[%2d]: AppFiled:%d, PicFiled:%d, PassFiled:%d, CashFiled:%d\n", i, appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
 	    }
+#ifdef TEST
+	    int totalPassportMoney = 0;
+	    for (int i = 0; i < MAX_CASH_CLERKS; i++) {
+	      totalPassportMoney += cashClerkMoney[i];
+	    }
+	    if (totalPassportMoney == numCustomers * 100) {
+	      exit(0);
+	    } else {
+	      exit(1);
+	    }
+#else
 	    break;
+#endif
 	  }
 	  totalCustomersLock->Release();
 		printf("Manager: Time to slavedrive my clerks. Checking the lines...\n");
@@ -33,9 +45,9 @@ void ManagerRun(int notUsed){
 				{	
 					printf("Manager: Whipping AppClerk[%d] back to work\n",x);
 					appClerkLocks[x]->Acquire();				
-					appClerkStatuses[x] = CLERK_AVAILABLE;
+					appClerkStatuses[x] = CLERK_COMING_BACK;
 					appClerkCVs[x]->Signal(appClerkLocks[x]);
-					printf("Manager: AppClerk[%x] is now available.\n",x);
+					printf("Manager: AppClerk[%x] is now coming back.\n",x);
 					appClerkLocks[x]->Release();
 					break;
 				}
@@ -61,6 +73,12 @@ void ManagerRun(int notUsed){
 				  wakeup = -1;
 				  break;
 				}
+				else if (appClerkStatuses[x] == CLERK_COMING_BACK)
+				{
+				  printf("Manager: AppClerk[%d] is coming back. Moving on. \n", x);
+				  wakeup = -1;
+				  break;
+				}  
 				else if(appClerkStatuses[x] == CLERK_ON_BREAK)
 				{
 					//we'll wake up this clerk if no one is available
@@ -72,9 +90,9 @@ void ManagerRun(int notUsed){
 			{
 				printf("Manager: Whipping AppClerk[%d] back to work\n",wakeup);
 				appClerkLocks[wakeup]->Acquire();				
-				appClerkStatuses[wakeup] = CLERK_AVAILABLE;
+				appClerkStatuses[wakeup] = CLERK_COMING_BACK;
 				appClerkCVs[wakeup]->Signal(appClerkLocks[wakeup]);
-				printf("Manager: AppClerk[%x] is now available.\n",wakeup);
+				printf("Manager: AppClerk[%x] is now coming back.\n",wakeup);
 				appClerkLocks[wakeup]->Release();				
 			}			
 			printf("Manager: Checking next line...\n");
@@ -92,9 +110,9 @@ void ManagerRun(int notUsed){
 				{	
 					printf("Manager: Whipping PicClerk[%d] back to work\n",x);
 					picClerkLocks[x]->Acquire();				
-					picClerkStatuses[x] = CLERK_AVAILABLE;
+					picClerkStatuses[x] = CLERK_COMING_BACK;
 					picClerkCVs[x]->Signal(picClerkLocks[x]);
-					printf("Manager: PicClerk[%x] is now available.\n",x);
+					printf("Manager: PicClerk[%d] is now coming back.\n",x);
 					picClerkLocks[x]->Release();
 					break;
 				}
@@ -120,6 +138,12 @@ void ManagerRun(int notUsed){
 				  wakeup = -1;
 				  break;
 				}
+				else if (picClerkStatuses[x] == CLERK_COMING_BACK)
+				{
+				  printf("Manager: PicClerk[%d] is coming back. Moving on. \n", x);
+				  wakeup = -1;
+				  break;
+				} 
 				else if(picClerkStatuses[x] == CLERK_ON_BREAK)
 				{
 					printf("Manager: Tagging PicClerk[%d] to work...\n", x);
@@ -131,9 +155,9 @@ void ManagerRun(int notUsed){
 			{
 				printf("Manager: Whipping PicClerk[%d] back to work\n",wakeup);
 				picClerkLocks[wakeup]->Acquire();				
-				picClerkStatuses[wakeup] = CLERK_AVAILABLE;
+				picClerkStatuses[wakeup] = CLERK_COMING_BACK;
 				picClerkCVs[wakeup]->Signal(picClerkLocks[wakeup]);
-				printf("Manager: PicClerk[%x] is now available.\n",wakeup);
+				printf("Manager: PicClerk[%x] is now coming back.\n",wakeup);
 				picClerkLocks[wakeup]->Release();				
 			}
 			printf("Manager: Checking next line...\n");
@@ -152,9 +176,9 @@ void ManagerRun(int notUsed){
 				{	
 					printf("Manager: Whipping PassClerk[%d] back to work\n",x);
 					passClerkLocks[x]->Acquire();				
-					passClerkStatuses[x] = CLERK_AVAILABLE;
+					passClerkStatuses[x] = CLERK_COMING_BACK;
 					passClerkCVs[x]->Signal(passClerkLocks[x]);
-					printf("Manager: PassClerk[%x] is now available.\n",x);
+					printf("Manager: PassClerk[%x] is now coming back.\n",x);
 					passClerkLocks[x]->Release();
 					break;
 				}
@@ -180,6 +204,12 @@ void ManagerRun(int notUsed){
 				  wakeup = -1;
 				  break;
 				}
+				else if (passClerkStatuses[x] == CLERK_COMING_BACK)
+				{
+				  printf("Manager: PassClerk[%d] is coming back. Moving on. \n", x);
+				  wakeup = -1;
+				  break;
+				} 
 				else if(passClerkStatuses[x] == CLERK_ON_BREAK)
 				{
 					//we'll wake up this clerk if no one is available
@@ -191,9 +221,9 @@ void ManagerRun(int notUsed){
 			{
 				printf("Manager: Whipping PassClerk[%d] back to work\n",wakeup);
 				passClerkLocks[wakeup]->Acquire();				
-				passClerkStatuses[wakeup] = CLERK_AVAILABLE;
+				passClerkStatuses[wakeup] = CLERK_COMING_BACK;
 				passClerkCVs[wakeup]->Signal(passClerkLocks[wakeup]);
-				printf("Manager: PassClerk[%x] is now available.\n",wakeup);
+				printf("Manager: PassClerk[%x] is now coming back.\n",wakeup);
 				passClerkLocks[wakeup]->Release();				
 			}
 			printf("Manager: Checking next line...\n");
@@ -212,9 +242,9 @@ void ManagerRun(int notUsed){
 				{	
 					printf("Manager: Whipping CashClerk[%d] back to work\n",x);
 					cashClerkLocks[x]->Acquire();				
-					cashClerkStatuses[x] = CLERK_AVAILABLE;
+					cashClerkStatuses[x] = CLERK_COMING_BACK;
 					cashClerkCVs[x]->Signal(cashClerkLocks[x]);
-					printf("Manager: CashClerk[%x] is now available.\n",x);
+					printf("Manager: CashClerk[%x] is now coming back.\n",x);
 					cashClerkLocks[x]->Release();
 					break;
 				}
@@ -240,6 +270,12 @@ void ManagerRun(int notUsed){
 				  wakeup = -1;
 				  break;
 				}
+				else if (cashClerkStatuses[x] == CLERK_COMING_BACK)
+				{
+				  printf("Manager: CashClerk[%d] is coming back. Moving on. \n", x);
+				  wakeup = -1;
+				  break;
+				} 
 				else if(cashClerkStatuses[x] == CLERK_ON_BREAK)
 				{
 					//we'll wake up this clerk if no one is available
@@ -251,9 +287,9 @@ void ManagerRun(int notUsed){
 			{
 				printf("Manager: Whipping CashClerk[%d] back to work\n",wakeup);
 				cashClerkLocks[wakeup]->Acquire();				
-				cashClerkStatuses[wakeup] = CLERK_AVAILABLE;
+				cashClerkStatuses[wakeup] = CLERK_COMING_BACK;
 				cashClerkCVs[wakeup]->Signal(cashClerkLocks[wakeup]);
-				printf("Manager: CashClerk[%x] is now available.\n",wakeup);
+				printf("Manager: CashClerk[%x] is now coming back.\n",wakeup);
 				cashClerkLocks[wakeup]->Release();				
 			}
 			printf("Manager: Checking next line...\n");
