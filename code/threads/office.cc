@@ -79,19 +79,19 @@ extern void CashClerkRun(int);
 extern void PassClerkRun(int);
 extern void ManagerRun(int);
 
-void initializeClerkArrays(int, int, int, int);
+void initializeClerkArrays();
 void initializeCustomerArrays();
 void getInput();
 
 void Office() {
   
-  #IFNDEF TEST
+#ifndef TEST
   	getInput();
-  #ENDIF
+#endif
   
   
   
-  initializeClerkArrays(numAppClerks, numPicClerks, numPassClerks, numCashClerks);
+  initializeClerkArrays();
   initializeCustomerArrays();
 
   // Fork the application clerks
@@ -142,7 +142,7 @@ void Office() {
   t->Fork((VoidFunctionPtr)ManagerRun, 0);
 }
 
-void initializeClerkArrays(int numAppClerks, int numPicClerks, int numPassClerks, int numCashClerks) {
+void initializeClerkArrays() {
 
   for (int i = 0; i < MAX_APP_CLERKS; i++) {
     if (i < numAppClerks) {
@@ -235,4 +235,8 @@ void initializeCustomerArrays() {
     passFiled[i] = FALSE;
     cashFiled[i] = FALSE;
   }
+}
+
+void getInput(){
+	printf("DERP!");
 }
