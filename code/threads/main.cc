@@ -53,6 +53,10 @@
 #include "utility.h"
 #include "system.h"
 
+#ifndef TEST
+#define TEST
+#endif
+
 
 // External functions used by this file
 
