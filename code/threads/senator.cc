@@ -1,5 +1,5 @@
 //Senator
-#include "office.h"
+#include "office."h
 #include "system.h"
 
 using namespace std;
@@ -9,11 +9,11 @@ void doPassPortClerk(int* index, int* cashDollars);
 void doCashierClerk(int* index, int* cashDollars);
 void SenatorRun(int index)
 {
-	tprintf("Senator[%d]: Acquiring TotalSenatorsLock\n", index);
-	totalSenatorsLock->Acquire();
-	if (totalSenatorsInOffice==0){
-		tprintf("Senator[%d]: There are no other senators in office, going to Senator waiting room\n", index);
-		totalSenatorsLock->Release();
+	tprintf("Senator[%d]: Acquiring senatorOfficeLock\n", index);
+	senatorOfficeLock->Acquire();
+	if (totalSenatorsInOffice == 0){
+		tprintf("Senator[%d]: There are no other Senators in office, going to Senator waiting room\n", index);
+		senatorOfficeLock->Release();
 		senatorWaitingRoomLock->Acquire();
 		senatorsInWaitingRoom++;
 		tprintf("Senator[%d]: In the waiting room, taking a nap...\n", index);
@@ -36,7 +36,7 @@ void SenatorRun(int index)
 	
 	totalSenatorsInOffice++;
 	senatorWaitingRoomLock->Release();
-	totalSenatorsLock->Release();
+	senatorOfficeLock->Release();
 	
 	//choose line		
 	printf("Senator[%d]: Deciding between AppClerk and PictureClerk...\n", index);
