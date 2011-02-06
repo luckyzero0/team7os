@@ -3,6 +3,8 @@
 #include "timer.h"
 #include <stdio.h>
 
+int TESTING = FALSE;
+
 // ApplicationClerk and PictureClerk lines
 Lock* appPicLineLock = new Lock("appPicLineLock");
 Condition* regAppLineCV = new Condition("regAppLineCV");
@@ -85,9 +87,9 @@ void getInput();
 
 void Office() {
   
-#ifndef TEST
-  	getInput();
-#endif
+  if (!TESTING) {
+    getInput();
+  }
   
   
   
