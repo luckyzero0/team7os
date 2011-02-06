@@ -312,7 +312,10 @@ void CashClerkRun(int index){
 				printf("CashClerk %d: Customer with SSN %d has everything filed correctly!\n",index, SSN);
 				cashPunish[index] = FALSE;
 				cashFiled[SSN] = TRUE;
-				printf("CashClerk %d: Charging Customer with SSN %d $100! Cha Ching. Total amount of money collected: $%d\n", index, SSN, cashClerkMoney[index]); 
+				printf("CashClerk %d: Charging Customer with SSN %d $100! Cha Ching.\n", index, SSN);
+				cashClerkCVs[index]->Signal(cashClerkLocks[index]);
+				cashClerkCVs[index]->Wait(cashClerkLocks[index]);
+				printf("CashClerk %d: Total money collected: $%d\n",index, cashClerkMoney[index]);
 
 				//DEBUG
 				for (int i=0; i<10; i++){
