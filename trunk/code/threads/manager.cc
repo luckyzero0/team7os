@@ -26,9 +26,42 @@ void ManagerRun(int notUsed){
 					appClerkCVs[x]->Signal(appClerkLocks[x]);
 					printf("Manager: AppClerk[%x] is now available.\n",x);
 					appClerkLocks[x]->Release();
+					break;
 				}
 			}
 		}	
+		else if(regAppLineLength+privAppLineLength > 0)
+		{
+			int wakeup = -1;
+			printf("Manager: Making sure the AppClerks are working\n");
+			appPicLineLock->Acquire();
+			for(int x = 0; x < MAX_APP_CLERKS; x++)
+			{
+				//search to see if any clerks are available
+				if(appClerkStatuses[x] == CLERK_AVAILABLE)
+				{	
+					printf("Manager: There is an available AppClerk. Moving on.\n");					
+					wakeup = -1;
+					break;
+				}
+				else if(appClerkStatuses[x] == CLERK_ON_BREAK)
+				{
+					//we'll wake up this clerk if no one is available
+					printf("Manager: Tagging AppClerk[%d] to work...\n", x);
+					wakeup = x;
+				}
+			}
+			if(wakeup >= 0)
+			{
+				printf("Manager: Whipping AppClerk[%d] back to work\n",wakeup);
+				appClerkLocks[wakeup]->Acquire();				
+				appClerkStatuses[wakeup] = CLERK_AVAILABLE;
+				appClerkCVs[wakeup]->Signal(appClerkLocks[wakeup]);
+				printf("Manager: AppClerk[%x] is now available.\n",wakeup);
+				appClerkLocks[wakeup]->Release();				
+			}
+		}
+	
 		
 		printf("Manager: I spy [%d] customers in the PicLine\n", (regPicLineLength+privPicLineLength));
 		if(regPicLineLength + privPicLineLength > 3)
@@ -49,6 +82,39 @@ void ManagerRun(int notUsed){
 				}
 			}
 		}
+		else if(regPicLineLength+privPicLineLength > 0)
+		{
+			int wakeup = -1;
+			printf("Manager: Making sure the PicClerks are working\n");
+			appPicLineLock->Acquire();
+			for(int x = 0; x < MAX_PIC_CLERKS; x++)
+			{
+				//search to see if any clerks are available
+				if(picClerkStatuses[x] == CLERK_AVAILABLE)
+				{	
+					printf("Manager: There is an available PicClerk. Moving on.\n");					
+					wakeup = -1;
+					break;
+				}
+				else if(picClerkStatuses[x] == CLERK_ON_BREAK);
+				{
+					printf("Manager: Tagging PicClerk[%d] to work...\n", x);
+					//we'll wake up this clerk if no one is available
+					wakeup = x;
+				}
+			}
+			if(wakeup >= 0)
+			{
+				printf("Manager: Whipping PicClerk[%d] back to work\n",wakeup);
+				picClerkLocks[wakeup]->Acquire();				
+				picClerkStatuses[wakeup] = CLERK_AVAILABLE;
+				picClerkCVs[wakeup]->Signal(picClerkLocks[wakeup]);
+				printf("Manager: PicClerk[%x] is now available.\n",wakeup);
+				picClerkLocks[wakeup]->Release();				
+			}
+		}
+		
+		
 		
 		printf("Manager: I spy [%d] customers in the PassLine\n", (regPassLineLength+privPassLineLength));
 		if(regPassLineLength + privPassLineLength > 3)
@@ -69,6 +135,37 @@ void ManagerRun(int notUsed){
 				}
 			}
 		}
+		else if(regPassLineLength+privPassLineLength > 0)
+		{
+			int wakeup = -1;
+			printf("Manager: Making sure the PassClerks are working\n");
+			passLineLock->Acquire();
+			for(int x = 0; x < MAX_PASS_CLERKS; x++)
+			{
+				//search to see if any clerks are available
+				if(passClerkStatuses[x] == CLERK_AVAILABLE)
+				{	
+					printf("Manager: There is an available PassClerk. Moving on.\n");					
+					wakeup = -1;
+					break;
+				}
+				else if(passClerkStatuses[x] == CLERK_ON_BREAK)
+				{
+					//we'll wake up this clerk if no one is available
+					printf("Manager: Tagging PassClerk[%d] to work...\n", x);
+					wakeup = x;
+				}
+			}
+			if(wakeup >= 0)
+			{
+				printf("Manager: Whipping PassClerk[%d] back to work\n",wakeup);
+				passClerkLocks[wakeup]->Acquire();				
+				passClerkStatuses[wakeup] = CLERK_AVAILABLE;
+				passClerkCVs[wakeup]->Signal(passClerkLocks[wakeup]);
+				printf("Manager: PassClerk[%x] is now available.\n",wakeup);
+				passClerkLocks[wakeup]->Release();				
+			}
+		}
 		
 		printf("Manager: I spy [%d] customers in the CashLine\n", (regPassLineLength+privPassLineLength));
 		if(regCashLineLength >= 3)
@@ -87,6 +184,37 @@ void ManagerRun(int notUsed){
 					printf("Manager: CashClerk[%x] is now available.\n",x);
 					cashClerkLocks[x]->Release();
 				}
+			}
+		}
+		else if(regCashLineLength > 0)
+		{
+			int wakeup = -1;
+			printf("Manager: Making sure the CashClerks are working\n");
+			cashLineLock->Acquire();
+			for(int x = 0; x < MAX_CASH_CLERKS; x++)
+			{
+				//search to see if any clerks are available
+				if(cashClerkStatuses[x] == CLERK_AVAILABLE)
+				{	
+					printf("Manager: There is an available CashClerk. Moving on.\n");					
+					wakeup = -1;
+					break;
+				}
+				else if(cashClerkStatuses[x] == CLERK_ON_BREAK)
+				{
+					//we'll wake up this clerk if no one is available
+					printf("Manager: Tagging CashClerk[%d] to work...\n", x);
+					wakeup = x;
+				}
+			}
+			if(wakeup >= 0)
+			{
+				printf("Manager: Whipping CashClerk[%d] back to work\n",wakeup);
+				cashClerkLocks[wakeup]->Acquire();				
+				cashClerkStatuses[wakeup] = CLERK_AVAILABLE;
+				cashClerkCVs[wakeup]->Signal(cashClerkLocks[wakeup]);
+				printf("Manager: CashClerk[%x] is now available.\n",wakeup);
+				cashClerkLocks[wakeup]->Release();				
 			}
 		}
 		
