@@ -237,6 +237,20 @@ void initializeCustomerArrays() {
   }
 }
 
-void getInput(){
-	printf("DERP!");
+void getInput(){	
+	printf("\n# of ApplicationClerks = ");
+	scanf("%d",&numAppClerks);
+	
+	printf("\n# of PictureClerks = ");
+	scanf("%d",&numPicClerks);
+	
+	printf("\n# of PassportClerks = ");
+	scanf("%d",&numPassClerks);
+	
+	printf("\n# of CashierClerks = ");
+	scanf("%d",&numCashClerks);
+	
+	printf("\n# of Customers = ");
+	scanf("%d",&numCustomers);	
+	
 }
