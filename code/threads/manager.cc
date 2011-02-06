@@ -313,30 +313,36 @@ void tryToWakeupSenators() {
   if (senatorsInWaitingRoom > 0) {
     senatorWaitingRoomLock->Release();
     //acquire all line CVs
-    appPicLineLock->Acquire();
-    passLineLock->Acquire();
-    cashLineLock->Acquire();
-
-    privAppLineCV->Broadcast(appPicLineLock);
-    regAppLineCV->Broadcast(appPicLineLock);
-    privPicLineCV->Broadcast(appPicLineLock);
-    regPicLineCV->Broadcast(appPicLineLock);
-
-    privPassLineCV->Broadcast(passLineLock);
-    regPassLineCV->Broadcast(passLineLock);
-
-    regCashLineCV->Broadcast(cashLineLock);
-
-    cashLineLock->Release();
-    passLineLock->Release();
-    appPicLineLock->Release();
-
     customerOfficeLock->Acquire();
-    while (customersInOffice > 0) {
+    if (customersInOffice > 0) { //if there are customers in the office, tell them to get the hell out.
       customerOfficeLock->Release();
-      currentThread->Yield();
+      appPicLineLock->Acquire();
+      passLineLock->Acquire();
+      cashLineLock->Acquire();
+
+      privAppLineCV->Broadcast(appPicLineLock);
+      regAppLineCV->Broadcast(appPicLineLock);
+      privPicLineCV->Broadcast(appPicLineLock);
+      regPicLineCV->Broadcast(appPicLineLock);
+
+      privPassLineCV->Broadcast(passLineLock);
+      regPassLineCV->Broadcast(passLineLock);
+
+      regCashLineCV->Broadcast(cashLineLock);
+
+      cashLineLock->Release();
+      passLineLock->Release();
+      appPicLineLock->Release();
+
       customerOfficeLock->Acquire();
+      while (customersInOffice > 0) {
+	customerOfficeLock->Release();
+	currentThread->Yield();
+	customerOfficeLock->Acquire();
+      }
     }
+
+    customerOfficeLock->Release();
 
     senatorWaitingRoomLock->Acquire();
     senatorWaitingRoomCV->Broadcast(senatorWaitingRoomLock);
