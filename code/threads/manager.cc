@@ -8,7 +8,11 @@ void ManagerRun(int notUsed){
 	while(true)
 	{
 	  if(totalCustomersInOffice == 0) {
-	    printf("Manager: No more customers in the store, we're done.");
+	    printf("Manager: No more customers in the store, we're done.\n");
+	    for (int i = 0; i < MAX_CUSTOMERS; i++) {
+	      printf("Customer[%2d]: AppFiled:%d, PicFiled:%d, PassFiled:%d, CashFiled:%d\n", i, appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
+	    }
+	    break;
 	  }
 		printf("Manager: Time to slavedrive my clerks. Checking the lines...\n");
 		
