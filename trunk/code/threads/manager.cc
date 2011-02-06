@@ -225,6 +225,8 @@ void ManagerRun(int notUsed){
 		}
 		printf("Manager: Yielding to let other threads do work.\n");
 		cashLineLock->Release();
-		currentThread->Yield();
+		for (int i = 0; i < 50; i++) {
+		  currentThread->Yield();
+		}
 	}
 }

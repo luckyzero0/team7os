@@ -80,7 +80,7 @@ void Office() {
   int numPicClerks = 3; //
   int numPassClerks = 3;
   int numCashClerks = 3;
-  int numCustomers = 6;
+  int numCustomers = 20;
   
   initializeClerkArrays(numAppClerks, numPicClerks, numPassClerks, numCashClerks);
   initializeCustomerArrays();
