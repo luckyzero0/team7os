@@ -11,7 +11,7 @@ void SenatorRun(int index)
 {
 	tprintf("Senator[%d]: Acquiring senatorOfficeLock\n", index);
 	senatorOfficeLock->Acquire();
-	if (totalSenatorsInOffice == 0){
+	if (senatorsInOffice == 0){
 		tprintf("Senator[%d]: There are no other Senators in office, going to Senator waiting room\n", index);
 		senatorOfficeLock->Release();
 		senatorWaitingRoomLock->Acquire();
@@ -34,7 +34,7 @@ void SenatorRun(int index)
 		
 	printf("Senator[%d]: With $%d in my pocket\n",index,cashDollars);
 	
-	totalSenatorsInOffice++;
+	senatorsInOffice++;
 	senatorWaitingRoomLock->Release();
 	senatorOfficeLock->Release();
 	
@@ -359,7 +359,7 @@ void doCashierClerk(int* index, int* cashDollars)
 				cashClerkLocks[myClerk]->Release();
 				printf("Senator[%d]: GTFOing the office...\n",*index);
 				totalSenatorsLock->Acquire();
-				totalSenatorsInOffice--;
+				senatorsInOffice--;
 				totalSenatorsLock->Release();
 				break;				
 			}
