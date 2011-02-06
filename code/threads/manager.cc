@@ -10,12 +10,11 @@ void ManagerRun(int notUsed){
 		printf("Manager: Time to slavedrive my clerks. Checking the lines...\n");
 		
 		//check AppLineLenghts	
+		appPicLineLock->Acquire();
 		printf("Manager: I spy [%d] customers in the AppLine\n", (regAppLineLength+privAppLineLength));
 		if(regAppLineLength + privAppLineLength > 3)
 		{	
 			printf("Manager: Making sure the AppClerks are working\n");
-			appPicLineLock->Acquire();
-			printf("Manager: Acquired appPicLineLock\n");
 			for(int x = 0; x < MAX_APP_CLERKS; x++)
 			{
 				//put onbreak clerks to work
@@ -31,14 +30,11 @@ void ManagerRun(int notUsed){
 				}
 			}
 			printf("Manager: Checking next line...\n");
-			appPicLineLock->Release();
 		}	
 		else if(regAppLineLength+privAppLineLength > 0)
 		{
 			int wakeup = -1;
-			printf("Manager: Making sure the AppClerks are working\n");
-			appPicLineLock->Acquire();
-			printf("Manager: Acquired appPicLineLock\n");
+			printf("Manager: Making sure at least one AppClerk is working\n");
 			for(int x = 0; x < MAX_APP_CLERKS; x++)
 			{
 				//search to see if any clerks are available
@@ -65,16 +61,13 @@ void ManagerRun(int notUsed){
 				appClerkLocks[wakeup]->Release();				
 			}			
 			printf("Manager: Checking next line...\n");
-			appPicLineLock->Release();
 		}
 	
 		
 		printf("Manager: I spy [%d] customers in the PicLine\n", (regPicLineLength+privPicLineLength));
 		if(regPicLineLength + privPicLineLength > 3)
 		{
-			printf("Manager: Making sure the PicClerks are working\n");		
-			appPicLineLock->Acquire();	
-			printf("Manager: Acquired appPicLineLock\n");
+			printf("Manager: Making sure the PicClerks are working\n");
 			for(int x = 0; x < MAX_PIC_CLERKS; x++)
 			{
 				//put onbreak clerks to work
@@ -90,14 +83,11 @@ void ManagerRun(int notUsed){
 				}
 			}
 			printf("Manager: Checking next line...\n");
-			appPicLineLock->Release();
 		}
 		else if(regPicLineLength+privPicLineLength > 0)
 		{
 			int wakeup = -1;
-			printf("Manager: Making sure the PicClerks are working\n");			
-			appPicLineLock->Acquire();
-			printf("Manager: Acquired appPicLineLock\n");
+			printf("Manager: Making sure at least one PicClerk is working\n");
 			for(int x = 0; x < MAX_PIC_CLERKS; x++)
 			{
 				//search to see if any clerks are available
@@ -124,17 +114,14 @@ void ManagerRun(int notUsed){
 				picClerkLocks[wakeup]->Release();				
 			}
 			printf("Manager: Checking next line...\n");
-			appPicLineLock->Release();
 		}
+		appPicLineLock->Release();
 		
-		
-		
+		passLineLock->Acquire();
 		printf("Manager: I spy [%d] customers in the PassLine\n", (regPassLineLength+privPassLineLength));
 		if(regPassLineLength + privPassLineLength > 3)
 		{
-			printf("Manager: Making sure the PassClerks are working\n");
-			passLineLock->Acquire();
-			printf("Manager: Acquired passLineLock\n");
+		        printf("Manager: Making sure the PassClerks are working\n");
 			for(int x = 0; x < MAX_PASS_CLERKS; x++)
 			{
 				//put onbreak clerks to work
@@ -150,14 +137,11 @@ void ManagerRun(int notUsed){
 				}
 			}
 			printf("Manager: Checking next line...\n");
-			passLineLock->Release();
 		}
 		else if(regPassLineLength+privPassLineLength > 0)
 		{
 			int wakeup = -1;
-			printf("Manager: Making sure the PassClerks are working\n");
-			passLineLock->Acquire();
-			printf("Manager: Acquired passLineLock\n");
+			printf("Manager: Making sure at least one PassClerk is working\n");
 			for(int x = 0; x < MAX_PASS_CLERKS; x++)
 			{
 				//search to see if any clerks are available
@@ -184,15 +168,14 @@ void ManagerRun(int notUsed){
 				passClerkLocks[wakeup]->Release();				
 			}
 			printf("Manager: Checking next line...\n");
-			passLineLock->Release();
 		}
+		passLineLock->Release();
 		
+		cashLineLock->Acquire();
 		printf("Manager: I spy [%d] customers in the CashLine\n", (regCashLineLength));
 		if(regCashLineLength >= 3)
 		{
 			printf("Manager: Making sure the CashClerks are working\n");
-			cashLineLock->Acquire();
-			printf("Manager: Acquired cashLineLock\n");
 			for(int x = 0; x < MAX_CASH_CLERKS; x++)
 			{
 				//put onbreak clerks to work
@@ -208,14 +191,11 @@ void ManagerRun(int notUsed){
 				}
 			}
 			printf("Manager: Checking next line...\n");
-			cashLineLock->Acquire();
 		}
 		else if(regCashLineLength > 0)
 		{
 			int wakeup = -1;
-			printf("Manager: Making sure the CashClerks are working\n");
-			cashLineLock->Acquire();
-			printf("Manager: Acquired cashLineLock \n");
+			printf("Manager: Making sure at least one CashClerk is working\n");
 			for(int x = 0; x < MAX_CASH_CLERKS; x++)
 			{
 				//search to see if any clerks are available
@@ -242,9 +222,9 @@ void ManagerRun(int notUsed){
 				cashClerkLocks[wakeup]->Release();				
 			}
 			printf("Manager: Checking next line...\n");
-			cashLineLock->Release();
 		}
-		
+		printf("Manager: Yielding to let other threads do work.\n");
+		cashLineLock->Release();
 		currentThread->Yield();
 	}
 }
