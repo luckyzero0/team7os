@@ -37,6 +37,19 @@ void tryToWakeUpSenators() {
 			tprintf("Manager: Acquiring cashLineLock\n");
 			cashLineLock->Acquire();
 
+			//Setting all lines to 0;
+			privAppLineLength = 0;
+			regAppLineLength = 0;
+			privPicLineLength = 0;
+			regPicLineLength = 0;
+
+			privPassLineLength = 0;
+			regPassLineLength = 0;
+
+			regCashLineLength = 0;
+
+		
+
 			tprintf("Manager: Broadcasting to all lines\n");
 			privAppLineCV->Broadcast(appPicLineLock);
 			regAppLineCV->Broadcast(appPicLineLock);
