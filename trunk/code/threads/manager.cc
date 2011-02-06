@@ -96,10 +96,16 @@ void ManagerRun(int notUsed){
 	{
 		tryToWakeUpSenators();
 		tryToWakeUpCustomers();
-
+		/*
+		senatorWaitRoomLock->Acquire();
+		senatorOfficeLock->Acquire();
+		customerWaitRoomLock->Acquire();
 		customerOfficeLock->Acquire();
 		printf("Manager: There are [%d] Customer in the office.\n",customersInOffice);
-		if(customersInOffice == 0) {
+		if(customersInOffice == 0 && customersInWaitingRoom == 0 && senatorsInOffice == 0 && senatorsInWaitingRoom == 0 && FINISHED_FORKING) {
+			senatorWaitRoomLock->Release();
+			senatorOfficeLock->Release();
+			customerWaitRoomLock->Release();
 			customerOfficeLock->Release();
 			printf("Manager: No more customers in the store, we're done.\n");
 			for (int i = 0; i < MAX_CUSTOMERS; i++) {
@@ -122,6 +128,9 @@ void ManagerRun(int notUsed){
 			}
 		}
 		customerOfficeLock->Release();
+		customerWaitRoomLock->Release();
+		senatorOfficeLock->Release();
+		senatorWaitRoomLock->Release(); */
 		printf("Manager: Time to slavedrive my clerks. Checking the lines...\n");
 
 		//check AppLineLenghts	
