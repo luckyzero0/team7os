@@ -10,15 +10,19 @@ static void doPassPortClerk(int* index, int* cashDollars);
 static void doCashierClerk(int* index, int* cashDollars);
 
 int waitAndRestart(){
+	tprintf("Customer: waitAndRestart entered\n");
 	senatorWaitingRoomLock->Acquire();
 	if (senatorsInWaitingRoom>0){
+		tprintf("Customer: There are %d senators in waiting room\n", senatorsInWaitingRoom);
 		senatorWaitingRoomLock->Release();
 		customerWaitingRoomLock->Acquire();
 		customerOfficeLock->Acquire();
 		customersInWaitingRoom++;
 		customersInOffice--;
 		customerOfficeLock->Release();
+		tprintf("Customer: Waiting in the Waiting room..\n");
 		customerWaitingRoomCV->Wait(customerWaitingRoomLock);
+		tprintf("Customer: No more senators! Returning to passport office\n");
 		customerOfficeLock->Acquire();
 		customersInWaitingRoom--;
 		customersInOffice++;
@@ -26,6 +30,7 @@ int waitAndRestart(){
 		customerWaitingRoomLock->Release();
 		return TRUE;
 	}else{
+		tprintf("Customer: There are no senators waiting.. carrying on\n");
 		senatorWaitingRoomLock->Release();
 		return FALSE;
 	}
