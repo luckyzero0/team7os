@@ -223,8 +223,8 @@ void PassClerkRun(int index){
 			}
 			int SSN = passClerkSSNs[index];
 			//DEBUG
-			appFiled[SSN] = TRUE;
-			picFiled[SSN] = TRUE;			
+			//appFiled[SSN] = TRUE;
+			//picFiled[SSN] = TRUE;			
 			//
 			
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
