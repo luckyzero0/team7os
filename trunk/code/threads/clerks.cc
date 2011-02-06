@@ -88,7 +88,7 @@ void AppClerkRun(int index){
 			printf("AppClerk %d: Going on Break!\n", index);
 			appClerkStatuses[index] = CLERK_ON_BREAK;
 			appClerkCVs[index]->Wait(appClerkLocks[index]);
-			printf("AppClerk %d: Going off Break, returning to work!", index);
+			printf("AppClerk %d: Going off Break, returning to work!\n", index);
 			appClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
@@ -178,7 +178,7 @@ void PicClerkRun(int index){
 			printf("PicClerk %d: Going on Break!\n", index);
 			picClerkStatuses[index] = CLERK_ON_BREAK;
 			picClerkCVs[index]->Wait(picClerkLocks[index]);
-			printf("PicClerk %d: Going off Break, returning to work!", index);
+			printf("PicClerk %d: Going off Break, returning to work!\n", index);
 			picClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
@@ -259,7 +259,7 @@ void PassClerkRun(int index){
 			printf("PassClerk %d: Going on Break!\n", index);
 			passClerkStatuses[index] = CLERK_ON_BREAK;
 			passClerkCVs[index]->Wait(passClerkLocks[index]);
-			printf("PassClerk %d: Going off Break, returning to work!", index);
+			printf("PassClerk %d: Going off Break, returning to work!\n", index);
 			passClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
@@ -339,7 +339,7 @@ void CashClerkRun(int index){
 			printf("CashClerk %d: Going on Break!\n", index);
 			cashClerkStatuses[index] = CLERK_ON_BREAK;
 			cashClerkCVs[index]->Wait(cashClerkLocks[index]);
-			printf("CashClerk %d: Going off Break, returning to work!", index);
+			printf("CashClerk %d: Going off Break, returning to work!\n", index);
 			cashClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
