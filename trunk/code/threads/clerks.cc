@@ -223,8 +223,8 @@ void PassClerkRun(int index){
 			}
 			int SSN = passClerkSSNs[index];
 			//DEBUG
-			//appFiled[SSN] = TRUE;
-			//picFiled[SSN] = TRUE;			
+			appFiled[SSN] = TRUE;
+			picFiled[SSN] = TRUE;			
 			//
 			
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
@@ -307,7 +307,7 @@ void CashClerkRun(int index){
 			printf("CashClerk %d: Just woke up!\n",index);
 			int SSN = cashClerkSSNs[index];
 			//DEBUG
-			//passFiled[SSN] = TRUE;
+			passFiled[SSN] = TRUE;
 			//
 			if(passFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
