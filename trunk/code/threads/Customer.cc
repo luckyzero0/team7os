@@ -4,10 +4,10 @@
 #include <iostream>
 
 using namespace std;
-void doAppClerk(int* index, int* cashDollars);
-void doPicClerk(int* index, int* cashDollars);
-void doPassPortClerk(int* index, int* cashDollars);
-void doCashierClerk(int* index, int* cashDollars);
+static void doAppClerk(int* index, int* cashDollars);
+static void doPicClerk(int* index, int* cashDollars);
+static void doPassPortClerk(int* index, int* cashDollars);
+static void doCashierClerk(int* index, int* cashDollars);
 void CustomerRun(int index) {	
 	
 	printf("Customer[%d]: Entering the passport office...\n",index);
@@ -61,7 +61,7 @@ void CustomerRun(int index) {
 	doCashierClerk(&index, &cashDollars);
 }
 
-void doAppClerk(int* index, int* cashDollars)
+static void doAppClerk(int* index, int* cashDollars)
 {
 	bool privLine = false;
 	int myClerk = -1;
@@ -124,7 +124,7 @@ void doAppClerk(int* index, int* cashDollars)
 		}
 }
 
-void doPicClerk(int* index, int* cashDollars)
+static void doPicClerk(int* index, int* cashDollars)
 {
 	int myClerk;
 	bool privLine = false;
@@ -210,7 +210,7 @@ void doPicClerk(int* index, int* cashDollars)
 		}
 }
 
-void doPassPortClerk(int *index, int* cashDollars){	
+static void doPassPortClerk(int *index, int* cashDollars){	
 	int myClerk = -1;
 	bool privLined = false;
 	bool bribed = false;
@@ -284,7 +284,7 @@ void doPassPortClerk(int *index, int* cashDollars){
 }
 
 
-void doCashierClerk(int* index, int* cashDollars)
+static void doCashierClerk(int* index, int* cashDollars)
 {	
 	int myClerk = -1;
 	printf("Customer[%d]: Going to the CashClerk\n",*index);	
