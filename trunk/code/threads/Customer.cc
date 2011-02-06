@@ -337,6 +337,7 @@ void doCashierClerk(int* index, int* cashDollars)
 				printf("Customer[%d]: Passport paid for like a pro. CashDollars = [$%d]\n", *index, *cashDollars);											
 				cashClerkLocks[myClerk]->Release();
 				printf("Customer[%d]: GTFOing the office...\n",*index);
+				totalCustomersInOffice--;
 				break;				
 			}
 			cashClerkLocks[myClerk]->Release();

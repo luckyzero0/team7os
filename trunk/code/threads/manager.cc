@@ -7,6 +7,9 @@ void ManagerRun(int notUsed){
 	
 	while(true)
 	{
+	  if(totalCustomersInOffice == 0) {
+	    printf("Manager: No more customers in the store, we're done.");
+	  }
 		printf("Manager: Time to slavedrive my clerks. Checking the lines...\n");
 		
 		//check AppLineLenghts	
