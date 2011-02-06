@@ -18,7 +18,7 @@ void CustomerRun(int index) {
 		
 	printf("Customer[%d]: With $%d in my pocket\n",index,cashDollars);
 	customerOfficeLock->Acquire();
-	totalCustomersInOffice++;
+	customersInOffice++;
 	customerOfficeLock->Release();
 	
 	//choose line		
@@ -340,7 +340,7 @@ void doCashierClerk(int* index, int* cashDollars)
 				cashClerkLocks[myClerk]->Release();
 				printf("Customer[%d]: GTFOing the office...\n",*index);
 				customerOfficeLock->Acquire();
-				totalCustomersInOffice--;
+				customersInOffice--;
 				customerOfficeLock->Release();
 				break;				
 			}
