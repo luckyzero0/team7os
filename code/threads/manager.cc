@@ -24,14 +24,20 @@ void tryToWakeUpSenators() {
 	senatorWaitingRoomLock->Acquire();
 	if (senatorsInWaitingRoom > 0) {
 		senatorWaitingRoomLock->Release();
+		tprintf("Manager: There are senators in the waiting room! \n");
 		//acquire all line CVs
 		customerOfficeLock->Acquire();
 		if (customersInOffice > 0) { //if there are customers in the office, tell them to get the hell out.
+			tprintf("Manager: I need to tell all %d customers to GTFO\n", customersInOffice);
 			customerOfficeLock->Release();
+			tprintf("Manager: Acquiring appPicLineLock\n");
 			appPicLineLock->Acquire();
+			tprintf("Manager: Acquiring passLineLock\n");
 			passLineLock->Acquire();
+			tprintf("Manager: Acquiring cashLineLock\n");
 			cashLineLock->Acquire();
 
+			tprintf("Manager: Broadcasting to all lines\n");
 			privAppLineCV->Broadcast(appPicLineLock);
 			regAppLineCV->Broadcast(appPicLineLock);
 			privPicLineCV->Broadcast(appPicLineLock);
@@ -42,12 +48,18 @@ void tryToWakeUpSenators() {
 
 			regCashLineCV->Broadcast(cashLineLock);
 
+
+			tprintf("Manager: Releasing cashLineLock\n");
 			cashLineLock->Release();
+			tprintf("Manager: Releasing passLineLock\n");
 			passLineLock->Release();
+			tprintf("Manager: Releasing appPicLineLock\n");
 			appPicLineLock->Release();
 
+			
 			customerOfficeLock->Acquire();
 			while (customersInOffice > 0) {
+				tprintf("Manager: Waiting for remaining %d customers to leave\n", customersInOffice);
 				customerOfficeLock->Release();
 				currentThread->Yield();
 				customerOfficeLock->Acquire();
@@ -55,7 +67,8 @@ void tryToWakeUpSenators() {
 		}
 
 		customerOfficeLock->Release();
-
+		
+		tprintf("Manager: Telling all %d senators to enter the office\n", senatorsInWaitingRoom);
 		senatorWaitingRoomLock->Acquire();
 		senatorWaitingRoomCV->Broadcast(senatorWaitingRoomLock);
 	}
