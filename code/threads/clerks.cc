@@ -147,10 +147,6 @@ void PicClerkRun(int index){
 
 				if(happyWithPhoto[index] == TRUE){
 					int SSN = picClerkSSNs[index];
-					if (SSN >= 6) { // HACK, REMOVE LATER
-						printf("SSN >= 6!  Cannot BE SO! FAIL!");
-						exit(0);
-					}
 					//picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
 					Thread* t = new Thread("Pass Filing Thread");
 					t->Fork((VoidFunctionPtr)picClerkFileData,SSN);
