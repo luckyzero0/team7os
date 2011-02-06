@@ -2,6 +2,7 @@
 #include "thread.h"
 #include "timer.h"
 #include <stdio.h>
+#include <stdarg.h>
 
 int TESTING = FALSE;
 
@@ -255,4 +256,13 @@ void getInput(){
 	printf("\n# of Customers = ");
 	scanf("%d",&numCustomers);	
 	
+}
+
+void tprintf(char* formatString, ...) {
+  if (TESTING) {
+    va_list args;
+    va_start(args, formatString);
+    vprintf(formatString, args);
+    va_end(args);
+  }
 }

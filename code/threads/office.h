@@ -87,5 +87,5 @@ extern int passFiled[];
 extern int cashFiled[];
 
 extern void Office();
-
+extern void tprintf(char*, ...);
 #endif
