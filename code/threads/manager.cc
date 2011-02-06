@@ -30,6 +30,7 @@ void ManagerRun(int notUsed){
 					break;
 				}
 			}
+			printf("Manager: Checking next line...\n");
 		}	
 		else if(regAppLineLength+privAppLineLength > 0)
 		{
@@ -42,7 +43,7 @@ void ManagerRun(int notUsed){
 				//search to see if any clerks are available
 				if(appClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
-					printf("Manager: There is an available AppClerk. Moving on.\n");					
+					printf("Manager: AppClerk[%d] is available. Moving on.\n",x);					
 					wakeup = -1;
 					break;
 				}
@@ -61,7 +62,7 @@ void ManagerRun(int notUsed){
 				appClerkCVs[wakeup]->Signal(appClerkLocks[wakeup]);
 				printf("Manager: AppClerk[%x] is now available.\n",wakeup);
 				appClerkLocks[wakeup]->Release();				
-			}
+			}			
 		}
 	
 		
@@ -82,8 +83,10 @@ void ManagerRun(int notUsed){
 					picClerkCVs[x]->Signal(picClerkLocks[x]);
 					printf("Manager: PicClerk[%x] is now available.\n",x);
 					picClerkLocks[x]->Release();
+					break;
 				}
 			}
+			printf("Manager: Checking next line...\n");
 		}
 		else if(regPicLineLength+privPicLineLength > 0)
 		{
@@ -96,7 +99,7 @@ void ManagerRun(int notUsed){
 				//search to see if any clerks are available
 				if(picClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
-					printf("Manager: There is an available PicClerk. Moving on.\n");					
+					printf("Manager: PicClerk[%d] is available. Moving on.\n",x);					
 					wakeup = -1;
 					break;
 				}
@@ -116,6 +119,7 @@ void ManagerRun(int notUsed){
 				printf("Manager: PicClerk[%x] is now available.\n",wakeup);
 				picClerkLocks[wakeup]->Release();				
 			}
+			printf("Manager: Checking next line...\n");
 		}
 		
 		
@@ -137,8 +141,10 @@ void ManagerRun(int notUsed){
 					passClerkCVs[x]->Signal(passClerkLocks[x]);
 					printf("Manager: PassClerk[%x] is now available.\n",x);
 					passClerkLocks[x]->Release();
+					break;
 				}
 			}
+			printf("Manager: Checking next line...\n");
 		}
 		else if(regPassLineLength+privPassLineLength > 0)
 		{
@@ -151,7 +157,7 @@ void ManagerRun(int notUsed){
 				//search to see if any clerks are available
 				if(passClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
-					printf("Manager: There is an available PassClerk. Moving on.\n");					
+					printf("Manager: PassClerk[%d] is available. Moving on.\n");					
 					wakeup = -1;
 					break;
 				}
@@ -171,6 +177,7 @@ void ManagerRun(int notUsed){
 				printf("Manager: PassClerk[%x] is now available.\n",wakeup);
 				passClerkLocks[wakeup]->Release();				
 			}
+			printf("Manager: Checking next line...\n");
 		}
 		
 		printf("Manager: I spy [%d] customers in the CashLine\n", (regPassLineLength+privPassLineLength));
@@ -190,8 +197,10 @@ void ManagerRun(int notUsed){
 					cashClerkCVs[x]->Signal(cashClerkLocks[x]);
 					printf("Manager: CashClerk[%x] is now available.\n",x);
 					cashClerkLocks[x]->Release();
+					break;
 				}
 			}
+			printf("Manager: Checking next line...\n");
 		}
 		else if(regCashLineLength > 0)
 		{
@@ -204,7 +213,7 @@ void ManagerRun(int notUsed){
 				//search to see if any clerks are available
 				if(cashClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
-					printf("Manager: There is an available CashClerk. Moving on.\n");					
+					printf("Manager: CashClerk[%d] is available. Moving on.\n");					
 					wakeup = -1;
 					break;
 				}
@@ -224,6 +233,7 @@ void ManagerRun(int notUsed){
 				printf("Manager: CashClerk[%x] is now available.\n",wakeup);
 				cashClerkLocks[wakeup]->Release();				
 			}
+			printf("Manager: Checking next line...\n");
 		}
 		
 		currentThread->Yield();
