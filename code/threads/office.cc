@@ -1,5 +1,6 @@
 #include "office.h"
 #include "thread.h"
+#include "timer.h"
 #include <stdio.h>
 
 // ApplicationClerk and PictureClerk lines
