@@ -110,24 +110,24 @@ void CustomerRun(int index) {
 			appPicLineLock->Release();
 			printf("Customer[%d]: Going to AppClerk first.\n",index);
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(); //SENATOR
+			waitAndRestart(NULL); //SENATOR
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(); //SENATOR
+			waitAndRestart(NULL); //SENATOR
 		}
 		else
 		{
 			appPicLineLock->Release();
 			printf("Customer[%d]: Going to PicClerk first.\n",index);
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(); //SENATOR
+			waitAndRestart(NULL); //SENATOR
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(); //SENATOR
+			waitAndRestart(NULL); //SENATOR
 		}	
 	}
 
 	//hit up the passport clerk
 	doPassPortClerk(&index, &cashDollars);
-	waitAndRestart(); //SENATOR
+	waitAndRestart(NULL); //SENATOR
 
 	//proceed to cashier
 	doCashierClerk(&index, &cashDollars);
