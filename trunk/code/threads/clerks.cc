@@ -55,8 +55,8 @@ void AppClerkRun(int index){
 				printf("AppClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regAppLineLength);
 				regAppLineCV->Signal(appPicLineLock);
 			}
-			//Customer - Clerk interaction
 
+			//Customer - Clerk interaction
 			printf("AppClerk %d: Acquiring my own lock\n",index);
 			appClerkLocks[index]->Acquire();
 			printf("AppClerk %d: Releasing appPicLineLock\n",index);
@@ -83,21 +83,16 @@ void AppClerkRun(int index){
 
 		}
 		else{ //No one in line
-
 			appPicLineLock->Release();
-
-			if(appClerkStatuses[index]!=CLERK_ON_BREAK){
-				printf("AppClerk %d: Going on Break!\n", index);
-				appClerkStatuses[index] = CLERK_ON_BREAK;
-			}
+			appClerkLocks[index]->Acquire();
+			printf("AppClerk %d: Going on Break!\n", index);
+			appClerkStatuses[index] = CLERK_ON_BREAK;
+			appClerkCVs[index]->Wait(appClerkLocks[index]);
+			printf("AppClerk %d: Going off Break, returning to work!", index);
+			appClerkLocks[index]->Release();
 		}
-
-
 		currentThread->Yield();
 	}
-
-
-
 }
 
 
@@ -178,12 +173,13 @@ void PicClerkRun(int index){
 		}
 
 		else{ //No one in line
-			appPicLineLock->Release();
-
-			if(picClerkStatuses[index]!=CLERK_ON_BREAK){
-				printf("PicClerk %d: Going on Break!\n", index);
-				picClerkStatuses[index] = CLERK_ON_BREAK;
-			}
+			picPicLineLock->Release();
+			picClerkLocks[index]->Acquire();
+			printf("PicClerk %d: Going on Break!\n", index);
+			picClerkStatuses[index] = CLERK_ON_BREAK;
+			picClerkCVs[index]->Wait(picClerkLocks[index]);
+			printf("PicClerk %d: Going off Break, returning to work!", index);
+			picClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
 	}
@@ -258,13 +254,13 @@ void PassClerkRun(int index){
 
 		}
 		else{ //No one in line
-
-			passLineLock->Release();
-
-			if(passClerkStatuses[index]!=CLERK_ON_BREAK){
-				printf("PassClerk %d: Going on Break!\n", index);
-				passClerkStatuses[index] = CLERK_ON_BREAK;
-			}
+			passPicLineLock->Release();
+			passClerkLocks[index]->Acquire();
+			printf("PassClerk %d: Going on Break!\n", index);
+			passClerkStatuses[index] = CLERK_ON_BREAK;
+			passClerkCVs[index]->Wait(passClerkLocks[index]);
+			printf("PassClerk %d: Going off Break, returning to work!", index);
+			passClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
 	}
@@ -338,12 +334,13 @@ void CashClerkRun(int index){
 		}
 		else{ //No one in line
 
-			cashLineLock->Release();
-
-			if(cashClerkStatuses[index]!=CLERK_ON_BREAK){
-				printf("CashClerk %d: Going on Break!\n", index);
-				cashClerkStatuses[index] = CLERK_ON_BREAK;
-			}
+			CashLineLock->Release();
+			cashClerkLocks[index]->Acquire();
+			printf("CashClerk %d: Going on Break!\n", index);
+			cashClerkStatuses[index] = CLERK_ON_BREAK;
+			cashClerkCVs[index]->Wait(cashClerkLocks[index]);
+			printf("CashClerk %d: Going off Break, returning to work!", index);
+			cashClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
 
