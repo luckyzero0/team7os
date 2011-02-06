@@ -3,41 +3,101 @@
 #include "system.h"
 #include <iostream>
 
-void tryToWakeupSenators();
+void tryToWakeUpSenators();
+void tryToWakeUpCustomers();
+
+void tryToWakeUpCustomers(){ 
+	senatorWaitingRoomLock->Acquire();
+	senatorOfficeLock->Acquire();
+	if (senatorsInWaitingRoom+senatorsInOffice == 0){
+		customerWaitingRoomLock->Acquire();
+		customerWaitingRoomCV->Broadcast(customerWaitingRoomLock);
+		customerWaitingRoomLock->Release();
+	}
+	senatorOfficeLock->Release();
+	senatorWaitingRoomLock->Release();
+
+	//What if a senator enters right now?!?!?!?!?!
+}
+
+void tryToWakeUpSenators() {
+	senatorWaitingRoomLock->Acquire();
+	if (senatorsInWaitingRoom > 0) {
+		senatorWaitingRoomLock->Release();
+		//acquire all line CVs
+		customerOfficeLock->Acquire();
+		if (customersInOffice > 0) { //if there are customers in the office, tell them to get the hell out.
+			customerOfficeLock->Release();
+			appPicLineLock->Acquire();
+			passLineLock->Acquire();
+			cashLineLock->Acquire();
+
+			privAppLineCV->Broadcast(appPicLineLock);
+			regAppLineCV->Broadcast(appPicLineLock);
+			privPicLineCV->Broadcast(appPicLineLock);
+			regPicLineCV->Broadcast(appPicLineLock);
+
+			privPassLineCV->Broadcast(passLineLock);
+			regPassLineCV->Broadcast(passLineLock);
+
+			regCashLineCV->Broadcast(cashLineLock);
+
+			cashLineLock->Release();
+			passLineLock->Release();
+			appPicLineLock->Release();
+
+			customerOfficeLock->Acquire();
+			while (customersInOffice > 0) {
+				customerOfficeLock->Release();
+				currentThread->Yield();
+				customerOfficeLock->Acquire();
+			}
+		}
+
+		customerOfficeLock->Release();
+
+		senatorWaitingRoomLock->Acquire();
+		senatorWaitingRoomCV->Broadcast(senatorWaitingRoomLock);
+	}
+	senatorWaitingRoomLock->Release();
+
+	//might want some yields here
+}
 
 void ManagerRun(int notUsed){
-	
+
 	while(true)
 	{
-	  tryToWakeupSenators();
+		tryToWakeUpSenators();
+		tryToWakeUpCustomers();
 
-	  customerOfficeLock->Acquire();
-	  printf("Manager: There are [%d] Customer in the office.\n",customersInOffice);
-	  if(customersInOffice == 0) {
-	    customerOfficeLock->Release();
-	    printf("Manager: No more customers in the store, we're done.\n");
-	    for (int i = 0; i < MAX_CUSTOMERS; i++) {
-	      printf("Customer[%2d]: AppFiled:%d, PicFiled:%d, PassFiled:%d, CashFiled:%d\n", i, appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
-	    }
-	    if(TESTING) {
-	      printf("Manager: In test mode -- tabulating totals.\n");
-	      int totalPassportMoney = 0;
-	      for (int i = 0; i < MAX_CASH_CLERKS; i++) {
-		totalPassportMoney += cashClerkMoney[i];
-	      }
-	      if (totalPassportMoney == numCustomers * 100) {
-		exit(0);
-	      } else {
-		exit(1);
-	      }
-	    }
-	    else {
-	      break;
-	    }
-	  }
-	  customerOfficeLock->Release();
+		customerOfficeLock->Acquire();
+		printf("Manager: There are [%d] Customer in the office.\n",customersInOffice);
+		if(customersInOffice == 0) {
+			customerOfficeLock->Release();
+			printf("Manager: No more customers in the store, we're done.\n");
+			for (int i = 0; i < MAX_CUSTOMERS; i++) {
+				printf("Customer[%2d]: AppFiled:%d, PicFiled:%d, PassFiled:%d, CashFiled:%d\n", i, appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
+			}
+			if(TESTING) {
+				printf("Manager: In test mode -- tabulating totals.\n");
+				int totalPassportMoney = 0;
+				for (int i = 0; i < MAX_CASH_CLERKS; i++) {
+					totalPassportMoney += cashClerkMoney[i];
+				}
+				if (totalPassportMoney == numCustomers * 100) {
+					exit(0);
+				} else {
+					exit(1);
+				}
+			}
+			else {
+				break;
+			}
+		}
+		customerOfficeLock->Release();
 		printf("Manager: Time to slavedrive my clerks. Checking the lines...\n");
-		
+
 		//check AppLineLenghts	
 		appPicLineLock->Acquire();
 		printf("Manager: I spy [%d] customers in the AppLine\n", (regAppLineLength+privAppLineLength));
@@ -75,15 +135,15 @@ void ManagerRun(int notUsed){
 				}
 				else if (appClerkStatuses[x] == CLERK_BUSY)
 				{
-				  printf("Manager: AppClerk[%d] is busy. Moving on. \n", x);
-				  wakeup = -1;
-				  break;
+					printf("Manager: AppClerk[%d] is busy. Moving on. \n", x);
+					wakeup = -1;
+					break;
 				}
 				else if (appClerkStatuses[x] == CLERK_COMING_BACK)
 				{
-				  printf("Manager: AppClerk[%d] is coming back. Moving on. \n", x);
-				  wakeup = -1;
-				  break;
+					printf("Manager: AppClerk[%d] is coming back. Moving on. \n", x);
+					wakeup = -1;
+					break;
 				}  
 				else if(appClerkStatuses[x] == CLERK_ON_BREAK)
 				{
@@ -103,8 +163,8 @@ void ManagerRun(int notUsed){
 			}			
 			printf("Manager: Checking next line...\n");
 		}
-	
-		
+
+
 		printf("Manager: I spy [%d] customers in the PicLine\n", (regPicLineLength+privPicLineLength));
 		if(regPicLineLength + privPicLineLength > 3)
 		{
@@ -140,15 +200,15 @@ void ManagerRun(int notUsed){
 				}
 				else if (picClerkStatuses[x] == CLERK_BUSY)
 				{
-				  printf("Manager: PicClerk[%d] is busy. Moving on. \n", x);
-				  wakeup = -1;
-				  break;
+					printf("Manager: PicClerk[%d] is busy. Moving on. \n", x);
+					wakeup = -1;
+					break;
 				}
 				else if (picClerkStatuses[x] == CLERK_COMING_BACK)
 				{
-				  printf("Manager: PicClerk[%d] is coming back. Moving on. \n", x);
-				  wakeup = -1;
-				  break;
+					printf("Manager: PicClerk[%d] is coming back. Moving on. \n", x);
+					wakeup = -1;
+					break;
 				} 
 				else if(picClerkStatuses[x] == CLERK_ON_BREAK)
 				{
@@ -169,12 +229,12 @@ void ManagerRun(int notUsed){
 			printf("Manager: Checking next line...\n");
 		}
 		appPicLineLock->Release();
-		
+
 		passLineLock->Acquire();
 		printf("Manager: I spy [%d] customers in the PassLine\n", (regPassLineLength+privPassLineLength));
 		if(regPassLineLength + privPassLineLength > 3)
 		{
-		        printf("Manager: Making sure the PassClerks are working\n");
+			printf("Manager: Making sure the PassClerks are working\n");
 			for(int x = 0; x < MAX_PASS_CLERKS; x++)
 			{
 				//put onbreak clerks to work
@@ -206,15 +266,15 @@ void ManagerRun(int notUsed){
 				}
 				else if (passClerkStatuses[x] == CLERK_BUSY)
 				{
-				  printf("Manager: AppClerk[%d] is busy. Moving on. \n", x);
-				  wakeup = -1;
-				  break;
+					printf("Manager: AppClerk[%d] is busy. Moving on. \n", x);
+					wakeup = -1;
+					break;
 				}
 				else if (passClerkStatuses[x] == CLERK_COMING_BACK)
 				{
-				  printf("Manager: PassClerk[%d] is coming back. Moving on. \n", x);
-				  wakeup = -1;
-				  break;
+					printf("Manager: PassClerk[%d] is coming back. Moving on. \n", x);
+					wakeup = -1;
+					break;
 				} 
 				else if(passClerkStatuses[x] == CLERK_ON_BREAK)
 				{
@@ -235,7 +295,7 @@ void ManagerRun(int notUsed){
 			printf("Manager: Checking next line...\n");
 		}
 		passLineLock->Release();
-		
+
 		cashLineLock->Acquire();
 		printf("Manager: I spy [%d] customers in the CashLine\n", (regCashLineLength));
 		if(regCashLineLength >= 3)
@@ -272,15 +332,15 @@ void ManagerRun(int notUsed){
 				}
 				else if (cashClerkStatuses[x] == CLERK_BUSY)
 				{
-				  printf("Manager: AppClerk[%d] is busy. Moving on. \n", x);
-				  wakeup = -1;
-				  break;
+					printf("Manager: AppClerk[%d] is busy. Moving on. \n", x);
+					wakeup = -1;
+					break;
 				}
 				else if (cashClerkStatuses[x] == CLERK_COMING_BACK)
 				{
-				  printf("Manager: CashClerk[%d] is coming back. Moving on. \n", x);
-				  wakeup = -1;
-				  break;
+					printf("Manager: CashClerk[%d] is coming back. Moving on. \n", x);
+					wakeup = -1;
+					break;
 				} 
 				else if(cashClerkStatuses[x] == CLERK_ON_BREAK)
 				{
@@ -303,51 +363,8 @@ void ManagerRun(int notUsed){
 		printf("Manager: Yielding to let other threads do work.\n");
 		cashLineLock->Release();
 		for (int i = 0; i < 50; i++) {
-		  currentThread->Yield();
+			currentThread->Yield();
 		}
 	}
 }
 
-void tryToWakeupSenators() {
-  senatorWaitingRoomLock->Acquire();
-  if (senatorsInWaitingRoom > 0) {
-    senatorWaitingRoomLock->Release();
-    //acquire all line CVs
-    customerOfficeLock->Acquire();
-    if (customersInOffice > 0) { //if there are customers in the office, tell them to get the hell out.
-      customerOfficeLock->Release();
-      appPicLineLock->Acquire();
-      passLineLock->Acquire();
-      cashLineLock->Acquire();
-
-      privAppLineCV->Broadcast(appPicLineLock);
-      regAppLineCV->Broadcast(appPicLineLock);
-      privPicLineCV->Broadcast(appPicLineLock);
-      regPicLineCV->Broadcast(appPicLineLock);
-
-      privPassLineCV->Broadcast(passLineLock);
-      regPassLineCV->Broadcast(passLineLock);
-
-      regCashLineCV->Broadcast(cashLineLock);
-
-      cashLineLock->Release();
-      passLineLock->Release();
-      appPicLineLock->Release();
-
-      customerOfficeLock->Acquire();
-      while (customersInOffice > 0) {
-	customerOfficeLock->Release();
-	currentThread->Yield();
-	customerOfficeLock->Acquire();
-      }
-    }
-
-    customerOfficeLock->Release();
-
-    senatorWaitingRoomLock->Acquire();
-    senatorWaitingRoomCV->Broadcast(senatorWaitingRoomLock);
-  }
-  senatorWaitingRoomLock->Release();
-
-  //might want some yields here
-}
