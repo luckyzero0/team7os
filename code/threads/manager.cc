@@ -69,8 +69,7 @@ void ManagerRun(int notUsed){
 		printf("Manager: I spy [%d] customers in the PicLine\n", (regPicLineLength+privPicLineLength));
 		if(regPicLineLength + privPicLineLength > 3)
 		{
-			printf("Manager: Making sure the PicClerks are working\n");
-			appPicLineLock->Acquire();
+			printf("Manager: Making sure the PicClerks are working\n");			
 			printf("Manager: Acquired appPicLineLock\n");
 			for(int x = 0; x < MAX_PIC_CLERKS; x++)
 			{
@@ -91,8 +90,7 @@ void ManagerRun(int notUsed){
 		else if(regPicLineLength+privPicLineLength > 0)
 		{
 			int wakeup = -1;
-			printf("Manager: Making sure the PicClerks are working\n");
-			appPicLineLock->Acquire();
+			printf("Manager: Making sure the PicClerks are working\n");			
 			printf("Manager: Acquired appPicLineLock\n");
 			for(int x = 0; x < MAX_PIC_CLERKS; x++)
 			{
@@ -120,6 +118,7 @@ void ManagerRun(int notUsed){
 				picClerkLocks[wakeup]->Release();				
 			}
 			printf("Manager: Checking next line...\n");
+			appPicLineLock->Release();
 		}
 		
 		
@@ -157,7 +156,7 @@ void ManagerRun(int notUsed){
 				//search to see if any clerks are available
 				if(passClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
-					printf("Manager: PassClerk[%d] is available. Moving on.\n");					
+					printf("Manager: PassClerk[%d] is available. Moving on.\n",x);					
 					wakeup = -1;
 					break;
 				}
@@ -178,6 +177,7 @@ void ManagerRun(int notUsed){
 				passClerkLocks[wakeup]->Release();				
 			}
 			printf("Manager: Checking next line...\n");
+			passLineLock->Release();
 		}
 		
 		printf("Manager: I spy [%d] customers in the CashLine\n", (regPassLineLength+privPassLineLength));
@@ -213,7 +213,7 @@ void ManagerRun(int notUsed){
 				//search to see if any clerks are available
 				if(cashClerkStatuses[x] == CLERK_AVAILABLE)
 				{	
-					printf("Manager: CashClerk[%d] is available. Moving on.\n");					
+					printf("Manager: CashClerk[%d] is available. Moving on.\n",x);					
 					wakeup = -1;
 					break;
 				}
@@ -234,6 +234,7 @@ void ManagerRun(int notUsed){
 				cashClerkLocks[wakeup]->Release();				
 			}
 			printf("Manager: Checking next line...\n");
+			cashLineLock->Release();
 		}
 		
 		currentThread->Yield();
