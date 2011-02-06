@@ -222,11 +222,7 @@ void PassClerkRun(int index){
 				passClerkBribed[index] = FALSE;
 			}
 			int SSN = passClerkSSNs[index];
-			//DEBUG
-			appFiled[SSN] = TRUE;
-			picFiled[SSN] = TRUE;			
-			//
-			
+					
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
 					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n",appFiled[i],picFiled[i], passFiled[i]);
@@ -306,9 +302,7 @@ void CashClerkRun(int index){
 			cashClerkCVs[index]->Wait(cashClerkLocks[index]);
 			printf("CashClerk %d: Just woke up!\n",index);
 			int SSN = cashClerkSSNs[index];
-			//DEBUG
-			passFiled[SSN] = TRUE;
-			//
+		
 			if(passFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
 					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
