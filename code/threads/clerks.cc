@@ -65,7 +65,7 @@ void AppClerkRun(int index){
 			appClerkCVs[index]->Wait(appClerkLocks[index]);
 			printf("AppClerk %d: Just woke up!\n",index);
 			if (appClerkBribed[index] == TRUE){
-				printf("AppClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d", index, appClerkMoney[index]);
+				printf("AppClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, appClerkMoney[index]);
 				appClerkBribed[index] = FALSE;
 			}
 			int SSN = appClerkSSNs[index];
@@ -135,7 +135,7 @@ void PicClerkRun(int index){
 			printf("PicClerk %d: Putting myself to sleep...\n",index);
 			picClerkCVs[index]->Wait(picClerkLocks[index]);
 			if (picClerkBribed[index] == TRUE){
-				printf("PicClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d", index, picClerkMoney[index]);
+				printf("PicClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, picClerkMoney[index]);
 				picClerkBribed[index] = FALSE;
 			}
 			int count = 1;
@@ -222,7 +222,7 @@ void PassClerkRun(int index){
 			passClerkCVs[index]->Wait(passClerkLocks[index]);
 			printf("PassClerk %d: Just woke up!\n",index);
 			if (passClerkBribed[index] == TRUE){
-				printf("PassClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d", index, passClerkMoney[index]);
+				printf("PassClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, passClerkMoney[index]);
 				passClerkBribed[index] = FALSE;
 			}
 			int SSN = passClerkSSNs[index];
