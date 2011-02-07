@@ -111,7 +111,12 @@ void Office() {
     getInput();
   }
   
-  
+  printf("Number of Customers = %d\n", numCustomers);
+  printf("Number of Senators = %d\n", numSenators);
+  printf("Number of ApplicationClerks = %d\n", numAppClerks);
+  printf("Number of PictureClerks = %d\n", numPicClerks);
+  printf("Number of PassportClerks = %d\n", numPassClerks);
+  printf("Number of Cashiers = %d\n", numCashClerks);
   
   initializeClerkArrays();
   initializeCustomerArrays();
