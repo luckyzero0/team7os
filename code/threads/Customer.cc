@@ -9,23 +9,23 @@ static void doPicClerk(int* index, int* cashDollars);
 static void doPassPortClerk(int* index, int* cashDollars);
 static void doCashierClerk(int* index, int* cashDollars);
 
-int waitAndRestart(Lock* lineToExit){
-	tprintf("Customer: waitAndRestart entered\n");
+int waitAndRestart(Lock* lineToExit, index){
+	tprintf("Customer [%d]: waitAndRestart entered\n", index);
 	senatorWaitingRoomLock->Acquire();
 	if (senatorsInWaitingRoom>0){
 		if(lineToExit){
 			lineToExit->Release();
 		}
-		tprintf("Customer: There are %d senators in waiting room\n", senatorsInWaitingRoom);
+		tprintf("Customer [%d]: There are %d senators in waiting room\n", senatorsInWaitingRoom, index);
 		senatorWaitingRoomLock->Release();
 		customerWaitingRoomLock->Acquire();
 		customerOfficeLock->Acquire();
 		customersInWaitingRoom++;
 		customersInOffice--;
 		customerOfficeLock->Release();
-		tprintf("Customer: Waiting in the Waiting room..\n");
+		tprintf("Customer [%d]: Waiting in the Waiting room..\n", index);
 		customerWaitingRoomCV->Wait(customerWaitingRoomLock);
-		tprintf("Customer: No more senators! Returning to passport office\n");
+		tprintf("Customer [%d]: No more senators! Returning to passport office\n", index);
 		customerOfficeLock->Acquire();
 		customersInWaitingRoom--;
 		customersInOffice++;
@@ -36,7 +36,7 @@ int waitAndRestart(Lock* lineToExit){
 		}
 		return TRUE;
 	}else{
-		tprintf("Customer: There are no senators waiting.. carrying on\n");
+		tprintf("Customer [%d]: There are no senators waiting.. carrying on\n", index);
 		senatorWaitingRoomLock->Release();
 		return FALSE;
 	}
@@ -88,18 +88,18 @@ void CustomerRun(int index) {
 			appPicLineLock->Release();
 			printf("Customer[%d]: Going to AppClerk first.\n",index);			
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(NULL); //SENATOR
+			waitAndRestart(NULL, index); //SENATOR
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(NULL); //SENATOR
+			waitAndRestart(NULL, index); //SENATOR
 		}
 		else
 		{
 			appPicLineLock->Release();
 			printf("Customer[%d]: Going to PicClerk first.\n",index);			
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(NULL); //SENATOR
+			waitAndRestart(NULL, index); //SENATOR
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(NULL); //SENATOR
+			waitAndRestart(NULL, index); //SENATOR
 		}	
 	}
 	else//find regular line with shortest length
@@ -110,24 +110,24 @@ void CustomerRun(int index) {
 			appPicLineLock->Release();
 			printf("Customer[%d]: Going to AppClerk first.\n",index);
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(NULL); //SENATOR
+			waitAndRestart(NULL, index); //SENATOR
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(NULL); //SENATOR
+			waitAndRestart(NULL, index); //SENATOR
 		}
 		else
 		{
 			appPicLineLock->Release();
 			printf("Customer[%d]: Going to PicClerk first.\n",index);
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(NULL); //SENATOR
+			waitAndRestart(NULL, index; //SENATOR
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(NULL); //SENATOR
+			waitAndRestart(NULL, index); //SENATOR
 		}	
 	}
 
 	//hit up the passport clerk
 	doPassPortClerk(&index, &cashDollars);
-	waitAndRestart(NULL); //SENATOR
+	
 
 	//proceed to cashier
 	doCashierClerk(&index, &cashDollars);
@@ -160,9 +160,7 @@ static void doAppClerk(int* index, int* cashDollars)
 			printf("Customer[%d]: Waiting in the Regular Line for next available AppClerk\n",*index);
 			regAppLineCV->Wait(appPicLineLock);			
 		}
-		if (waitAndRestart(appPicLineLock)){           //SENATOR
-			continue;
-		}
+
 		printf("Customer[%d]: Finding available AppClerk...\n",*index);
 		for(int x = 0; x < MAX_APP_CLERKS; x++)
 		{				
@@ -176,6 +174,14 @@ static void doAppClerk(int* index, int* cashDollars)
 			else
 				printf("Customer[%d]: AppClerk[%d] is unavailable\n",*index,x);
 
+		}
+		if (myClerk == -1) {
+			if (waitAndRestart(appPicLineLock, index)){           //SENATOR
+				continue;
+			} else {
+				printf("APP_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!");
+				exit(1); //FAIL 
+			}	
 		}
 		appClerkLocks[myClerk]->Acquire();
 		appPicLineLock->Release();							
@@ -228,9 +234,6 @@ static void doPicClerk(int* index, int* cashDollars)
 			printf("Customer[%d]: Waiting in the Regluar Line for next available PicClerk\n",*index);
 			regPicLineCV->Wait(appPicLineLock);			
 		}
-		if(waitAndRestart(appPicLineLock)){ //SENATOR
-			continue;
-		}
 		printf("Customer[%d]: Finding available PicClerk...\n",*index);
 		for(int x = 0; x < MAX_PIC_CLERKS; x++)
 		{					
@@ -244,6 +247,14 @@ static void doPicClerk(int* index, int* cashDollars)
 			}
 			else
 				printf("Customer[%d]: PicClerk[%d] is unavailable\n",*index,x);
+		}
+		if (myClerk == -1) {
+			if (waitAndRestart(appPicLineLock, index)){           //SENATOR
+				continue;
+			} else {
+				printf("PIC_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!");
+				exit(1); //FAIL 
+			}	
 		}
 		picClerkLocks[myClerk]->Acquire();
 		appPicLineLock->Release();				
@@ -299,6 +310,9 @@ static void doPassPortClerk(int *index, int* cashDollars){
 
 	while(true)
 	{	
+		if (waitAndRestart(NULL, index)){
+			continue;
+		}
 		int myClerk = -1;
 		printf("Customer[%d]: Going to the PassportClerk\n",*index);
 		printf("Customer[%d]: Acquiring PassLineLock...\n",*index);		
@@ -320,9 +334,6 @@ static void doPassPortClerk(int *index, int* cashDollars){
 			printf("Customer[%d]: Waiting in the Regular Line for next available PassportClerk\n",*index);
 			regPassLineCV->Wait(passLineLock);			
 		}
-		if(waitAndRestart(passLineLock)){ //SENATOR
-			continue;
-		}
 		printf("Customer[%d]: Finding available PassClerk...\n",*index);
 		for(int x = 0; x < MAX_PASS_CLERKS; x++)
 		{				
@@ -336,6 +347,14 @@ static void doPassPortClerk(int *index, int* cashDollars){
 			else
 				printf("Customer[%d]: PassClerk[%d] is unavailable\n",*index,x);
 
+		}
+		if (myClerk == -1) {
+			if (waitAndRestart(passLineLock, index)){           //SENATOR
+				continue;
+			} else {
+				printf("PASS_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!");
+				exit(1); //FAIL 
+			}	
 		}
 		passClerkLocks[myClerk]->Acquire();
 		passLineLock->Release();							
@@ -373,9 +392,12 @@ static void doPassPortClerk(int *index, int* cashDollars){
 
 static void doCashierClerk(int* index, int* cashDollars)
 {	
-
+	
 	while(true)
 	{	
+		if (waitAndRestart(NULL, index)){
+			continue;
+		}
 		int myClerk = -1;
 		printf("Customer[%d]: Going to the CashClerk\n",*index);	
 		cashLineLock->Acquire();	
@@ -396,9 +418,6 @@ static void doCashierClerk(int* index, int* cashDollars)
 			printf("Customer[%d]: Waiting in the Regular Line for next available CashClerk\n",*index);
 			regCashLineCV->Wait(cashLineLock);			
 		}		
-		if (waitAndRestart(cashLineLock)){ //SENATOR
-			continue;
-		}
 		printf("Customer[%d]: Finding available CashClerk...\n",*index);
 		for(int x = 0; x < MAX_CASH_CLERKS; x++)
 		{				
@@ -412,7 +431,15 @@ static void doCashierClerk(int* index, int* cashDollars)
 			else
 				printf("Customer[%d]: CashClerk[%d] is unavailable\n",*index,x);
 
-		}			
+		}	
+		if (myClerk == -1) {
+			if (waitAndRestart(cashLineLock, index)){           //SENATOR
+				continue;
+			} else {
+				printf("CASH_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!");
+				exit(1); //FAIL 
+			}	
+		}
 		cashClerkLocks[myClerk]->Acquire();
 		cashLineLock->Release();							
 		cashClerkSSNs[myClerk] = *index;			
