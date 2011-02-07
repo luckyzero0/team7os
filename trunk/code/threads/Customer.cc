@@ -9,7 +9,7 @@ static void doPicClerk(int* index, int* cashDollars);
 static void doPassPortClerk(int* index, int* cashDollars);
 static void doCashierClerk(int* index, int* cashDollars);
 
-int waitAndRestart(Lock* lineToExit, index){
+int waitAndRestart(Lock* lineToExit, int index){
 	tprintf("Customer [%d]: waitAndRestart entered\n", index);
 	senatorWaitingRoomLock->Acquire();
 	if (senatorsInWaitingRoom>0){
@@ -176,7 +176,7 @@ static void doAppClerk(int* index, int* cashDollars)
 
 		}
 		if (myClerk == -1) {
-			if (waitAndRestart(appPicLineLock, index)){           //SENATOR
+			if (waitAndRestart(appPicLineLock, *index)){           //SENATOR
 				continue;
 			} else {
 				printf("APP_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!");
@@ -249,7 +249,7 @@ static void doPicClerk(int* index, int* cashDollars)
 				printf("Customer[%d]: PicClerk[%d] is unavailable\n",*index,x);
 		}
 		if (myClerk == -1) {
-			if (waitAndRestart(appPicLineLock, index)){           //SENATOR
+			if (waitAndRestart(appPicLineLock, *index)){           //SENATOR
 				continue;
 			} else {
 				printf("PIC_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!");
@@ -310,7 +310,7 @@ static void doPassPortClerk(int *index, int* cashDollars){
 
 	while(true)
 	{	
-		if (waitAndRestart(NULL, index)){
+		if (waitAndRestart(NULL, *index)){
 			continue;
 		}
 		int myClerk = -1;
@@ -349,7 +349,7 @@ static void doPassPortClerk(int *index, int* cashDollars){
 
 		}
 		if (myClerk == -1) {
-			if (waitAndRestart(passLineLock, index)){           //SENATOR
+			if (waitAndRestart(passLineLock, *index)){           //SENATOR
 				continue;
 			} else {
 				printf("PASS_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!");
@@ -395,7 +395,7 @@ static void doCashierClerk(int* index, int* cashDollars)
 	
 	while(true)
 	{	
-		if (waitAndRestart(NULL, index)){
+		if (waitAndRestart(NULL, *index)){
 			continue;
 		}
 		int myClerk = -1;
@@ -433,7 +433,7 @@ static void doCashierClerk(int* index, int* cashDollars)
 
 		}	
 		if (myClerk == -1) {
-			if (waitAndRestart(cashLineLock, index)){           //SENATOR
+			if (waitAndRestart(cashLineLock, *index)){           //SENATOR
 				continue;
 			} else {
 				printf("CASH_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!");
