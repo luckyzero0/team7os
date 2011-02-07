@@ -23,7 +23,7 @@ void appClerkFileData(int SSN){
 	for(int i = 0; i< randomNum; i++){
 		currentThread->Yield();
 	}
-	appFiled[ssn] = TRUE;
+	appFiled[SSN] = TRUE;
 	tprintf("ApplicationClerk informs %s with SSN %d that the application has been filed\n", getCustomerType(), SSN); //Not sure if I am to print this or not
 
 }
@@ -33,7 +33,7 @@ void picClerkFileData(int SSN){
 	for(int i = 0; i< randomNum; i++){
 		currentThread->Yield();
 	}
-	picFiled[ssn] = TRUE;
+	picFiled[SSN] = TRUE;
 	tprintf("PictureClerk informs %s with SSN %d that the picture has been filed\n", getCustomerType(), SSN); //Not sure if I am to print this or not
 
 }
@@ -43,7 +43,7 @@ void passClerkFileData(int SSN){
 	for(int i = 0; i< randomNum; i++){
 		currentThread->Yield();
 	}
-	passFiled[ssn] = TRUE;
+	passFiled[SSN] = TRUE;
 	tprintf("PassportClerk informs %s with SSN %d that the passport has been filed\n", getCustomerType(), SSN); //Not sure if I am to print this or not
 
 }
