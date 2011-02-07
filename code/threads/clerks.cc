@@ -4,36 +4,6 @@
 #include "office.h"
 #include <stdio.h>
 
-void appClerkFileData(int ssn, int index){
-	int randomNum = rand()%80 + 20;
-	for(int i = 0; i< randomNum; i++){
-		currentThread->Yield();
-	}
-	appFiled[ssn] = TRUE;
-	tprintf("ApplicationClerk [%d] informs %s with SSN %d that the application has been filed\n", index, getCustomerType(), SSN); //Not sure if I am to print this or not
-
-}
-
-void picClerkFileData(int ssn, int index){
-	int randomNum = rand()%80 + 20;
-	for(int i = 0; i< randomNum; i++){
-		currentThread->Yield();
-	}
-	picFiled[ssn] = TRUE;
-	tprintf("PictureClerk [%d]: informs %s with SSN %d that the picture has been filed\n", index, getCustomerType(), SSN); //Not sure if I am to print this or not
-
-}
-
-void passClerkFileData(int ssn, int index){
-	int randomNum = rand()%80 + 20;
-	for(int i = 0; i< randomNum; i++){
-		currentThread->Yield();
-	}
-	passFiled[ssn] = TRUE;
-	tprintf("PassportClerk [%d]: informs %s with SSN %d that the passport has been filed\n", index, getCustomerType(), SSN); //Not sure if I am to print this or not
-
-}
-
 char* getCustomerType(){
 	int check=0;
 	senatorOfficeLock->Acquire();
@@ -47,6 +17,38 @@ char* getCustomerType(){
 		return "Senator";
 	}
 }
+
+void appClerkFileData(int SSN){
+	int randomNum = rand()%80 + 20;
+	for(int i = 0; i< randomNum; i++){
+		currentThread->Yield();
+	}
+	appFiled[ssn] = TRUE;
+	tprintf("ApplicationClerk informs %s with SSN %d that the application has been filed\n", getCustomerType(), SSN); //Not sure if I am to print this or not
+
+}
+
+void picClerkFileData(int SSN){
+	int randomNum = rand()%80 + 20;
+	for(int i = 0; i< randomNum; i++){
+		currentThread->Yield();
+	}
+	picFiled[ssn] = TRUE;
+	tprintf("PictureClerk informs %s with SSN %d that the picture has been filed\n", getCustomerType(), SSN); //Not sure if I am to print this or not
+
+}
+
+void passClerkFileData(int SSN){
+	int randomNum = rand()%80 + 20;
+	for(int i = 0; i< randomNum; i++){
+		currentThread->Yield();
+	}
+	passFiled[ssn] = TRUE;
+	tprintf("PassportClerk informs %s with SSN %d that the passport has been filed\n", getCustomerType(), SSN); //Not sure if I am to print this or not
+
+}
+
+
 
 
 void AppClerkRun(int index){
@@ -96,7 +98,7 @@ void AppClerkRun(int index){
 			
 		
 			Thread* newThread = new Thread("Filing Thread");
-			newThread->Fork((VoidFunctionPtr)appClerkFileData, SSN, index);
+			newThread->Fork((VoidFunctionPtr)appClerkFileData, SSN);
 			for (int i=0; i<10; i++){
 				tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
 			}
@@ -180,7 +182,7 @@ void PicClerkRun(int index){
 					SSN = picClerkSSNs[index];
 					//picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
 					Thread* t = new Thread("Pass Filing Thread");
-					t->Fork((VoidFunctionPtr)picClerkFileData, SSN, index);
+					t->Fork((VoidFunctionPtr)picClerkFileData, SSN);
 					for (int i=0; i<10; i++){
 						tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
 					}
@@ -273,7 +275,7 @@ void PassClerkRun(int index){
 				passPunish[index] = FALSE;
 				//passFiled[SSN] = TRUE; //**********THIS SHOULD BE FORKED IN THE FUTURE*****************
 				Thread* newThread = new Thread("Passport Filing Thread");
-				newThread->Fork((VoidFunctionPtr)passClerkFileData, SSN, index);
+				newThread->Fork((VoidFunctionPtr)passClerkFileData, SSN);
 
 				//DEBUG
 				for (int i=0; i<10; i++){
@@ -357,7 +359,7 @@ void CashClerkRun(int index){
 				tprintf("CashClerk %d: %s with SSN %d has everything filed correctly!\n",index, getCustomerType(), SSN);
 				printf("Cashier [%d] gives valid certification to %s with SSN %d\n", index, getCustomerType(), SSN);
 				printf("Cashier [%d] records %s with SSN %d's passport\n", index, getCustomerType(), SSN);
-				printf("Cashier [%d] has recorded the passport for %s with SSN %d\n", index, getCustomer(), SSN);
+				printf("Cashier [%d] has recorded the passport for %s with SSN %d\n", index, getCustomerType(), SSN);
 				cashPunish[index] = FALSE;
 				cashFiled[SSN] = TRUE;
 				printf("Cashier [%d] accepts money = 100 from %s with SSN %d\n", index, getCustomerType(), SSN);
