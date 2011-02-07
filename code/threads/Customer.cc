@@ -119,7 +119,7 @@ void CustomerRun(int index) {
 			appPicLineLock->Release();
 			printf("Customer[%d]: Going to PicClerk first.\n",index);
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(NULL, index; //SENATOR
+			waitAndRestart(NULL, index); //SENATOR
 			doAppClerk(&index, &cashDollars);
 			waitAndRestart(NULL, index); //SENATOR
 		}	
