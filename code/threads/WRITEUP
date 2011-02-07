@@ -96,6 +96,11 @@ IV. IMPLEMENTATION
 			Condition * clerkCVs[];		//CV for each clerk
 			int ClerkMoney[];		//Collects customer payments / bribes
 			int clerkBribed[];		//The customer writes to this to let the clerk know he is being bribed
+			
+			**NOTE ABOUT CLERKS: Our output for the clerks identifies customers by their SSN. Also,
+			*	it was unclear whether "procedure has completed" implied that the customer is done
+			*	with the current clerk and can move on, or that the job has been processed (after the 20-100 yield
+			*	calls). We have outputted the former, but you can see the latter if the simulation is run in test mode.
 
 		For each type of actor:
 			int numXXX;			//Number of that type of clerk, customer, senator
@@ -150,14 +155,17 @@ V. TESTING
 			  forever, we knew we had a race condition with that -rs value, so we were able to run it, read the TEST output, and debug.
 
 
-VI. DISCUSSION?
+VI. DISCUSSION
 
-Wut?
+As far as we can tell, our project has no race conditions or deadlock. We used nrun to check many random seed values, and our program never broke.
+All customers leave the office when senators arrive, and re-enter once they finish. Everyone leaves the office by the end. Customers and senators
+are never in the office at the same time.
 
 
 VII. MISCELLANEOUS
 
-Wat?
+Please feel free to contact us if you have any questions. We'd be happy to meet to meet up and discuss any issues/what's going on in the simulation.
+Please contact us by emailing Mihir Sheth at mihirshe@usc.edu
 
 
 	
