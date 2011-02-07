@@ -259,7 +259,7 @@ void PassClerkRun(int index){
 					
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
-					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n",appFiled[i],picFiled[i], passFiled[i]);
+					tprintf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n",appFiled[i],picFiled[i], passFiled[i]);
 				}
 				//printf("PassClerk [%d] %s with SSN %d does not have both picture and application filed! *SPANK*\n", index, getCustomerType(), SSN);
 				printf("PassportClerk [%d] gives invalid certification to %s with SSN %d\n", index, getCustomerType(), SSN); 
@@ -360,7 +360,7 @@ void CashClerkRun(int index){
 				printf("Cashier [%d] has recorded the passport for %s with SSN %d\n", index, getCustomer(), SSN);
 				cashPunish[index] = FALSE;
 				cashFiled[SSN] = TRUE;
-				printf("Cashier [%d] accepts money = 500 from %s with SSN %d\n", index, getCustomerType(), SSN);
+				printf("Cashier [%d] accepts money = 100 from %s with SSN %d\n", index, getCustomerType(), SSN);
 				cashClerkCVs[index]->Signal(cashClerkLocks[index]);
 				cashClerkCVs[index]->Wait(cashClerkLocks[index]);
 				tprintf("CashClerk %d: Total money collected: $%d\n",index, cashClerkMoney[index]);
