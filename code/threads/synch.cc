@@ -213,10 +213,7 @@ void Condition::Signal(Lock* conditionLock) {
 }
 
 void Condition::Broadcast(Lock* conditionLock) {
-	int i=0;
-	while (!this->waitQueue->IsEmpty() ) {
-		printf("BROADCAST: Signal - %d", i);
-		this->Signal(conditionLock);
-		i++;
-	}
+  while (!this->waitQueue->IsEmpty() ) {
+    this->Signal(conditionLock);
+  }
 }
