@@ -4,30 +4,33 @@
 #include "office.h"
 #include <stdio.h>
 
-void appClerkFileData(int ssn){
+void appClerkFileData(int ssn, int index){
 	int randomNum = rand()%80 + 20;
 	for(int i = 0; i< randomNum; i++){
 		currentThread->Yield();
 	}
-	appFiled[ssn] = TRUE; 
+	appFiled[ssn] = TRUE;
+	tprintf("ApplicationClerk [%d] informs %s with SSN %d that the application has been filed\n", index, getCustomerType(), SSN); //Not sure if I am to print this or not
 
 }
 
-void picClerkFileData(int ssn){
+void picClerkFileData(int ssn, int index){
 	int randomNum = rand()%80 + 20;
 	for(int i = 0; i< randomNum; i++){
 		currentThread->Yield();
 	}
-	picFiled[ssn] = TRUE; 
+	picFiled[ssn] = TRUE;
+	tprintf("PictureClerk [%d]: informs %s with SSN %d that the picture has been filed\n", index, getCustomerType(), SSN); //Not sure if I am to print this or not
 
 }
 
-void passClerkFileData(int ssn){
+void passClerkFileData(int ssn, int index){
 	int randomNum = rand()%80 + 20;
 	for(int i = 0; i< randomNum; i++){
 		currentThread->Yield();
 	}
-	passFiled[ssn] = TRUE; 
+	passFiled[ssn] = TRUE;
+	tprintf("PassportClerk [%d]: informs %s with SSN %d that the passport has been filed\n", index, getCustomerType(), SSN); //Not sure if I am to print this or not
 
 }
 
@@ -48,62 +51,68 @@ char* getCustomerType(){
 
 void AppClerkRun(int index){
 	while (true){
-		printf("AppClerk %d: has acquired the appPicLineLock\n", index);
+		tprintf("AppClerk %d: has acquired the appPicLineLock\n", index);
 		appPicLineLock->Acquire();
 
 		//Checking if anyone is in line
 		if (privAppLineLength+regAppLineLength>0){
 
 			if (privAppLineLength>0){ //Checking if anyone is in priv line
-				printf("AppClerk %d: has spotted %s in privAppLine(length = %d)\n",index, getCustomerType(), privAppLineLength);
+				tprintf("AppClerk %d: has spotted %s in privAppLine(length = %d)\n",index, getCustomerType(), privAppLineLength);
 				privAppLineLength--;
-				printf("AppClerk %d: Becoming Available!\n",index);
+				tprintf("AppClerk %d: Becoming Available!\n",index);
 				appClerkStatuses[index] = CLERK_AVAILABLE;
-				printf("AppClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privAppLineLength);
+				tprintf("AppClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privAppLineLength);
 				privAppLineCV->Signal(appPicLineLock);
 			}
 			else{ //Check if anyone is in reg line
-				printf("AppClerk %d: has spotted %s in regAppLine (length = %d)\n",index, getCustomerType(),regAppLineLength);
+				tprintf("AppClerk %d: has spotted %s in regAppLine (length = %d)\n",index, getCustomerType(),regAppLineLength);
 				regAppLineLength--;
-				printf("AppClerk %d: Becoming Available!\n",index);
+				tprintf("AppClerk %d: Becoming Available!\n",index);
 				appClerkStatuses[index] = CLERK_AVAILABLE;
-				printf("AppClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regAppLineLength);
+				tprintf("AppClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regAppLineLength);
 				regAppLineCV->Signal(appPicLineLock);
 			}
 
 			//Customer/Senator - Clerk interaction
-			printf("AppClerk %d: Acquiring my own lock\n",index);
+			tprintf("AppClerk %d: Acquiring my own lock\n",index);
 			appClerkLocks[index]->Acquire();
-			printf("AppClerk %d: Releasing appPicLineLock\n",index);
+			tprintf("AppClerk %d: Releasing appPicLineLock\n",index);
 			appPicLineLock->Release();
-			printf("AppClerk %d: Putting myself to sleep...\n",index);
+			tprintf("AppClerk %d: Putting myself to sleep...\n",index);
 			appClerkCVs[index]->Wait(appClerkLocks[index]);
-			printf("AppClerk %d: Just woke up!\n",index);
+			tprintf("AppClerk %d: Just woke up!\n",index);
+			
+			int SSN = appClerkSSNs[index];
+			tprintf("AppClerk %d: Just receieved %s's SSN: %d\n",index, getCustomerType(), SSN);
+
 			if (appClerkBribed[index] == TRUE){
-				printf("AppClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, appClerkMoney[index]);
+				//printf("AppClerk [%d]: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, appClerkMoney[index]);
+				printf("ApplicationClerk [%d] accepts money = 500 from %s with SSN %d\n", index, getCustomerType(), appClerkSSNs[index]);
 				appClerkBribed[index] = FALSE;
 			}
-			int SSN = appClerkSSNs[index];
-			printf("AppClerk %d: Just receieved %s's SSN: %d\n",index, getCustomerType(), SSN);
-			//appFiled[SSN] = TRUE; //***********NEEDS TO BE FORKED IN THE FUTURE***********************
+
+			printf("ApplicationClerk [%d] informs %s with SSN %d that the procedure has been completed.\n", index, getCustomerType(), SSN); //Am not sure if I am to print this out or not
+			
+		
 			Thread* newThread = new Thread("Filing Thread");
-			newThread->Fork((VoidFunctionPtr)appClerkFileData,SSN);
+			newThread->Fork((VoidFunctionPtr)appClerkFileData, SSN, index);
 			for (int i=0; i<10; i++){
-				printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
+				tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
 			}
-			printf("AppClerk %d: Signaling my appClerkCV\n", index);
+			tprintf("AppClerk %d: Signaling my appClerkCV\n", index);
 			appClerkCVs[index]->Signal(appClerkLocks[index]);
-			printf("AppClerk %d: Releasing my own lock\n", index);
+			tprintf("AppClerk %d: Releasing my own lock\n", index);
 			appClerkLocks[index]->Release();
 
 		}
 		else{ //No one in line
 			appPicLineLock->Release();
 			appClerkLocks[index]->Acquire();
-			printf("AppClerk %d: Going on Break!\n", index);
+			printf("ApplicationClerk [%d] is going on break\n", index);
 			appClerkStatuses[index] = CLERK_ON_BREAK;
 			appClerkCVs[index]->Wait(appClerkLocks[index]);
-			printf("AppClerk %d: Going off Break, returning to work!\n", index);
+			printf("ApplicationClerk [%d] returned from break\n", index);
 			appClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
@@ -124,72 +133,80 @@ void PicClerkRun(int index){
 		if(privPicLineLength+regPicLineLength>0){
 
 			if (privPicLineLength>0){	//Checking if anyone is in priv line
-				printf("PicClerk %d: has spotted %s in privPicLine(length = %d)\n",index, getCustomerType(), privPicLineLength);
+				tprintf("PicClerk %d: has spotted %s in privPicLine(length = %d)\n",index, getCustomerType(), privPicLineLength);
 				privPicLineLength--;
-				printf("PicClerk %d: Becoming Available!\n",index);
+				tprintf("PicClerk %d: Becoming Available!\n",index);
 				picClerkStatuses[index] = CLERK_AVAILABLE;
-				printf("PicClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privPicLineLength);
+				tprintf("PicClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privPicLineLength);
 				privPicLineCV->Signal(appPicLineLock);
 			}
 			else{ //Checking if anyone is in reg line
-				printf("PicClerk %d: has spotted %s in regPicLine (length = %d)\n",index, getCustomerType(), regPicLineLength);
+				tprintf("PicClerk %d: has spotted %s in regPicLine (length = %d)\n",index, getCustomerType(), regPicLineLength);
 				regPicLineLength--;
-				printf("PicClerk %d: Becoming Available!\n",index);
+				tprintf("PicClerk %d: Becoming Available!\n",index);
 				picClerkStatuses[index] = CLERK_AVAILABLE;
-				printf("PicClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regPicLineLength);
+				tprintf("PicClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regPicLineLength);
 				regPicLineCV->Signal(appPicLineLock);
 			}
 
 			//Customer/Senator - Clerk Interaction
 
-			printf("PicClerk %d: Acquiring my own lock\n",index);
+			tprintf("PicClerk %d: Acquiring my own lock\n",index);
 			picClerkLocks[index]->Acquire();
-			printf("PicClerk %d: Releasing appPicLineLock\n",index);
+			tprintf("PicClerk %d: Releasing appPicLineLock\n",index);
 			appPicLineLock->Release();
 
-			printf("PicClerk %d: Putting myself to sleep...\n",index);
+			tprintf("PicClerk %d: Putting myself to sleep...\n",index);
 			picClerkCVs[index]->Wait(picClerkLocks[index]);
+			int SSN = picClerkSSNs[index];
 			if (picClerkBribed[index] == TRUE){
-				printf("PicClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, picClerkMoney[index]);
+				//printf("PicClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, picClerkMoney[index]);
+				printf("PictureClerk %d accepts money = 500 from %s with SSN %d\n", index, getCustomerType(), index);
 				picClerkBribed[index] = FALSE;
 			}
 			int count = 1;
 			do{
-				printf("PicClerk %d: Taking picture of %s for the %dst/nd/rd/th time (Signaling my CV)!\n",index, getCustomerType(), count);
+				if (count==1){
+					printf("PictureClerk [%d] takes picture of %s with SSN %d\n", index, getCustomerType(), SSN);
+				}else{
+					printf("PictureClerk [%d] takes picture of %s with SSN %d again\n", index, getCustomerType(), SSN);
+				}
+				tprintf("PicClerk %d: Taking picture of %s for the %dst/nd/rd/th time (Signaling my CV)!\n",index, getCustomerType(), count);
 				picClerkCVs[index]->Signal(picClerkLocks[index]);
-				printf("PicClerk %d: Going to sleep...\n",index);
+				tprintf("PicClerk %d: Going to sleep...\n",index);
 				picClerkCVs[index]->Wait(picClerkLocks[index]);
 
 				if(happyWithPhoto[index] == TRUE){
-					int SSN = picClerkSSNs[index];
+					SSN = picClerkSSNs[index];
 					//picFiled[SSN] = TRUE;  //**********NEEDS TO BE FORKED IN THE FUTURE***********************
 					Thread* t = new Thread("Pass Filing Thread");
-					t->Fork((VoidFunctionPtr)picClerkFileData,SSN);
+					t->Fork((VoidFunctionPtr)picClerkFileData, SSN, index);
 					for (int i=0; i<10; i++){
-						printf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
+						tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
 					}
-					printf("PicClerk %d: Just woke up, %s with SSN %d liked their picture!\n",index, getCustomerType(), SSN);
+					tprintf("PicClerk %d: Just woke up, %s with SSN %d liked their picture!\n",index, getCustomerType(), SSN);
 				}
 				else{
-					printf("PicClerk %d: Just woke up, %s did not like their picture.\n",index, getCustomerType());
+					tprintf("PicClerk %d: Just woke up, %s did not like their picture.\n",index, getCustomerType());
 				}
 
 				count++;
 
 			}while(happyWithPhoto[index] == FALSE);
+			printf("PictureClerk [%d] informs %s with SSN %d that the procedure has been completed\n", index, getCustomerType(), SSN); //Am not sure if I am to print this out or not
 
 			picClerkCVs[index]->Signal(picClerkLocks[index]);
-			printf("PicClerk %d: Releasing my own lock\n", index);
+			tprintf("PicClerk %d: Releasing my own lock\n", index);
 			picClerkLocks[index]->Release();
 		}
 
 		else{ //No one in line
 			appPicLineLock->Release();
 			picClerkLocks[index]->Acquire();
-			printf("PicClerk %d: Going on Break!\n", index);
+			printf("PictureClerk [%d] is going on break\n", index);
 			picClerkStatuses[index] = CLERK_ON_BREAK;
 			picClerkCVs[index]->Wait(picClerkLocks[index]);
-			printf("PicClerk %d: Going off Break, returning to work!\n", index);
+			printf("PictureClerk [%d] returned from break\n", index);
 			picClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
@@ -208,32 +225,34 @@ void PassClerkRun(int index){
 		if (privPassLineLength+regPassLineLength>0){
 
 			if (privPassLineLength>0){ //Checking if anyone is in priv line
-				printf("PassClerk %d: has spotted %s in privPassLine(length = %d)\n", index, getCustomerType(), privPassLineLength);
+				tprintf("PassClerk %d: has spotted %s in privPassLine(length = %d)\n", index, getCustomerType(), privPassLineLength);
 				privPassLineLength--;
-				printf("PassClerk %d: Becoming Available!\n",index);
+				tprintf("PassClerk %d: Becoming Available!\n",index);
 				passClerkStatuses[index] = CLERK_AVAILABLE;
-				printf("PassClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privPassLineLength);
+				tprintf("PassClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index,privPassLineLength);
 				privPassLineCV->Signal(passLineLock);
 			}
 			else{ //Check if anyone is in reg line
-				printf("PassClerk %d: has spotted %s in regPassLine (length = %d)\n",index, getCustomerType(), regPassLineLength);
+				tprintf("PassClerk %d: has spotted %s in regPassLine (length = %d)\n",index, getCustomerType(), regPassLineLength);
 				regPassLineLength--;
-				printf("PassClerk %d: Becoming Available!\n",index);
+				tprintf("PassClerk %d: Becoming Available!\n",index);
 				passClerkStatuses[index] = CLERK_AVAILABLE;
-				printf("PassClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regPassLineLength);
+				tprintf("PassClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regPassLineLength);
 				regPassLineCV->Signal(passLineLock);
 			}
 			//Customer/Senator - Clerk interaction
 
-			printf("PassClerk %d: Acquiring my own lock\n",index);
+			tprintf("PassClerk %d: Acquiring my own lock\n",index);
 			passClerkLocks[index]->Acquire();
-			printf("PassClerk %d: Releasing passLineLock\n",index);
+			tprintf("PassClerk %d: Releasing passLineLock\n",index);
 			passLineLock->Release();
-			printf("PassClerk %d: Putting myself to sleep...\n",index);
+			tprintf("PassClerk %d: Putting myself to sleep...\n",index);
 			passClerkCVs[index]->Wait(passClerkLocks[index]);
-			printf("PassClerk %d: Just woke up!\n",index);
+			tprintf("PassClerk %d: Just woke up!\n",index);
+			int SSN = passClerkSSNs[index];
 			if (passClerkBribed[index] == TRUE){
-				printf("PassClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, passClerkMoney[index]);
+				//printf("PassClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, passClerkMoney[index]);
+				printf("PassportClerk %d accepts money = 500 from %s with SSN %d\n", index, getCustomerType(), index);
 				passClerkBribed[index] = FALSE;
 			}
 			int SSN = passClerkSSNs[index];
@@ -242,36 +261,42 @@ void PassClerkRun(int index){
 				for (int i=0; i<10; i++){
 					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n",appFiled[i],picFiled[i], passFiled[i]);
 				}
-				printf("PassClerk %d: %s with SSN %d does not have both picture and application filed! *SPANK*\n", index, getCustomerType(), SSN);
+				//printf("PassClerk [%d] %s with SSN %d does not have both picture and application filed! *SPANK*\n", index, getCustomerType(), SSN);
+				printf("PassportClerk [%d] gives invalid certification to %s with SSN %d\n", index, getCustomerType(), SSN); 
+				printf("PassportClerk [%d] punishes %s with SSN %d to wait\n", index, getCustomerType(), SSN); 
 				passPunish[index] = TRUE;
 			}
 			else{
-				printf("PassClerk %d: %s with SSN %d has everything filed correctly!\n",index, getCustomerType(), SSN);
+				//printf("PassClerk %d: %s with SSN %d has everything filed correctly!\n",index, getCustomerType(), SSN);
+				printf("PassportClerk [%d] gives valid certification to %s with SSN %d\n", index, getCustomerType(), SSN); 
+				
 				passPunish[index] = FALSE;
 				//passFiled[SSN] = TRUE; //**********THIS SHOULD BE FORKED IN THE FUTURE*****************
 				Thread* newThread = new Thread("Passport Filing Thread");
-				newThread->Fork((VoidFunctionPtr)passClerkFileData,SSN);
+				newThread->Fork((VoidFunctionPtr)passClerkFileData, SSN, index);
 
 				//DEBUG
 				for (int i=0; i<10; i++){
-					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n", appFiled[i], picFiled[i], passFiled[i]);
+					tprintf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n", appFiled[i], picFiled[i], passFiled[i]);
 				}
+				printf("PassportClerk [%d] informs %s with SSN %d that the procedure has completed.\n", index, getCustomerType(), SSN); //Am not sure if I am to print this out or not
 			}
+			
 
 			//printf("PassClerk %d: Just receieved %s's SSN: %d\n",index, getCustomerType(), SSN);
-			printf("PassClerk %d: Signaling my passClerkCV\n", index);
+			tprintf("PassClerk %d: Signaling my passClerkCV\n", index);
 			passClerkCVs[index]->Signal(passClerkLocks[index]);
-			printf("PassClerk %d: Releasing my own lock\n", index);
+			tprintf("PassClerk %d: Releasing my own lock\n", index);
 			passClerkLocks[index]->Release();
 
 		}
 		else{ //No one in line
 			passLineLock->Release();
 			passClerkLocks[index]->Acquire();
-			printf("PassClerk %d: Going on Break!\n", index);
+			printf("PassportClerk [%d] is going on break\n", index);
 			passClerkStatuses[index] = CLERK_ON_BREAK;
 			passClerkCVs[index]->Wait(passClerkLocks[index]);
-			printf("PassClerk %d: Going off Break, returning to work!\n", index);
+			printf("PassportClerk [%d] returned from break\n", index);
 			passClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
@@ -300,50 +325,56 @@ void CashClerkRun(int index){
 		privCashLineCV->Signal(cashLineLock);
 		}*/
 		if (regCashLineLength>0){ //Check if anyone is in reg line
-			printf("CashClerk %d: has spotted %s in regCashLine (length = %d)\n",index, getCustomerType(), regCashLineLength);
+			tprintf("CashClerk %d: has spotted %s in regCashLine (length = %d)\n",index, getCustomerType(), regCashLineLength);
 			regCashLineLength--;
-			printf("CashClerk %d: Becoming Available!\n",index);
+			tprintf("CashClerk %d: Becoming Available!\n",index);
 			cashClerkStatuses[index] = CLERK_AVAILABLE;
-			printf("CashClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regCashLineLength);
+			tprintf("CashClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,regCashLineLength);
 			regCashLineCV->Signal(cashLineLock);
 
 			//Customer/Senator - Clerk interaction
 
-			printf("CashClerk %d: Acquiring my own lock\n",index);
+			tprintf("CashClerk %d: Acquiring my own lock\n",index);
 			cashClerkLocks[index]->Acquire();
-			printf("CashClerk %d: Releasing cashLineLock\n",index);
+			tprintf("CashClerk %d: Releasing cashLineLock\n",index);
 			cashLineLock->Release();
-			printf("CashClerk %d: Putting myself to sleep...\n",index);
+			tprintf("CashClerk %d: Putting myself to sleep...\n",index);
 			cashClerkCVs[index]->Wait(cashClerkLocks[index]);
-			printf("CashClerk %d: Just woke up!\n",index);
+			tprintf("CashClerk %d: Just woke up!\n",index);
 			int SSN = cashClerkSSNs[index];
 		
 			if(passFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
-					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
+					tprintf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
 				}
-				printf("CashClerk %d: %s with SSN %d does not have both picture and application filed! *SPANK*\n", index, getCustomerType(), SSN);
+				//printf("CashClerk %d: %s with SSN %d does not have both picture and application filed! *SPANK*\n", index, getCustomerType(), SSN);
+				printf("Cashier [%d] gives invalid certification to %s with SSN %d\n", index, getCustomerType(), SSN);
+				printf("Cashier [%d] punishes %s with SSN %d to wait\n", index, getCustomerType(), SSN); 
+				
 				cashPunish[index] = TRUE;
 			}
 			else{
-				printf("CashClerk %d: %s with SSN %d has everything filed correctly!\n",index, getCustomerType(), SSN);
+				tprintf("CashClerk %d: %s with SSN %d has everything filed correctly!\n",index, getCustomerType(), SSN);
+				printf("Cashier [%d] gives valid certification to %s with SSN %d\n", index, getCustomerType(), SSN);
+				printf("Cashier [%d] records %s with SSN %d's passport\n", index, getCustomerType(), SSN);
+				printf("Cashier [%d] has recorded the passport for %s with SSN %d\n", index, getCustomer(), SSN);
 				cashPunish[index] = FALSE;
 				cashFiled[SSN] = TRUE;
-				printf("CashClerk %d: Charging %s with SSN %d $100! Cha Ching.\n", index, getCustomerType(), SSN);
+				printf("Cashier [%d] accepts money = 500 from %s with SSN %d\n", index, getCustomerType(), SSN);
 				cashClerkCVs[index]->Signal(cashClerkLocks[index]);
 				cashClerkCVs[index]->Wait(cashClerkLocks[index]);
-				printf("CashClerk %d: Total money collected: $%d\n",index, cashClerkMoney[index]);
+				tprintf("CashClerk %d: Total money collected: $%d\n",index, cashClerkMoney[index]);
 
 				//DEBUG
 				for (int i=0; i<10; i++){
-					printf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
+					tprintf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d,    CashFiled: %d\n", appFiled[i], picFiled[i], passFiled[i], cashFiled[i]);
 				}
 
 			}
 
-			printf("CashClerk %d: Signaling my cashClerkCV\n", index);
+			tprintf("CashClerk %d: Signaling my cashClerkCV\n", index);
 			cashClerkCVs[index]->Signal(cashClerkLocks[index]);
-			printf("CashClerk %d: Releasing my own lock\n", index);
+			tprintf("CashClerk %d: Releasing my own lock\n", index);
 			cashClerkLocks[index]->Release();
 
 
@@ -352,10 +383,10 @@ void CashClerkRun(int index){
 
 			cashLineLock->Release();
 			cashClerkLocks[index]->Acquire();
-			printf("CashClerk %d: Going on Break!\n", index);
+			printf("Cashier [%d] is going on break\n", index);
 			cashClerkStatuses[index] = CLERK_ON_BREAK;
 			cashClerkCVs[index]->Wait(cashClerkLocks[index]);
-			printf("CashClerk %d: Going off Break, returning to work!\n", index);
+			printf("Cashier [%d] returned from break\n", index);
 			cashClerkLocks[index]->Release();
 		}
 		currentThread->Yield();
