@@ -257,7 +257,6 @@ void PassClerkRun(int index){
 				printf("PassportClerk %d accepts money = 500 from %s with SSN %d\n", index, getCustomerType(), index);
 				passClerkBribed[index] = FALSE;
 			}
-			int SSN = passClerkSSNs[index];
 					
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
 				for (int i=0; i<10; i++){
