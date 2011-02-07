@@ -17,6 +17,7 @@ int waitAndRestart(Lock* lineToExit, int index){
 			lineToExit->Release();
 		}
 		tprintf("Customer [%d]: There are %d senators in waiting room\n", senatorsInWaitingRoom, index);
+		printf("Customer [%d] leaves the Passport Office as a senator arrives.",index);
 		senatorWaitingRoomLock->Release();
 		customerWaitingRoomLock->Acquire();
 		customerOfficeLock->Acquire();
@@ -177,10 +178,18 @@ static void doAppClerk(int* index, int* cashDollars)
 				tprintf("Customer [%d]: AppClerk [%d] is unavailable\n",*index,x);
 
 		}
-		if (myClerk == -1) {
-			if (waitAndRestart(appPicLineLock, *index)){           //SENATOR
+		if (myClerk == -1) 
+		{
+			if (waitAndRestart(appPicLineLock, *index))
+			{           //SENATOR
+				if(privLine)
+					printf("Customer [%d] joins the [priveleged] wait queue for [Application] Clerk.\n",*index);
+				else
+					printf("Customer [%d] joins the [regular] wait queue for [Application] Clerk.\n",*index);
 				continue;
-			} else {
+			} 
+			else 
+			{
 				tprintf("APP_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!\n");
 				exit(1); //FAIL 
 			}	
@@ -249,11 +258,19 @@ static void doPicClerk(int* index, int* cashDollars)
 			else
 				tprintf("Customer [%d]: PicClerk [%d] is unavailable\n",*index,x);
 		}
-		if (myClerk == -1) {
-			if (waitAndRestart(appPicLineLock, *index)){           //SENATOR
+		if (myClerk == -1) 
+		{
+			if (waitAndRestart(appPicLineLock, *index))
+			{           //SENATOR
+				if(privLine)
+					printf("Customer [%d] joins the [priveleged] wait queue for [Picture] Clerk.\n",*index);
+				else
+					printf("Customer [%d] joins the [regular] wait queue for [Picture] Clerk.\n",*index);
 				continue;
-			} else {
-				tprintf("PIC_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!\n");
+			} 
+			else 
+			{
+				tprintf("APP_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!\n");
 				exit(1); //FAIL 
 			}	
 		}
@@ -348,11 +365,19 @@ static void doPassPortClerk(int *index, int* cashDollars){
 				tprintf("Customer [%d]: PassClerk[%d] is unavailable\n",*index,x);
 
 		}
-		if (myClerk == -1) {
-			if (waitAndRestart(passLineLock, *index)){           //SENATOR
+		if (myClerk == -1) 
+		{
+			if (waitAndRestart(passLineLock, *index))
+			{           //SENATOR
+				if(privLined)
+					printf("Customer [%d] joins the [priveleged] wait queue for [Passport] Clerk.\n",*index);
+				else
+					printf("Customer [%d] joins the [regular] wait queue for [Passport] Clerk.\n",*index);
 				continue;
-			} else {
-				tprintf("PASS_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!\n");
+			} 
+			else 
+			{
+				tprintf("APP_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!\n");
 				exit(1); //FAIL 
 			}	
 		}
@@ -434,11 +459,16 @@ static void doCashierClerk(int* index, int* cashDollars)
 				tprintf("Customer [%d]: CashClerk[%d] is unavailable\n",*index,x);
 
 		}	
-		if (myClerk == -1) {
-			if (waitAndRestart(cashLineLock, *index)){           //SENATOR
+		if (myClerk == -1) 
+		{
+			if (waitAndRestart(cashLineLock, *index))
+			{           //SENATOR				
+				printf("Customer [%d] joins the [regular] wait queue for [Cashier] Clerk.\n",*index);
 				continue;
-			} else {
-				tprintf("CASH_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!\n");
+			} 
+			else 
+			{
+				tprintf("APP_CLERK: ESCAPED WITHOUT AN AVAILABLE CLERK, AND WITHOUT GOING TO WAITING ROOM!\n");
 				exit(1); //FAIL 
 			}	
 		}

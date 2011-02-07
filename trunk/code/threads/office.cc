@@ -453,10 +453,10 @@ void getInput(){
 		else		
 		{
 			numSenators = atoi(buffer);			
-			if(numSenators < MAX_CUSTOMERS)								
+			if(numSenators+numCustomers < MAX_CUSTOMERS)								
 				break;		
 			else			
-				printf("\nNumber too big.");				
+				printf("\nNumber too big. Total Customers + Total Senators must be < 30");				
 		}		
 	}
 	
