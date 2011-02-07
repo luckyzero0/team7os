@@ -12,8 +12,21 @@ Team 24:	Nick Bopp		nbopp@usc.edu
 
 
 ---USAGE---
+To build:
+	gmake
 
-????
+To run simulation with user-input for desired numbers of things (and the "correct" print statements):
+	nachos -rs XXXX
+
+To run simulation in test mode (prints out a LOT of print statements, which helped us find all of our bugs), with automatic numbers of actors:
+	nachos -rs XXXX -T
+
+To run Part1 Test of locks / semaphores / conditions:
+	nachos -rs XXXX -T1
+
+To run our big monster mega test (compiles nrun.cc, based on the utility on the class website), runs nachos -T with all -rs args 1-9998:
+	g++ -onrun nrun.cc
+	nrun
 
 
 ---DOCUMENTATION---
@@ -59,7 +72,7 @@ IV. IMPLEMENTATION
 	+ Files Modified
 		- synch.h
 		- synch.cc
-		- ???
+		- main.cc
 	
 	+ Files Added
 		- office.h
@@ -68,44 +81,73 @@ IV. IMPLEMENTATION
 		- clerk.cc
 		- manager.cc
 		- senator.cc
-		- ???
+		- nrun.cc
 		
 	+ Data Structures Added
 		- Global arrays?		-- office.h
-		
+		For each type of clerk:
+			Lock* lineLock;			//Lock for each type of line (app/pic shared)
+			Condition *lineCV;		//Condition for each type of line (app/pic shared)
+			int regLineLength;		//Length of each regular line
+			int privLineLength;		//Length of each privledged line (no priv line on cashier, due to $1600 limit, see below)
+			int customerSSNs[];		//SSN of customer currently indexing with clerk
+			ClerkStatus clerkStatuses[];	//Submits status of each clerk
+			Lock* clerkLocks[];		//Lock for each clerk
+			Condition * clerkCVs[];		//CV for each clerk
+			int ClerkMoney[];		//Collects customer payments / bribes
+			int clerkBribed[];		//The customer writes to this to let the clerk know he is being bribed
+
+		For each type of actor:
+			int numXXX;			//Number of that type of clerk, customer, senator
+			
+		int happyWithPhoto[];			//BOOL used to tell the picClerk whether or not the customer liked their picture
+		int passPunish[] / cashPunish[];	//Lets the customer know whether they are punished for coming into line to early (other paperwork not filed)
+			
 		
 	+ Data Structures Modified
-		- Lock					-- synch.cc
-			class Lock
-			{
-			
-				//. modified fields/methods/etc
-			}
+		NONE
 			
 	+ Functions Added
 		- CustomerRun()			-- Customer.cc
 			//This is the main loop for customers. Terminates when finished with cashier.
-		- doAppClerk()			-- Customer.cc
+		- doAppClerk()			-- Customer.cc/senator.cc
 			//Helper function called in CustomerRun() to handle Application Clerk queueing/interaction
-		- doPicClerk()			-- Customer.cc
+		- doPicClerk()			-- Customer.cc/senator.cc
 			//Same as above, but for Picture Clerk
-		- doPassClerk()			-- Customer.cc
+		- doPassClerk()			-- Customer.cc/senator.cc
 			//Same as above, but for Passport Clerk
-		- doCashClerk()			-- Customer.cc
+		- doCashClerk()			-- Customer.cc/senator.cc
 			//Same as above, but for Cashier	
-				
-
-
+		- SenatorRun()			-- senator.cc
+			//Main scheduler of the senator, behaves almost exactly the same as the senator
+		- AppClerkRun() / CashClerkRun() / PicClerkRun() / PassClerkRun() -- clerks.cc
+			//Scheduler of each individual type of clerk
+		- ManagerRun()			-- manager.cc
+			//Scheduler for running the manager
 
 V. TESTING
 
 	+ How to Test
 	
-Run the program with -t commandline option?
+		See USAGE above.
 
 	+ Test output
 	
-What should the output be, and what does it show?
+		-T1: Runs the Part1 tests provided by the instructors / TAs / graders.
+			- This should illustrate that Lock / Semaphores / Condition classes are behaving properly and printing the correct error messages.
+			  The program itself prints out what it should be doing (when threads should not finish, etc.)
+
+		-T:  Runs our simluation with TEST flag set
+			- This will give you a much more verbose set of print statements. These were enormously helpful in us debugging all of our race conditions.
+			  Also, this assumes inputs of 3 of each type of cashier, 20 customers, and 3 senators. We really recommend you run in this mode, as we feel
+			  our print statements are much more descriptive of what's actualling going on. Alot of the print() requirements in the output guidelines
+			  are redundant, or not explicit enough.
+		
+		nrun: Runs "nachos -rs XXXX -T" with every value of RS up to 1 to 9998
+			- We used this once we verified our simulation worked without random yielding.  Certain race conditions only occur in one or a few random
+			  seeds, so we used this to verify complete and total accuracy.  It will run nachos in TEST mode, which calls exit(1) if the simluation ends
+			  without all customers and senators paying and receiving passports.  nrun will exit if a -rs value causes nachos to fail.  Also, if nrun hangs
+			  forever, we knew we had a race condition with that -rs value, so we were able to run it, read the TEST output, and debug.
 
 
 VI. DISCUSSION?

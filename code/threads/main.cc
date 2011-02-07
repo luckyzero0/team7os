@@ -85,7 +85,7 @@ main(int argc, char **argv)
 {
     int argCount;			// the number of arguments 
 					// for a particular command
-
+    int thread_test = FALSE;
     DEBUG('t', "Entering main");
     (void) Initialize(argc, argv);
 
@@ -96,6 +96,8 @@ main(int argc, char **argv)
             printf (copyright);
 	if (!strcmp(*argv, "-T"))
 	  TESTING = TRUE;
+	if (!strcmp(*argv, "-T1"))
+	  thread_test = TRUE;
 #ifdef USER_PROGRAM
         if (!strcmp(*argv, "-x")) {        	// run a user program
 	    ASSERT(argc > 1);
@@ -149,9 +151,12 @@ main(int argc, char **argv)
 
     
 #ifdef THREADS
-    //   ThreadTest();
-    // TestSuite();
-    Office();
+    if (thread_test) {
+      ThreadTest();
+      TestSuite();
+    } else {
+      Office();
+    }
 #endif
     currentThread->Finish();	// NOTE: if the procedure "main" 
 				// returns, then the program "nachos"
