@@ -55,8 +55,6 @@ II. ASUMPTIONS
 		sleep when there are no customers, and nachos interprets this as the program terminating.
 	3.) Senators are forked after customers, and enter the passport office at the mercy of thread 
 		yielding.
-	4.) ????
-	5.) profit.
 
 III. DESIGN
 
@@ -135,6 +133,18 @@ V. TESTING
 	+ How to Test
 	
 		See USAGE above.
+	
+		With respect to the Test Cases outlined in the project guidelines, we would like to discuss how every run of our simulation proves these tests to be true.
+		Run the simluation with the '-T' flag to see all necessary output.
+		(1) Print statements declare the length of each line as it is joined.  Since the lineLock is acquired, no two customers can get in a line at once.
+		(2) At the end of the simluation, the manager prints the money received from each clerk -- one at a time.
+		(3) The cashPunish[] array tells the customers whether they have gotten their passport yet, and whether or not they have to get in line again.
+		(4) As customers leave their lines, you will see a lot of print statements of clerks going on break.
+		(5) Again, there are print statements for managers waking up on-break clerks.  If they did not get up, the simulation would never actually halt.
+		(6) This is verified by the "Total Money" output line at the very end of the simulation.  Program exits with error if not enough money is collected.
+			Specifically, nrun test will run the program with all possible -rs values, proving that no race conditions prevent the program from finishing
+			with the correct amount of money / passports handed out.
+		(7) Our '-T' print statements show how the manager flushes and reintroduces customers as senators arrive and leave.
 
 	+ Test output
 	
