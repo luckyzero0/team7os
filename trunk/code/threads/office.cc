@@ -425,6 +425,36 @@ void getInput(){
 		}		
 	}
 	
+	while(true)
+	{	
+		memset(buffer, NULL, 10);
+		invalid = false;
+		printf("\n# of Senators = ");		
+		scanf("%s", buffer);		
+					
+		//for whatever reason, nachos does not process cin.fail() checking
+		//like a normal OS.
+		for(int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
+		{
+			if(!isdigit(buffer[x]) && buffer[x] != NULL)
+			{
+				invalid = true;
+				printf("\nInvalid character. :: [%c]",buffer[x]);								
+			}
+			
+		}
+		if(invalid)
+			continue;
+		else		
+		{
+			numSenators = atoi(buffer);			
+			if(numSenators < MAX_CUSTOMERS)								
+				break;		
+			else			
+				printf("\nNumber too big.");				
+		}		
+	}
+	
 }
 
 void tprintf(char* formatString, ...) {
