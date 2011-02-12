@@ -456,7 +456,7 @@ void getInput(){
 			if(numSenators+numCustomers < MAX_CUSTOMERS)								
 				break;		
 			else			
-				printf("\nNumber too big. Total Customers + Total Senators must be < 30");				
+				printf("\nNumber too big. Total Customers + Total Senators must be < %d", MAX_CUSTOMERS);				
 		}		
 	}
 	
