@@ -8,7 +8,7 @@
 #define MAX_PIC_CLERKS (10)
 #define MAX_PASS_CLERKS (10)
 #define MAX_CASH_CLERKS (10)
-#define MAX_CUSTOMERS (30)
+#define MAX_CUSTOMERS (100)
 
 extern int TESTING;
 extern int FINISHED_FORKING;
