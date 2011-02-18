@@ -135,7 +135,9 @@ void Fork(void (*func)());
  */
 void Yield();
 
-////// START OUR ADDITIONS
+/* START OUR ADDITIONS
+*
+*/
 
 
 #endif /* IN_ASM */
