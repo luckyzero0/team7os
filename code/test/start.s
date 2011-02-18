@@ -1,3 +1,4 @@
+
 /* Start.s 
  *	Assembly language assist for user programs running on top of Nachos.
  *
@@ -130,10 +131,78 @@ Yield:
 	j	$31
 	.end Yield
 
+/* Project2 Additions */
+	.globl CreateLock
+	.ent	CreateLock
+CreateLock:
+	addiu $2,$0,SC_CreateLock
+	syscall
+	j	$31
+	.end CreateLock
+
+	.globl DestroyLock
+	.ent	DestroyLock
+DestroyLock:
+	addiu $2,$0,SC_DestroyLock
+	syscall
+	j	$31
+	.end DestroyLock
+	
+	.globl CreateCV
+	.ent	CreateCV
+CreateCV:
+	addiu $2,$0,SC_CreateCV
+	syscall
+	j	$31
+	.end CreateCV
+	
+	.globl DestroyCV
+	.ent	DestroyCV
+DestroyCV:
+	addiu $2,$0,SC_DestroyCV
+	syscall
+	j	$31
+	.end DestroyCV
+
+	.globl Acquire
+	.ent	Acquire
+Acquire:
+	addiu $2,$0,SC_Acquire
+	syscall
+	j	$31
+	.end Acquire
+
+	.globl Release
+	.ent	Release
+Release:
+	addiu $2,$0,SC_Release
+	syscall
+	j	$31
+	.end Release
+
+	.globl Signal
+	.ent	Signal
+Signal:
+	addiu $2,$0,SC_Signal
+	syscall
+	j	$31
+	.end Signal
+
+	.globl Wait
+	.ent	Wait
+Wait:
+	addiu $2,$0,SC_Wait
+	syscall
+	j	$31
+	.end Wait
+
+
+
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main
 __main:
         j       $31
         .end    __main
+
 
