@@ -236,6 +236,7 @@ void Exit_Syscall() {
 	if (scheduler->HasThreadsRemaining()) {
 		currentThread->Finish();
 	} else { // else Halt() the machine
+		DEBUG('a', "No more threads remaining, so we're going to halt the machine.\n");
 		interrupt->Halt();
 	}
 }
