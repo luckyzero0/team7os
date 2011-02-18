@@ -132,6 +132,7 @@ Yield:
 	.end Yield
 
 /* Project2 Additions */
+	
 	.globl CreateLock
 	.ent	CreateLock
 CreateLock:
@@ -148,21 +149,21 @@ DestroyLock:
 	j	$31
 	.end DestroyLock
 	
-	.globl CreateCV
-	.ent	CreateCV
-CreateCV:
-	addiu $2,$0,SC_CreateCV
+	.globl CreateCondition
+	.ent	CreateCondition
+CreateCondition:
+	addiu $2,$0,SC_CreateCondition
 	syscall
 	j	$31
-	.end CreateCV
+	.end CreateCondition
 	
-	.globl DestroyCV
-	.ent	DestroyCV
-DestroyCV:
-	addiu $2,$0,SC_DestroyCV
+	.globl DestroyCondition
+	.ent	DestroyCondition
+DestroyCondition:
+	addiu $2,$0,SC_DestroyCondition
 	syscall
 	j	$31
-	.end DestroyCV
+	.end DestroyCondition
 
 	.globl Acquire
 	.ent	Acquire
@@ -195,6 +196,14 @@ Wait:
 	syscall
 	j	$31
 	.end Wait
+	
+	.globl Broadcast
+	.ent	Broadcast
+Broadcast:
+	addiu $2,$0,SC_Broadcast
+	syscall
+	j	$31
+	.end Broadcast
 
 
 
