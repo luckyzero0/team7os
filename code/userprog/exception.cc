@@ -231,6 +231,15 @@ void Close_Syscall(int fd) {
     }
 }
 
+void Exit_Syscall() {
+	// if this is NOT the last thread in the last process, Finish() currentThread
+	if (scheduler->HasThreadsRemaining()) {
+		currentThread->Finish();
+	} else { // else Halt() the machine
+		interrupt->Halt();
+	}
+}
+
 void ExceptionHandler(ExceptionType which) {
     int type = machine->ReadRegister(2); // Which syscall?
     int rv=0; 	// the return value from a syscall
@@ -266,6 +275,16 @@ void ExceptionHandler(ExceptionType which) {
 	    case SC_Close:
 		DEBUG('a', "Close syscall.\n");
 		Close_Syscall(machine->ReadRegister(4));
+		break;
+		////// START OUT ADDITIONS
+		case SC_Yield:
+		DEBUG('a', "Yield syscall.\n");
+		currentThread->Yield();
+		break;
+
+		case SC_Exit:
+		DEBUG('a', "Exit syscall.\n");
+		Exit_Syscall();
 		break;
 	}
 
