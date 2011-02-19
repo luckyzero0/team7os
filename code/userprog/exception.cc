@@ -37,6 +37,7 @@ struct LockEntry {
 	Lock* lock;
 	AddrSpace* space;
 	bool needsToBeDeleted;
+	int aboutToBeAcquired;
 };
 
 LockEntry locks[MAX_LOCKS];
@@ -47,6 +48,7 @@ void initializeLocks() {
 		locks[i].lock = NULL;
 		locks[i].space = NULL;
 		locks[i].needsToBeDeleted = FALSE;
+		locks[i].aboutToBeAcquired = 0;
 	}
 }
 
@@ -54,6 +56,7 @@ struct ConditionEntry {
 	Condition* condition;
 	AddrSpace* space;
 	bool needsToBeDeleted;
+	int aboutToBeWaited;
 };
 
 ConditionEntry conditions[MAX_CONDITIONS];
@@ -64,6 +67,7 @@ void initializeConditions() {
 		conditions[i].condition = NULL;
 		conditions[i].space = NULL;
 		conditions[i].needsToBeDeleted = FALSE;
+		conditions[i].aboutToBeWaited = 0;
 	}
 }
 
@@ -323,6 +327,7 @@ void deleteLock(int id) {
 	locks[id].lock = NULL;
 	locks[id].space = NULL;
 	locks[id].needsToBeDeleted = FALSE;
+	locks[id].aboutToBeAcquired = 0;
 }
 
 void DestroyLock_Syscall(LockID id) {
@@ -335,7 +340,7 @@ void DestroyLock_Syscall(LockID id) {
 	if (locks[id].space != currentThread->space) {
 		printf("LockID[%d] cannot be destroyed from a non-owning process!\n", id);
 	} else {
-		if (locks[id].lock->HasThreadsWaiting()) {
+		if (locks[id].lock->HasThreadsWaiting() || locks[id].aboutToBeAcquired > 0) {
 			locks[id].needsToBeDeleted = TRUE;
 		} else {
 			deleteLock(id);
@@ -386,6 +391,7 @@ void deleteCondition(int id) {
 	conditions[id].condition = NULL;
 	conditions[id].space = NULL;
 	conditions[id].needsToBeDeleted = FALSE;
+	conditions[id].aboutToBeWaited = 0;
 }
 
 void DestroyCondition_Syscall(ConditionID id) {
@@ -398,7 +404,7 @@ void DestroyCondition_Syscall(ConditionID id) {
 	if (conditions[id].space != currentThread->space) {
 		printf("ConditionID[%d] cannot be destroyed from a non-owning process!\n", id);
 	} else {
-		if (conditions[id].condition->HasThreadsWaiting()) {
+		if (conditions[id].condition->HasThreadsWaiting() || conditions[id].aboutToBeWaited > 0) {
 			conditions[id].needsToBeDeleted = TRUE;
 		} else {
 			deleteCondition(id);
@@ -413,22 +419,38 @@ void Acquire_Syscall(LockID id) {
 		return;
 	}
 
-	// not really sure how to prevent race conditions here,
-	// can't go to sleep while holding the locksLock
-
-	// all kinds of crazy shit can happen whre Destroy gets called
-	// intermixed with Acquire that will do bad, bad things
 	locksLock->Acquire();
 	if (locks[id].space != currentThread->space) {
 		printf("LockID[%d] cannot be acquired from a non-owning process!\n", id);
-	} else {
+		locksLock->Release();
+		return;
+	} 
 
-	}
+	locks[id].aboutToBeAcquired++;
 	locksLock->Release();
+	locks[id]->Acquire();
+	locks[id].aboutToBeAcquired--;
 }
 
 void Release_Syscall(LockID id) {
+	if (id < 0 || id >= MAX_LOCKS) {
+		printf("LockID[%d] is out of range!\n", id);
+		return;
+	}
 
+	locksLock->Acquire();
+	if (locks[id].space != currentThread->space) {
+		printf("LockID[%d] cannot be released from a non-owning process!\n", id);
+		locksLock->Release();
+		return;
+	}
+
+	locks[id].lock->Release();
+	if (locks[id].needsToBeDeleted && !locks[id].lock->HasThreadsWaiting() 
+		&& conditions[id].aboutToBeAcquired == 0) {
+			deleteLock(id);
+	}
+	locksLock->Release();
 }
 
 void Signal_Syscall(ConditionID conditionID, LockID lockID) {
@@ -436,7 +458,37 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 }
 
 void Wait_Syscall(ConditionID conditionID, LockID lockID) {
+	if (conditionID < 0 || conditionID >= MAX_CONDITIONS) {
+		printf("ConditionID[%d] is out of range!\n", conditionID);
+		return;
+	}
 
+	if (lockID < 0 || lockID >= MAX_CONDITIONS) {
+		printf("LockID[%d] is out of range!\n", lockID);
+		return;
+	}
+
+	conditionsLock->Acquire();
+	locksLock->Acquire();
+	if (conditions[id].space != currentThread->space) {
+		printf("ConditionID[%d] cannot be waited from a non-owning process!\n", conditionID);
+		locksLock->Release();
+		conditionsLock->Release();
+		return;
+	} 
+
+	if (locks[id].space != currentThread->space) {
+		printf("LockID[%d] cannot be passed to Wait from a non-owning process!\n", lockID);
+		locksLock->Release();
+		conditionsLock->Release();
+		return;
+	}
+
+	conditions[id].aboutToBeWaited++;
+	locksLock->Release();
+	conditionsLock->Release();
+	conditions[id].condition->Wait(locks[id].lock); //this might not quite work
+	conditions[id].aboutToBeWaited--;
 }
 
 void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
