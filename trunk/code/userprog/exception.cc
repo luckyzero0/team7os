@@ -340,7 +340,7 @@ void DestroyLock_Syscall(LockID id) {
 			deleteLock(id);
 		}
 	}
-	lockLocks->Release();
+	locksLock->Release();
 }
 
 int getAvailableConditionID() {
@@ -384,15 +384,15 @@ void deleteCondition(int id) {
 	delete conditions[id].condition;
 	conditions[id].condition = NULL;
 	conditions[id].space = NULL;
-	conditions[id].needsToBeDeleted = NO;
+	conditions[id].needsToBeDeleted = FALSE;
 }
 
 void DestroyCondition_Syscall(ConditionID id) {
-	if (id < 0 || id >= MAX_Conditions) {
+	if (id < 0 || id >= MAX_CONDITIONS) {
 		printf("ConditionID[%d] is out of range!\n", id);
 	}
 
-	conditionssLock->Acquire();
+	conditionsLock->Acquire();
 	if (conditions[id].space != currentThread->space) {
 		printf("ConditionID[%d] cannot be destroyed from a non-owning process!\n", id);
 	} else {
@@ -402,7 +402,7 @@ void DestroyCondition_Syscall(ConditionID id) {
 			deleteCondition(id);
 		}
 	}
-	conditionsLocks->Release();
+	conditionsLock->Release();
 }
 
 void Acquire_Syscall(LockID id) {
