@@ -334,7 +334,7 @@ void DestroyLock_Syscall(LockID id) {
 	if (locks[id].space != currentThread->space) {
 		printf("LockID[%d] cannot be destroyed from a non-owning process!\n", id);
 	} else {
-		if (locks[id].lock->HasThreadsRemaining()) {
+		if (locks[id].lock->HasThreadsWaiting()) {
 			locks[id].needsToBeDeleted = TRUE;
 		} else {
 			deleteLock(id);
@@ -396,7 +396,7 @@ void DestroyCondition_Syscall(ConditionID id) {
 	if (conditions[id].space != currentThread->space) {
 		printf("ConditionID[%d] cannot be destroyed from a non-owning process!\n", id);
 	} else {
-		if (conditions[id].condition->HasThreadsRemaining()) {
+		if (conditions[id].condition->HasThreadsWaiting()) {
 			conditions[id].needsToBeDeleted = TRUE;
 		} else {
 			deleteCondition(id);
