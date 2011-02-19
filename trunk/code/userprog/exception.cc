@@ -328,6 +328,7 @@ void deleteLock(int id) {
 void DestroyLock_Syscall(LockID id) {
 	if (id < 0 || id >= MAX_LOCKS) {
 		printf("LockID[%d] is out of range!\n", id);
+		return;
 	}
 
 	locksLock->Acquire();
@@ -390,6 +391,7 @@ void deleteCondition(int id) {
 void DestroyCondition_Syscall(ConditionID id) {
 	if (id < 0 || id >= MAX_CONDITIONS) {
 		printf("ConditionID[%d] is out of range!\n", id);
+		return;
 	}
 
 	conditionsLock->Acquire();
@@ -406,7 +408,23 @@ void DestroyCondition_Syscall(ConditionID id) {
 }
 
 void Acquire_Syscall(LockID id) {
+	if (id < 0 || id >= MAX_LOCKS) {
+		printf("LockID[%d] is out of range!\n", id);
+		return;
+	}
 
+	// not really sure how to prevent race conditions here,
+	// can't go to sleep while holding the locksLock
+
+	// all kinds of crazy shit can happen whre Destroy gets called
+	// intermixed with Acquire that will do bad, bad things
+	locksLock->Acquire();
+	if (locks[id].space != currentThread->space) {
+		printf("LockID[%d] cannot be acquired from a non-owning process!\n", id);
+	} else {
+
+	}
+	locksLock->Release();
 }
 
 void Release_Syscall(LockID id) {
