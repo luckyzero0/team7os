@@ -153,6 +153,20 @@ void Lock::Release() {
 	interrupt->SetLevel(oldLevel);
 }
 
+bool Lock::IsHeldByCurrentThread() {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	bool result = (this->owner == currentThread);
+	interrupt->SetLevel(oldLevel);
+	return result;
+}
+
+bool Lock::HasThreadsWaiting() {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	bool result = this->waitQueue->IsEmpty();
+	interrupt->SetLevel(oldLevel);
+	return result;
+}
+
 Condition::Condition(char* debugName) {
 	name = debugName;
 	waitingLock = NULL;
@@ -217,4 +231,11 @@ void Condition::Broadcast(Lock* conditionLock) {
   while (!this->waitQueue->IsEmpty() ) {
     this->Signal(conditionLock);
   }
+}
+
+bool Condition::HasThreadsWaiting() {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	bool result = this->waitQueue->IsEmpty();
+	interrupt->SetLevel(oldLevel);
+	return result;
 }
