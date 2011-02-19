@@ -74,12 +74,12 @@ class Lock {
     void Acquire(); // these are the only operations on a lock
     void Release(); // they are both *atomic*
 
-    bool isHeldByCurrentThread();	// true if the current thread
+    bool IsHeldByCurrentThread();	// true if the current thread
 					// holds this lock.  Useful for
 					// checking in Release, and in
 					// Condition variable ops below.
 
-	bool hasThreadsWaiting();
+	bool HasThreadsWaiting();
 
   private:
     char* name;				// for debugging
