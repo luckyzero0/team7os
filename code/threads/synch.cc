@@ -160,9 +160,9 @@ bool Lock::IsHeldByCurrentThread() {
 	return result;
 }
 
-bool Lock::HasThreadsWaiting() {
+bool Lock::IsBusy() {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	bool result = this->waitQueue->IsEmpty();
+	bool result = (this->state == BUSY);
 	interrupt->SetLevel(oldLevel);
 	return result;
 }
