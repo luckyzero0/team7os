@@ -64,10 +64,10 @@ Lock* conditionsLock = new Lock("conditionsLock"); //used to lock the conditions
 
 void initializeConditions() {
 	for (int i = 0; i < MAX_CONDITIONS; i++) {
-		locks[i].condition = NULL;
-		locks[i].space = NULL;
-		locks[i].needsToBeDeleted = FALSE;
-		locks[i].deleted = TRUE;
+		conditions[i].condition = NULL;
+		conditions[i].space = NULL;
+		conditions[i].needsToBeDeleted = FALSE;
+		conditions[i].deleted = TRUE;
 	}
 }
 
