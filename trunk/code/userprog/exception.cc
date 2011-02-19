@@ -447,7 +447,7 @@ void Release_Syscall(LockID id) {
 
 	locks[id].lock->Release();
 	if (locks[id].needsToBeDeleted && !locks[id].lock->HasThreadsWaiting() 
-		&& locks[id].aboutToBeWaited == 0) {
+		&& locks[id].aboutToBeAcquired == 0) {
 			deleteLock(id);
 	}
 	locksLock->Release();
