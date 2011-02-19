@@ -318,18 +318,91 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 	return index;
 }
 
-
+void deleteLock(int id) {
+	delete locks[id].lock;
+	locks[id].lock = NULL;
+	locks[id].space = NULL;
+	locks[id].needsToBeDeleted = FALSE;
+}
 
 void DestroyLock_Syscall(LockID id) {
+	if (id < 0 || id >= MAX_LOCKS) {
+		printf("LockID[%d] is out of range!\n", id);
+	}
 
+	locksLock->Acquire();
+	if (locks[id].space != currentThread->space) {
+		printf("LockID[%d] cannot be destroyed from a non-owning process!\n", id);
+	} else {
+		if (locks[id].lock->HasThreadsRemaining()) {
+			locks[id].needsToBeDeleted = TRUE;
+		} else {
+			deleteLock(id);
+		}
+	}
+	lockLocks->Release();
+}
+
+int getAvailableConditionID() {
+	int index = -1;
+	for (int i = 0; i < MAX_CONDITIONS; i++) {
+		if (conditions[i].condition == NULL) {
+			index = i;
+			break;
+		}
+	}
+	return index;
 }
 
 ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
+	char* buf;
+	if ( !(buf = new char[len]) ) {
+		printf("%s","Error allocating kernel buffer for write!\n");
+		return -1;
+	} else {
+		if ( copyin(vaddr,len,buf) == -1 ) {
+			printf("%s","Bad pointer passed to to write: data not written\n");
+			delete[] buf;
+			return -1;
+		}
+	}
 
+	conditionsLock->Acquire();
+	int index = getAvailableConditionID();
+	if (index == -1) {
+		printf("No conditions available!\n");
+	} else {
+		conditions[index].condition = new Condition(buf);
+		conditions[index].space = currentThread->space;
+	}
+	conditionsLock->Release();
+
+	return index;
+}
+
+void deleteCondition(int id) {
+	delete conditions[id].condition;
+	conditions[id].condition = NULL;
+	conditions[id].space = NULL;
+	conditions[id].needsToBeDeleted = NO;
 }
 
 void DestroyCondition_Syscall(ConditionID id) {
+	if (id < 0 || id >= MAX_Conditions) {
+		printf("ConditionID[%d] is out of range!\n", id);
+	}
 
+	conditionssLock->Acquire();
+	if (conditions[id].space != currentThread->space) {
+		printf("ConditionID[%d] cannot be destroyed from a non-owning process!\n", id);
+	} else {
+		if (conditions[id].condition->HasThreadsRemaining()) {
+			conditions[id].needsToBeDeleted = TRUE;
+		} else {
+			deleteCondition(id);
+		}
+	}
+	conditionsLocks->Release();
 }
 
 void Acquire_Syscall(LockID id) {

@@ -79,6 +79,8 @@ class Lock {
 					// checking in Release, and in
 					// Condition variable ops below.
 
+	bool hasThreadsWaiting();
+
   private:
     char* name;				// for debugging
     // plus some other stuff you'll need to define
@@ -133,6 +135,8 @@ class Condition {
     void Signal(Lock *conditionLock);   // conditionLock must be held by
     void Broadcast(Lock *conditionLock);// the currentThread for all of 
 					// these operations
+
+	bool HasThreadsWaiting();
 
   private:
     char* name;
