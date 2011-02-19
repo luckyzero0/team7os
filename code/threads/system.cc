@@ -35,6 +35,8 @@ Machine *machine;	// user program memory and registers
 PostOffice *postOffice;
 #endif
 
+extern void initializeLocks();
+extern void initializeConditions();
 
 // External definition, to allow us to take a pointer to this function
 extern void Cleanup();
@@ -129,6 +131,8 @@ Initialize(int argc, char **argv)
 #endif
     }
 
+	initializeLocks();
+	initializeConditions();
     DebugInit(debugArgs);			// initialize DEBUG messages
     stats = new Statistics();			// collect statistics
     interrupt = new Interrupt;			// start up interrupt handling
