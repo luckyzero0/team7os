@@ -340,7 +340,7 @@ void DestroyLock_Syscall(LockID id) {
 	if (locks[id].space != currentThread->space) {
 		printf("LockID[%d] cannot be destroyed from a non-owning process!\n", id);
 	} else {
-		if (locks[id].lock->HasThreadsWaiting() || locks[id].aboutToBeAcquired > 0) {
+		if (locks[id].lock->IsBusy() || locks[id].aboutToBeAcquired > 0) {
 			locks[id].needsToBeDeleted = TRUE;
 		} else {
 			deleteLock(id);
@@ -446,7 +446,7 @@ void Release_Syscall(LockID id) {
 	}
 
 	locks[id].lock->Release();
-	if (locks[id].needsToBeDeleted && !locks[id].lock->HasThreadsWaiting() 
+	if (locks[id].needsToBeDeleted && !locks[id].lock->IsBusy() 
 		&& locks[id].aboutToBeAcquired == 0) {
 			deleteLock(id);
 	}
@@ -454,7 +454,41 @@ void Release_Syscall(LockID id) {
 }
 
 void Signal_Syscall(ConditionID conditionID, LockID lockID) {
+	if (conditionID < 0 || conditionID >= MAX_CONDITIONS) {
+		printf("ConditionID[%d] is out of range!\n", conditionID);
+		return;
+	}
 
+	if (lockID < 0 || lockID >= MAX_CONDITIONS) {
+		printf("LockID[%d] is out of range!\n", lockID);
+		return;
+	}
+
+	conditionsLock->Acquire();
+	locksLock->Acquire();
+	if (conditions[conditionID].space != currentThread->space) {
+		printf("ConditionID[%d] cannot be waited from a non-owning process!\n", conditionID);
+		locksLock->Release();
+		conditionsLock->Release();
+		return;
+	} 
+
+	if (locks[lockID].space != currentThread->space) {
+		printf("LockID[%d] cannot be passed to Wait from a non-owning process!\n", lockID);
+		locksLock->Release();
+		conditionsLock->Release();
+		return;
+	}
+
+	conditions[conditionID].condition->Signal(locks[lockID].lock);
+
+	if (conditions[conditionID].needsToBeDeleted 
+		&& !conditions[conditionID].condition->HasThreadsWaiting()
+		&& conditions[conditionID].aboutToBeWaited == 0) {
+			deleteCondition(conditionID);
+	}
+	locksLock->Release();
+	conditionsLock->Release();
 }
 
 void Wait_Syscall(ConditionID conditionID, LockID lockID) {
@@ -488,11 +522,55 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 	locksLock->Release();
 	conditionsLock->Release();
 	conditions[conditionID].condition->Wait(locks[lockID].lock); //this might not quite work
+
+	conditionsLock->Acquire();
 	conditions[conditionID].aboutToBeWaited--;
+
+	if (conditions[conditionID].needsToBeDeleted 
+		&& !conditions[conditionID].condition->HasThreadsWaiting()
+		&& conditions[conditionID].aboutToBeWaited == 0) {
+			deleteCondition(conditionID);
+	}
+	conditionsLock->Release();
 }
 
 void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
+		if (conditionID < 0 || conditionID >= MAX_CONDITIONS) {
+		printf("ConditionID[%d] is out of range!\n", conditionID);
+		return;
+	}
 
+	if (lockID < 0 || lockID >= MAX_CONDITIONS) {
+		printf("LockID[%d] is out of range!\n", lockID);
+		return;
+	}
+
+	conditionsLock->Acquire();
+	locksLock->Acquire();
+	if (conditions[conditionID].space != currentThread->space) {
+		printf("ConditionID[%d] cannot be waited from a non-owning process!\n", conditionID);
+		locksLock->Release();
+		conditionsLock->Release();
+		return;
+	} 
+
+	if (locks[lockID].space != currentThread->space) {
+		printf("LockID[%d] cannot be passed to Wait from a non-owning process!\n", lockID);
+		locksLock->Release();
+		conditionsLock->Release();
+		return;
+	}
+
+	conditions[conditionID].condition->Broadcast(locks[lockID].lock);
+
+	if (conditions[conditionID].needsToBeDeleted 
+		&& !conditions[conditionID].condition->HasThreadsWaiting()
+		&& conditions[conditionID].aboutToBeWaited == 0) {
+			deleteCondition(conditionID);
+	}
+
+	locksLock->Release();
+	conditionsLock->Release();
 }
 
 void ExceptionHandler(ExceptionType which) {

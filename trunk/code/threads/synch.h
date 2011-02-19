@@ -79,7 +79,7 @@ class Lock {
 					// checking in Release, and in
 					// Condition variable ops below.
 
-	bool HasThreadsWaiting();
+	bool IsBusy();
 
   private:
     char* name;				// for debugging
