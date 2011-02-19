@@ -141,11 +141,11 @@ void Yield();
 /* START OUR ADDITIONS
 *
 */
-LockID CreateLock(char* name);
+LockID CreateLock(char* name, int len);
 
 void DestroyLock(LockID id);
 
-ConditionID CreateCondition(char* name);
+ConditionID CreateCondition(char* name, int len);
 
 void DestroyCondition(ConditionID id);
 
