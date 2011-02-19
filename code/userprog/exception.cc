@@ -428,7 +428,7 @@ void Acquire_Syscall(LockID id) {
 
 	locks[id].aboutToBeAcquired++;
 	locksLock->Release();
-	locks[id]->Acquire();
+	locks[id].lock->Acquire();
 	locks[id].aboutToBeAcquired--;
 }
 
@@ -447,7 +447,7 @@ void Release_Syscall(LockID id) {
 
 	locks[id].lock->Release();
 	if (locks[id].needsToBeDeleted && !locks[id].lock->HasThreadsWaiting() 
-		&& conditions[id].aboutToBeAcquired == 0) {
+		&& locks[id].aboutToBeWaited == 0) {
 			deleteLock(id);
 	}
 	locksLock->Release();
@@ -470,25 +470,25 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 
 	conditionsLock->Acquire();
 	locksLock->Acquire();
-	if (conditions[id].space != currentThread->space) {
+	if (conditions[conditionID].space != currentThread->space) {
 		printf("ConditionID[%d] cannot be waited from a non-owning process!\n", conditionID);
 		locksLock->Release();
 		conditionsLock->Release();
 		return;
 	} 
 
-	if (locks[id].space != currentThread->space) {
+	if (locks[lockID].space != currentThread->space) {
 		printf("LockID[%d] cannot be passed to Wait from a non-owning process!\n", lockID);
 		locksLock->Release();
 		conditionsLock->Release();
 		return;
 	}
 
-	conditions[id].aboutToBeWaited++;
+	conditions[conditionID].aboutToBeWaited++;
 	locksLock->Release();
 	conditionsLock->Release();
-	conditions[id].condition->Wait(locks[id].lock); //this might not quite work
-	conditions[id].aboutToBeWaited--;
+	conditions[conditionID].condition->Wait(locks[lockID].lock); //this might not quite work
+	conditions[conditionID].aboutToBeWaited--;
 }
 
 void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
