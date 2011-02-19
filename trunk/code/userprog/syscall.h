@@ -39,6 +39,9 @@
 #define SC_Wait				18
 #define SC_Broadcast		19
 
+typedef int LockID;
+typedef int ConditionID;
+
 #define MAXFILENAME 256
 
 #ifndef IN_ASM
@@ -138,7 +141,23 @@ void Yield();
 /* START OUR ADDITIONS
 *
 */
+LockID CreateLock(char* name);
 
+void DestroyLock(LockID id);
+
+ConditionID CreateCondition(char* name);
+
+void DestroyCondition(ConditionID id);
+
+void Acquire(LockID id);
+
+void Release(LockID id);
+
+void Signal(ConditionID conditionID, LockID lockID);
+
+void Wait(ConditionID conditionID, LockID lockID);
+
+void Broadcast(ConditionID conditionID, LockID lockID);
 
 #endif /* IN_ASM */
 
