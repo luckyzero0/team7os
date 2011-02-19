@@ -37,7 +37,6 @@ struct LockEntry {
 	Lock* lock;
 	AddrSpace* space;
 	bool needsToBeDeleted;
-	bool deleted;
 };
 
 LockEntry locks[MAX_LOCKS];
@@ -56,7 +55,6 @@ struct ConditionEntry {
 	Condition* condition;
 	AddrSpace* space;
 	bool needsToBeDeleted;
-	bool deleted;
 };
 
 ConditionEntry conditions[MAX_CONDITIONS];
@@ -284,15 +282,51 @@ void Exit_Syscall() {
 	}
 }
 
-LockID CreateLock_Syscall(unsigned int vaddr) {
-
+int getAvailableLockID() {
+	int index = -1;
+	for (int i = 0; i < MAX_LOCKS; i++) {
+		if (locks[i] == NULL) {
+			index = i;
+			break;
+		}
+	}
+	return index;
 }
+
+LockID CreateLock_Syscall(unsigned int vaddr, int len) {
+	char* buf;
+	if ( !(buf = new char[len]) ) {
+		printf("%s","Error allocating kernel buffer for write!\n");
+		return;
+	} else {
+		if ( copyin(vaddr,len,buf) == -1 ) {
+			printf("%s","Bad pointer passed to to write: data not written\n");
+			delete[] buf;
+			return;
+		}
+	}
+
+	//at this point buf is the valid name
+	locksLock->Acquire();
+	int index = getAvailableLockIndex();
+	if (index == -1) {
+		printf("No locks available!\n");
+	} else {
+		locks[index].lock = new Lock(buf);
+		locks[index].space = currentThread->space;
+	}
+	locksLock->Release();
+
+	return index;
+}
+
+
 
 void DestroyLock_Syscall(LockID id) {
 
 }
 
-ConditionID CreateCondition_Syscall(unsigned int vaddr) {
+ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 
 }
 
@@ -369,7 +403,8 @@ void ExceptionHandler(ExceptionType which) {
 
 		case SC_CreateLock:
 			DEBUG('a', "CreateLock syscall.\n");
-			rv = CreateLock_Syscall(machine->ReadRegister(4));
+			rv = CreateLock_Syscall(machine->ReadRegister(4),
+				machine->ReadRegister(5));
 			break;
 
 		case SC_DestroyLock:
@@ -379,7 +414,8 @@ void ExceptionHandler(ExceptionType which) {
 
 		case SC_CreateCondition:
 			DEBUG('a', "CreateCondition syscall.\n");
-			rv = CreateCondition_Syscall(machine->ReadRegister(4));
+			rv = CreateCondition_Syscall(machine->ReadRegister(4),
+				machine->ReadRegister(5));
 			break;
 
 		case SC_DestroyCondition:
