@@ -47,7 +47,6 @@ void initializeLocks() {
 		locks[i].lock = NULL;
 		locks[i].space = NULL;
 		locks[i].needsToBeDeleted = FALSE;
-		locks[i].deleted = TRUE;
 	}
 }
 
@@ -65,7 +64,6 @@ void initializeConditions() {
 		conditions[i].condition = NULL;
 		conditions[i].space = NULL;
 		conditions[i].needsToBeDeleted = FALSE;
-		conditions[i].deleted = TRUE;
 	}
 }
 
@@ -285,7 +283,7 @@ void Exit_Syscall() {
 int getAvailableLockID() {
 	int index = -1;
 	for (int i = 0; i < MAX_LOCKS; i++) {
-		if (locks[i] == NULL) {
+		if (locks[i].lock == NULL) {
 			index = i;
 			break;
 		}
@@ -297,18 +295,18 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 	char* buf;
 	if ( !(buf = new char[len]) ) {
 		printf("%s","Error allocating kernel buffer for write!\n");
-		return;
+		return -1;
 	} else {
 		if ( copyin(vaddr,len,buf) == -1 ) {
 			printf("%s","Bad pointer passed to to write: data not written\n");
 			delete[] buf;
-			return;
+			return -1;
 		}
 	}
 
 	//at this point buf is the valid name
 	locksLock->Acquire();
-	int index = getAvailableLockIndex();
+	int index = getAvailableLockID();
 	if (index == -1) {
 		printf("No locks available!\n");
 	} else {
