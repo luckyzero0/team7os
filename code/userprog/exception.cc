@@ -37,7 +37,7 @@ struct LockEntry {
 	AddrSpace* space;
 	bool needsToBeDeleted;
 	bool deleted;
-}
+};
 
 LockEntry locks[MAX_LOCKS];
 Lock* locksLock = new Lock("locksLock"); //used to lock the locks array
@@ -56,7 +56,7 @@ struct ConditionEntry {
 	AddrSpace* space;
 	bool needsToBeDeleted;
 	bool deleted;
-}
+};
 
 ConditionEntry conditions[MAX_CONDITIONS];
 Lock* conditionsLock = new Lock("conditionsLock"); //used to lock the conditions array
