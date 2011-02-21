@@ -39,15 +39,17 @@
 #define SC_Wait				18
 #define SC_Broadcast		19
 
-/*typedef int LockID;
-typedef int ConditionID;
-*/
-#define LockID int
-#define ConditionID int
+
+
 
 #define MAXFILENAME 256
 
 #ifndef IN_ASM
+
+
+typedef int LockID;
+typedef int ConditionID;
+
 
 /* The system call interface.  These are the operations the Nachos
  * kernel needs to support, to be able to run user programs.
