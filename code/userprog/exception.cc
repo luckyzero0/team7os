@@ -318,7 +318,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 		locks[index].space = currentThread->space;
 	}
 	locksLock->Release();
-
+	printf("Returning lock index: %d\n", index); //DEBUG
 	return index;
 }
 
@@ -342,8 +342,10 @@ void DestroyLock_Syscall(LockID id) {
 	} else {
 		if (locks[id].lock->IsBusy() || locks[id].aboutToBeAcquired > 0) {
 			locks[id].needsToBeDeleted = TRUE;
+			printf("Lock[%d] will be deleted when possible.\n",id); //DEBUG
 		} else {
 			deleteLock(id);
+			printf("Lock[%d] has been deleted.\n",id);//DEBUG
 		}
 	}
 	locksLock->Release();
@@ -430,6 +432,7 @@ void Acquire_Syscall(LockID id) {
 	locksLock->Release();
 	locks[id].lock->Acquire();
 	locks[id].aboutToBeAcquired--;
+	printf("Lock [%d] has been acquired.\n", id); //DEBUG
 }
 
 void Release_Syscall(LockID id) {
@@ -451,6 +454,8 @@ void Release_Syscall(LockID id) {
 			deleteLock(id);
 	}
 	locksLock->Release();
+
+	printf("Releasing lock[%d].\n",id); //DEBUG
 }
 
 void Signal_Syscall(ConditionID conditionID, LockID lockID) {
