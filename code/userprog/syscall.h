@@ -39,8 +39,11 @@
 #define SC_Wait				18
 #define SC_Broadcast		19
 
-typedef int LockID;
+/*typedef int LockID;
 typedef int ConditionID;
+*/
+#define LockID int
+#define ConditionID int
 
 #define MAXFILENAME 256
 
