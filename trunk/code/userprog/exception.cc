@@ -116,6 +116,17 @@ int copyout(unsigned int vaddr, int len, char *buf) {
 			//translation failed
 			return -1;
 		}
+I fed my goat vintage whiskey through a funnel while listening to this Nantes.
+
+As my tears fell and enveloped his rough hide, he sang me﻿ to sleep.
+
+He told me of his childhood in India and played the bagpipes.
+
+The goat spoke a ukranian proverb in arabic and wove hemp into a colorful blanket which he draped over my tall shoulders.
+
+I marveled as the goat flew me over the ocean and pointed out landmarks as we darted between the clouds.
+
+He brought me home to beirut.
 
 		vaddr++;
 	}
@@ -178,6 +189,34 @@ int Open_Syscall(unsigned int vaddr, int len) {
 	else
 		return -1;
 }
+
+/*void Print(unsigned int vaddr, int len, int varOne, int varTwo){ //TTTEEEESSSSSTTTTT
+	char *buf;		// Kernel buffer for output
+		
+	if ( !(buf = new char[len]) ) {
+		printf("%s","Error allocating kernel buffer for write!\n");
+		return;
+	} else {
+		if ( copyin(vaddr,len,buf) == -1 ) {
+			printf("%s","Bad pointer passed to to write: data not written\n");
+			delete[] buf;
+			return;
+		}
+	}
+	
+	int varCount = 0;
+	for (int i=0; i<len;i++){
+		if (buf[i] == '%') varCount++;
+	}
+	
+	switch (varCount)
+	{
+		case 0: Write_Syscall(vaddr, len, ConsoleOutput);
+					break;
+		case 1: snprintf(buf
+		
+}*/
+
 
 void Write_Syscall(unsigned int vaddr, int len, int id) {
 	// Write the buffer to the given disk file.  If ConsoleOutput is
@@ -264,7 +303,7 @@ int Read_Syscall(unsigned int vaddr, int len, int id) {
 
 void Close_Syscall(int fd) {
 	// Close the file associated with id fd.  No error reporting.
-	OpenFile *f = (OpenFile *) currentThread->space->fileTable.Remove(fd);
+	OpenFile *f = (OpenFile *) currentThread->spacce->fileTable.Remove(fd);
 
 	if ( f ) {
 		delete f;
