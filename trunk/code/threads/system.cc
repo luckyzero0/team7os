@@ -18,6 +18,8 @@ Interrupt *interrupt;			// interrupt status
 Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
+BitMap *bitMap;
+AddrSpace *ProcessTable[10];					
 
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
@@ -141,7 +143,7 @@ Initialize(int argc, char **argv)
 	timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
     threadToBeDestroyed = NULL;
-
+	bitMap = new BitMap(1028);
     // We didn't explicitly allocate the current thread we are running in.
     // But if it ever tries to give up the CPU, we better have a Thread
     // object to save its state. 
