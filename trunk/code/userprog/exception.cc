@@ -42,6 +42,7 @@ struct LockEntry {
 
 LockEntry locks[MAX_LOCKS];
 Lock* locksLock = new Lock("locksLock"); //used to lock the locks array
+Lock* forkLock = new Lock("forkLock"); 
 
 void initializeLocks() {
 	for (int i = 0; i < MAX_LOCKS; i++) {
@@ -116,13 +117,6 @@ int copyout(unsigned int vaddr, int len, char *buf) {
 			//translation failed
 			return -1;
 		}
-
-		vaddr++;
-	}
-
-	return n;
-}
-
 /*I fed my goat vintage whiskey through a funnel while listening to this Nantes.
 
 As my tears fell and enveloped his rough hide, he sang me﻿ to sleep.
@@ -134,6 +128,12 @@ The goat spoke a ukranian proverb in arabic and wove hemp into a colorful blanke
 I marveled as the goat flew me over the ocean and pointed out landmarks as we darted between the clouds.
 
 He brought me home to beirut.*/
+
+		vaddr++;
+	}
+
+	return n;
+}
 
 void Create_Syscall(unsigned int vaddr, int len) {
 	// Create the file with the name in the user buffer pointed to by
@@ -618,6 +618,39 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 	conditionsLock->Release();
 }
 
+void kernel_thread(int virtualAddr)
+{
+	//mod the PC to begin execution at the new thread
+	machine->WriteRegister(PCReg,virtualAddr);
+	machine->WriteRegister(NextPCReg,virtualAddr+4);	
+	
+	//restoreState?
+	currentThread->space->RestoreState();
+	
+	//mod the stack		
+	//machine->WriteRegister(StackReg, thread->stackTop);	
+	machine->Run();	
+}
+
+void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
+{	
+	forkLock->Acquire();	
+	//create the new thread
+	Thread* thread = new Thread("kernelthread");	
+	thread->space = currentThread->space; //put it in the same addrspace
+	
+	//allocate space for new thread	
+	thread->ID = threadCount++;
+	
+	
+	//fork the thread, somehow
+	thread->Fork(kernel_thread,funcAddr);	
+	
+	
+	forkLock->Release();
+	
+}
+
 void ExceptionHandler(ExceptionType which) {
 	int type = machine->ReadRegister(2); // Which syscall?
 	int rv=0; 	// the return value from a syscall
@@ -712,7 +745,11 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_Broadcast:
 			DEBUG('a', "Broadcast syscall.\n");
 			Broadcast_Syscall(machine->ReadRegister(4),
-				machine->ReadRegister(5));
+				machine->ReadRegister(5));							
+			break;
+		case SC_Fork:
+			DEBUG('a', "Fork syscall.\n");
+			Fork_Syscall(machine->ReadRegister(4));		
 			break;
 		}
 

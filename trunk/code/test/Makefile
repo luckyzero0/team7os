@@ -69,5 +69,13 @@ testfiles: testfiles.o start.o
 	$(LD) $(LDFLAGS) start.o testfiles.o -o testfiles.coff
 	../bin/coff2noff testfiles.coff testfiles
 
+
+testFork.o: testFork.c
+	$(CC) $(CFLAGS) -c testFork.c
+testFork: testFork.o start.o
+	$(LD) $(LDFLAGS) start.o testFork.o -o testFork.coff
+	../bin/coff2noff testFork.coff testFork
+
+
 clean:
 	rm -f *.o *.coff
