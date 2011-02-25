@@ -117,6 +117,12 @@ int copyout(unsigned int vaddr, int len, char *buf) {
 			//translation failed
 			return -1;
 		}
+		vaddr++;
+	}
+
+	return n;
+}
+
 /*I fed my goat vintage whiskey through a funnel while listening to this Nantes.
 
 As my tears fell and enveloped his rough hide, he sang me﻿ to sleep.
@@ -129,11 +135,53 @@ I marveled as the goat flew me over the ocean and pointed out landmarks as we da
 
 He brought me home to beirut.*/
 
-		vaddr++;
-	}
 
-	return n;
+void exec_thread(int dontUse){
+	currentThread->space->InitRegisters();		// set the initial register values
+    currentThread->space->RestoreState();		// load page table register
+    machine->Run();
 }
+
+int Exec_Syscall(unsigned int vaddr, int len){
+	OpenFile *f;			// The new open file
+	char *buf = new char[len+1];
+	if (!buf){
+		printf("%s","Can't allocate kernel buffer in Open\n");
+		return NULL;
+	}
+	if( copyin(vaddr,len,buf) == -1 ) {
+		printf("%s","Bad pointer passed to Exec\n");
+		delete buf;
+		return NULL;
+	}
+	
+	f = fileSystem->Open(buf);
+	delete[] buf;
+
+	if ( f ) {
+		AddrSpace* addrSpace = new AddrSpace(f);
+		Thread* t = new Thread();
+		t->space = addrSpace;
+		
+		int spaceID = -1;
+		//Update the process table and related data structures
+		for (int i = 0; i<PROCESS_TABLE_SIZE; i++){
+			if (processTable[i] == NULL){
+				processTable[i] = addrSpace;
+				spaceID = i;
+				break;
+			}
+		}
+		
+		if (spaceID == -1){
+			printf("%s","No space on the process table for this new process!");
+			return spaceID;
+		}
+		
+		t->Fork(exec_thread, 0);
+		return spaceID;
+}
+
 
 void Create_Syscall(unsigned int vaddr, int len) {
 	// Create the file with the name in the user buffer pointed to by
@@ -190,33 +238,6 @@ int Open_Syscall(unsigned int vaddr, int len) {
 	else
 		return -1;
 }
-
-/*void Print(unsigned int vaddr, int len, int varOne, int varTwo){ //TTTEEEESSSSSTTTTT
-	char *buf;		// Kernel buffer for output
-		
-	if ( !(buf = new char[len]) ) {
-		printf("%s","Error allocating kernel buffer for write!\n");
-		return;
-	} else {
-		if ( copyin(vaddr,len,buf) == -1 ) {
-			printf("%s","Bad pointer passed to to write: data not written\n");
-			delete[] buf;
-			return;
-		}
-	}
-	
-	int varCount = 0;
-	for (int i=0; i<len;i++){
-		if (buf[i] == '%') varCount++;
-	}
-	
-	switch (varCount)
-	{
-		case 0: Write_Syscall(vaddr, len, ConsoleOutput);
-					break;
-		case 1: snprintf(buf
-		
-}*/
 
 
 void Write_Syscall(unsigned int vaddr, int len, int id) {
@@ -617,6 +638,7 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 	locksLock->Release();
 	conditionsLock->Release();
 }
+
 
 void kernel_thread(int virtualAddr)
 {
