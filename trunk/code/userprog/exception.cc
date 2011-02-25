@@ -116,7 +116,14 @@ int copyout(unsigned int vaddr, int len, char *buf) {
 			//translation failed
 			return -1;
 		}
-I fed my goat vintage whiskey through a funnel while listening to this Nantes.
+
+		vaddr++;
+	}
+
+	return n;
+}
+
+/*I fed my goat vintage whiskey through a funnel while listening to this Nantes.
 
 As my tears fell and enveloped his rough hide, he sang me﻿ to sleep.
 
@@ -126,13 +133,7 @@ The goat spoke a ukranian proverb in arabic and wove hemp into a colorful blanke
 
 I marveled as the goat flew me over the ocean and pointed out landmarks as we darted between the clouds.
 
-He brought me home to beirut.
-
-		vaddr++;
-	}
-
-	return n;
-}
+He brought me home to beirut.*/
 
 void Create_Syscall(unsigned int vaddr, int len) {
 	// Create the file with the name in the user buffer pointed to by
@@ -303,7 +304,7 @@ int Read_Syscall(unsigned int vaddr, int len, int id) {
 
 void Close_Syscall(int fd) {
 	// Close the file associated with id fd.  No error reporting.
-	OpenFile *f = (OpenFile *) currentThread->spacce->fileTable.Remove(fd);
+	OpenFile *f = (OpenFile *) currentThread->space->fileTable.Remove(fd);
 
 	if ( f ) {
 		delete f;
