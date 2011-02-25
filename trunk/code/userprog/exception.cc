@@ -142,7 +142,7 @@ void exec_thread(int dontUse){
     machine->Run();
 }
 
-int Exec_Syscall(unsigned int vaddr, int len){
+SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	OpenFile *f;			// The new open file
 	char *buf = new char[len+1];
 	if (!buf){
@@ -163,7 +163,7 @@ int Exec_Syscall(unsigned int vaddr, int len){
 		Thread* t = new Thread();
 		t->space = addrSpace;
 		
-		int spaceID = -1;
+		SpaceID spaceID = -1;
 		//Update the process table and related data structures
 		for (int i = 0; i<PROCESS_TABLE_SIZE; i++){
 			if (processTable[i] == NULL){
