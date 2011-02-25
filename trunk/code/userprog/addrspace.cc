@@ -150,7 +150,12 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-	pageTable[i].physicalPage = i;
+	int physPage = getPhysicalPage();
+	if (physPage == -1) {
+		printf("Ran out of physical pages!");
+		return;
+	}
+	pageTable[i].physicalPage = physPage
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
@@ -191,6 +196,70 @@ AddrSpace::~AddrSpace()
     delete pageTable;
 }
 
+void AddrSpace::AddCurrentThread() {
+	numThreads++;
+	int startVPN = getStartVPN();
+	currentThread->startVPN = startVPN;
+	if (startVPN >= numPages) {
+		// copy and remake our pageTable
+		TranslationEntry* newPageTable = new TranslationEntry[numPages + UserStackSize / PageSize];
+		for (int i = 0; i < numPages; i++) { //copy the old entries
+			newPageTable[i] = pageTable[i];
+		}
+		delete pageTable;
+		pageTable = newPageTable;
+		numPages += UserStackSize / PageSize;
+		// restoreState (since we changed numPages and pageTable pointer)
+	}
+
+	for (int i = 0; i < UserStackSize / PageSize; i++) {
+		pageTable[startVPN + i].virtualPage = startVPN + i;
+		int physPage = getPhysicalPage();
+		if (physPage == -1) {
+			printf("Ran out of physical pages!");
+			return;
+		}
+		pageTable[startVPN + i].valid = TRUE;
+		pageTable[startVPN + i].use = FALSE;
+		pageTable[startVPN + i].dirty = FALSE;
+		pageTable[startVPN + i].readOnly = FALSE;
+	}
+}
+
+int AddrSpace::getStartVPN() {
+	int NUM_STACK_PAGES = UserStackSize / PageSize;
+	
+	//try to get NUM_PAGES contiguous virtual pages
+	int startVPN = numPages;
+	bool done = false;
+	for (int i = 0; i < numPages; i++) {
+		if (!pageTable[i].valid) { //if we find some invalid Vaddr try to reuse
+			for (int j = 0; j < NUM_STACK_PAGES; j++) {
+				if (pageTable[i + j].valid) { // try to find NUM_STACK_PAGES contiguous invalid VPNs
+					break;
+				} else if (j == NUM_STACK_PAGES - 1) {
+					done = true; //we found 8 pages in a row
+				}
+			}
+			if (done) {
+				startVPN = i;
+				break;
+			}
+		}
+	}
+	return startVPN;
+}
+
+
+void AddrSpace::RemoveCurrentThread() {
+	numThreads--;
+	int vpnStart = currentThread->startVPN;
+	for (int i = 0; i < UserStackSize / PageSize; i++) { //mark the physical pages as free and the virtual pages as invalid
+		giveUpPhysicalPage(vpnStart + i);
+		pageTable[vpnStart + i].physicalPage = -1;
+		pageTable[vpnStart + i].valid = FALSE;
+	}
+}
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
 // 	Set the initial values for the user-level register set.

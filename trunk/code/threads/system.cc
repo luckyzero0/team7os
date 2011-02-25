@@ -144,9 +144,9 @@ Initialize(int argc, char **argv)
 	timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
     threadToBeDestroyed = NULL;
-	physPageBitMap = new BitMap(1028);
+	physPageBitMap = new BitMap(NUM_PHYS_PAGES);
 	threadCount = 0;
-	for(int x = 0; x < 10; x++)
+	for(int x = 0; x < PROCESS_TABLE_SIZE; x++)
 		processTable[x] = NULL;
     // We didn't explicitly allocate the current thread we are running in.
     // But if it ever tries to give up the CPU, we better have a Thread
@@ -172,6 +172,20 @@ Initialize(int argc, char **argv)
 #ifdef NETWORK
     postOffice = new PostOffice(netname, rely, 10);
 #endif
+}
+
+int getPhysicalPage() {
+	for (int i = 0; i < NUM_PHYS_PAGES; i++) {
+		if (!physPageBitMap->Test(i)) { //if no one has set this page
+			physPageBitMap->Mark(i);
+			return i;
+		}
+	}
+	return -1;
+}
+
+void giveUpPhysicalPage(int physPageNum) {
+	physPageBitMap->Clear(i);
 }
 
 //----------------------------------------------------------------------

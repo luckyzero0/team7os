@@ -34,6 +34,7 @@ StartProcess(char *filename)
     }
    
     space = new AddrSpace(executable);
+	processTable[i] = space;
 
     currentThread->space = space;
 

@@ -37,6 +37,9 @@ class AddrSpace {
     Table fileTable;			// Table of openfiles
     int numThreads;
 
+	void AddCurrentThread();
+	void RemoveCurrentThread();
+
  private:
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!
