@@ -353,7 +353,7 @@ void Exit_Syscall() {
 		}
 	}
 
-	if (numProcesses == 1 && currentThread->space->numThreads == 0) {
+	if (numProcesses == 1 && currentThread->space->numThreads == 0) { //we are the final thread remaining 
 		SpaceID spaceID = 
 	} */
 }
@@ -663,7 +663,7 @@ void kernel_thread(int virtualAddr)
 	currentThread->space->RestoreState();
 	
 	//mod the stack		
-	machine->WriteRegister(StackReg, currentThread->startVPN + UserStackSize - 16);	
+	machine->WriteRegister(StackReg, (currentThread->startVPN) * PageSize + UserStackSize - 16);	
 	machine->Run();	
 }
 
@@ -785,6 +785,12 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_Fork:
 			DEBUG('a', "Fork syscall.\n");
 			Fork_Syscall(machine->ReadRegister(4));		
+			break;
+
+		case SC_Exec:
+			DEBUG('a', "Exec syscall.\n");
+			rv = Exec_Syscall(machine->ReadRegister(4),
+				machine->ReadRegister(5));
 			break;
 		}
 
