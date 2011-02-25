@@ -70,11 +70,11 @@ testfiles: testfiles.o start.o
 	../bin/coff2noff testfiles.coff testfiles
 
 
-testFork.o: testFork.c
-	$(CC) $(CFLAGS) -c testFork.c
-testFork: testFork.o start.o
-	$(LD) $(LDFLAGS) start.o testFork.o -o testFork.coff
-	../bin/coff2noff testFork.coff testFork
+forkTest.o: forkTest.c
+	$(CC) $(CFLAGS) -c forkTest.c utils.c
+forkTest: forkTest.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o forkTest.o utils.o -o forkTest.coff
+	../bin/coff2noff forkTest.coff forkTest
 
 
 clean:
