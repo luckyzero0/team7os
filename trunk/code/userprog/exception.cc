@@ -180,6 +180,8 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		
 		t->Fork(exec_thread, 0);
 		return spaceID;
+	}
+	return -1;
 }
 
 
