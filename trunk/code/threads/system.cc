@@ -144,7 +144,7 @@ Initialize(int argc, char **argv)
 	timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
     threadToBeDestroyed = NULL;
-	physPageBitMap = new BitMap(NUM_PHYS_PAGES);
+	physPageBitMap = new BitMap(NumPhysPages);
 	threadCount = 0;
 	for(int x = 0; x < PROCESS_TABLE_SIZE; x++)
 		processTable[x] = NULL;
@@ -175,7 +175,7 @@ Initialize(int argc, char **argv)
 }
 
 int getPhysicalPage() {
-	for (int i = 0; i < NUM_PHYS_PAGES; i++) {
+	for (int i = 0; i < NumPhysPages; i++) {
 		if (!physPageBitMap->Test(i)) { //if no one has set this page
 			physPageBitMap->Mark(i);
 			return i;
