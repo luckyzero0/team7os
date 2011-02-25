@@ -345,6 +345,17 @@ void Exit_Syscall() {
 		DEBUG('a', "No more threads remaining, so we're going to halt the machine.\n");
 		interrupt->Halt();
 	}
+
+/*	int numProcesses = 0;
+	for (int i = 0; i < PROCESS_TABLE_SIZE; i++) {
+		if (processTable[i] != NULL) {
+			numProcesses++;
+		}
+	}
+
+	if (numProcesses == 1 && currentThread->space->numThreads == 0) {
+		SpaceID spaceID = 
+	} */
 }
 
 int getAvailableLockID() {
@@ -652,7 +663,7 @@ void kernel_thread(int virtualAddr)
 	currentThread->space->RestoreState();
 	
 	//mod the stack		
-	//machine->WriteRegister(StackReg, thread->stackTop);	
+	machine->WriteRegister(StackReg, thread->startVPN + USER_STACK_SIZE - 16);	
 	machine->Run();	
 }
 
@@ -665,7 +676,7 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	
 	//allocate space for new thread	
 	thread->ID = threadCount++;
-	
+	thread->space->AddCurrentThread();
 	
 	//fork the thread, somehow
 	thread->Fork(kernel_thread,funcAddr);	
