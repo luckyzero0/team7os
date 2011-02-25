@@ -155,7 +155,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 		printf("Ran out of physical pages!");
 		return;
 	}
-	pageTable[i].physicalPage = physPage
+	pageTable[i].physicalPage = physPage;
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;

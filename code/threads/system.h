@@ -34,6 +34,9 @@ extern BitMap *physPageBitMap;
 #define PROCESS_TABLE_SIZE 10
 extern AddrSpace *processTable[PROCESS_TABLE_SIZE];	
 
+extern int getPhysicalPage();
+extern void giveUpPhysicalPage(int);
+
 #ifdef USER_PROGRAM
 #include "machine.h"
 extern Machine* machine;	// user program memory and registers
