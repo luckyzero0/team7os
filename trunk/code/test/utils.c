@@ -15,6 +15,7 @@ void print(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 	char* dmsg;
 	int i = 0;
 	int intArg = 0;
+	int strArg = 0;
 	int x;
 	int outIndex = 0;
 	
@@ -38,6 +39,46 @@ void print(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 					for(x = 0; x < strlen(arg1buf); x++)
 					{
 						out[outIndex] = arg1buf[x];
+						outIndex++;
+					}
+					i+=2;
+				}
+				if(intArg == 2)
+				{
+					for(x = 0; x < strlen(arg2buf); x++)
+					{
+						out[outIndex] = arg2buf[x];
+						outIndex++;
+					}
+					i+=2;
+				}
+				if(intArg == 3)
+				{
+					for(x = 0; x < strlen(arg3buf); x++)
+					{
+						out[outIndex] = arg3buf[x];
+						outIndex++;
+					}
+					i+=2;
+				}
+			}
+			else if(str[i+1] == 'a')
+			{
+				strArg++;
+				if(strArg == 1)
+				{
+					for(x = 0; x < strlen(arg4); x++)
+					{
+						out[outIndex] = arg4[x];
+						outIndex++;
+					}
+					i+=2;
+				}
+				if(strArg == 2)
+				{
+					for(x = 0; x < strlen(arg5); x++)
+					{
+						out[outIndex] = arg5[x];
 						outIndex++;
 					}
 					i+=2;
