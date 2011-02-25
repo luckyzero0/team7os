@@ -160,7 +160,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 
 	if ( f ) {
 		AddrSpace* addrSpace = new AddrSpace(f);
-		Thread* t = new Thread();
+		Thread* t = new Thread("damnitmihir");
 		t->space = addrSpace;
 		
 		SpaceID spaceID = -1;

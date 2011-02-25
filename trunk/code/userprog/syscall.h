@@ -71,17 +71,17 @@ void Halt();
 void Exit(int status);	
 
 /* A unique identifier for an executing user program (address space) */
-typedef int SpaceId;	
+typedef int SpaceID;	
  
 /* Run the executable, stored in the Nachos file "name", and return the 
  * address space identifier
  */
-SpaceId Exec(char *name, int len);
+SpaceID Exec(char *name, int len);
  
 /* Only return once the the user program "id" has finished.  
  * Return the exit status.
  */
-int Join(SpaceId id); 	
+int Join(SpaceID id); 	
  
 
 /* File system operations: Create, Open, Read, Write, Close
