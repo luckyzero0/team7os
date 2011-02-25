@@ -1,0 +1,457 @@
+
+#include "office.h"
+#include "system.h"
+#include <iostream>
+
+
+static void doAppClerk(int* index, int* cashDollars);
+static void doPicClerk(int* index, int* cashDollars);
+static void doPassPortClerk(int* index, int* cashDollars);
+static void doCashierClerk(int* index, int* cashDollars);
+
+
+void SenatorRun(int index) {	
+
+	int cashDollars;
+	int clerkStatus;
+
+	tprintf("Senator[%d]: Acquiring customerOfficeLock\n", index);
+	/*customerOfficeLock->Acquire();*/
+	Acquire(customerOfficeLock);
+	if (customersInOffice > 0){
+		tprintf("Senator[%d]: There are no other Customers in office, going to Senator waiting room\n", index);
+		/*customerOfficeLock->Release();
+		senatorWaitingRoomLock->Acquire();*/
+		Release(customerOfficeLock);
+		Acquire(senatorWaitingRoomLock);
+		senatorsInWaitingRoom++;
+		tprintf("Senator[%d]: In the waiting room, taking a nap...\n", index);
+		/*senatorWaitingRoomCV->Wait(senatorWaitingRoomLock);*/
+		Wait(senatorWaitingRoomCV, senatorWaitingRoomLock);
+		tprintf("Senator[%d]: Waking up, going to the passport office!\n", index);
+		senatorsInWaitingRoom--;
+		
+	}else{
+		/*customerOfficeLock->Release();*/
+		Release(customerOfficeLock);
+	}
+	
+	tprintf("Senator [%d]: Entering the passport office...\n",index);
+
+	/*senator start up code*/		
+	cashDollars = ((rand() % 4) * 500) + 100;	
+	clerkStatus;
+
+	printf("Senator [%d] has money = [$%d]\n",index,cashDollars);
+
+	/*senatorOfficeLock->Acquire();*/
+	Acquire(senatorOfficeLock);
+	senatorsInOffice++;
+	/*senatorOfficeLock->Release();
+	senatorWaitingRoomLock->Release(); */
+	Release(senatorOfficeLock);
+	Release(senatorWaitingRoomLock);/*Ensures that senators are either in the waiting room or in the office*/
+
+	/*choose line*/		
+	tprintf("Senator [%d]: Deciding between AppClerk and PictureClerk...\n", index);
+	if(cashDollars > 100) /*find priveledged line with shortest length*/
+	{
+		/*appPicLineLock->Acquire();*/
+		Acquire(appPicLineLock);
+		printf("Senator [%d] finds the minimum [priveledged] queue for [ApplicationClerk/PictureClerk]\n", index);
+		if(privAppLineLength<=privPicLineLength)
+		{
+			/*appPicLineLock->Release();*/
+			Release(appPicLineLock);
+			printf("Senator [%d] goes to [ApplicationClerk] first.\n",index);			
+			doAppClerk(&index, &cashDollars);
+			doPicClerk(&index, &cashDollars);
+			
+		}
+		else
+		{
+			/*appPicLineLock->Release();*/
+			Release(appPicLineLock);
+			printf("Senator [%d] goes to [PictureClerk] first.\n",index);	
+			doPicClerk(&index, &cashDollars);
+			doAppClerk(&index, &cashDollars);
+		
+		}	
+	}
+	else/*find regular line with shortest length*/
+	{
+		/*appPicLineLock->Acquire();*/
+		Acquire(appPicLineLock);
+		printf("Senator [%d] finds the minimum [regular] queue for [ApplicationClerk/PictureClerk]\n", index);
+		if(regAppLineLength<=regPicLineLength)
+		{
+			/*appPicLineLock->Release();*/
+			Release(appPicLineLock);
+			printf("Senator [%d] goes to [ApplicationClerk].\n",index);	
+			doAppClerk(&index, &cashDollars);
+			doPicClerk(&index, &cashDollars);
+			
+		}
+		else
+		{
+			/*appPicLineLock->Release();*/
+			Release(appPicLineLock);
+			printf("Senator [%d] goes to [PictureClerk].\n",index);
+			doPicClerk(&index, &cashDollars);
+			doAppClerk(&index, &cashDollars);
+		}	
+	}
+
+	/*hit up the passport clerk*/
+	doPassPortClerk(&index, &cashDollars);
+	
+
+	/*proceed to cashier*/
+	doCashierClerk(&index, &cashDollars);
+}
+
+static void doAppClerk(int* index, int* cashDollars)
+{
+	bool privLine = false;
+	int myClerk, x;
+
+
+	while(true)
+	{	
+		myClerk = -1;
+		tprintf("Senator [%d]: Going to the AppClerk\n",*index);
+		/*appPicLineLock->Acquire();	*/
+		Acquire(appPicLineLock);	
+		tprintf("Senator [%d]: What line should I choose for the AppClerk?\n",*index);
+		/*check for senator*/
+		if(*cashDollars > 100) /*get in a privledged line*/
+		{					
+			privLine = true;					
+			tprintf("Senator [%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
+			privAppLineLength++;
+			tprintf("Senator [%d]: Waiting in the Priveledged Line for next available AppClerk\n",*index);
+			/*privAppLineCV->Wait(appPicLineLock); //wait for clerk	*/
+			Wait(privAppLineCV, appPicLineLock);					
+		}
+		else /*get in a normal line*/
+		{
+			tprintf("Senator [%d]: Regular line, suckas. CashDollars = $%d\n",*index,*cashDollars);
+			regAppLineLength++;
+			tprintf("Senator [%d]: Waiting in the Regular Line for next available AppClerk\n",*index);
+			/*regAppLineCV->Wait(appPicLineLock); //wait for clerk	*/
+			Wait(regAppLineCV, appPicLineLock);
+		}
+
+		tprintf("Senator [%d]: Finding available AppClerk...\n",*index);
+		for(x = 0; x < MAX_APP_CLERKS; x++)
+		{				
+			if(appClerkStatuses[x] == CLERK_AVAILABLE) /*find available clerk*/
+			{
+				myClerk = x;					
+				tprintf("Senator [%d]: Going to chill with AppClerk [%d]\n",*index,myClerk);					
+				appClerkStatuses[myClerk] = CLERK_BUSY;					
+				break;				
+			}
+			else
+				tprintf("Senator [%d]: AppClerk [%d] is unavailable\n",*index,x);
+
+		}
+	
+		/*appClerkLocks[myClerk]->Acquire();
+		appPicLineLock->Release();*/
+		Acquire(appClerkLocks[myClerk]);
+		Release(appPicLineLock);							
+		if(privLine)
+		{
+			printf("Senator [%d] is willing to pay $500 to ApplicationClerk [%d] for moving ahead in line\n",*index, myClerk);				
+			appClerkMoney[myClerk] += 500;
+			appClerkBribed[myClerk] = true;
+			*cashDollars -= 500;
+		}
+		tprintf("Senator [%d]: Interacting with AppClerk [%d]\n",*index,myClerk);
+		/*interact with clerk	*/
+		printf("Senator [%d] gives application to ApplicationClerk [%d] = [SSN: %d].\n", *index,myClerk,*index);		
+		appClerkSSNs[myClerk] = *index; 	
+		/*appClerkCVs[myClerk]->Signal(appClerkLocks[myClerk]);*/
+		Signal(appClerkCVs[myClerk], appClerkLocks[myClerk]);
+		/*appClerkCVs[myClerk]->Wait(appClerkLocks[myClerk]);*/
+		Wait(appClerkCVs[myClerk], appClerkLocks[myClerk]);
+		printf("Senator [%d] is informed by ApplicationClerk [%d] that the application has been filed.\n", *index, myClerk);
+		tprintf("Senator [%d]: Done and done.\n",*index);
+		/*appClerkLocks[myClerk]->Release();*/
+		Release(appClerkLocks[myClerk]);
+		tprintf("Senator [%d]: Going to next clerk...\n",*index);
+		break;
+	}
+}
+
+static void doPicClerk(int* index, int* cashDollars)
+{
+
+	bool privLine = false;
+	int myClerk, x;
+	
+	while(true)
+	{	
+		myClerk = -1;
+		tprintf("Senator [%d]: Going to the PicClerk\n",*index);
+		/*appPicLineLock->Acquire();	*/
+		Acquire(appPicLineLock);
+		tprintf("Senator [%d]: What line should I choose for the PicClerk?\n",*index);
+		/*check for senator*/
+		if(*cashDollars > 100) /*get in a privledged line*/
+		{						
+			privLine = true;
+			tprintf("Senator [%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
+			privPicLineLength++;
+			tprintf("Senator [%d]: Waiting in the Priveledged Line for next available PicClerk\n",*index);
+			/*privPicLineCV->Wait(appPicLineLock);		*/
+			Wait(privPicLineCV, appPicLineLock);	
+		}
+		else /*get in a normal line*/
+		{
+			tprintf("Senator [%d]: Regular line, suckas. CashDollars = $%d\n",*index,*cashDollars);
+			regPicLineLength++;
+			tprintf("Senator [%d]: Waiting in the Regluar Line for next available PicClerk\n",*index);
+			/*regPicLineCV->Wait(appPicLineLock);			*/
+			Wait(regPicLineCV, appPicLineLock);
+		}
+		tprintf("Senator [%d]: Finding available PicClerk...\n",*index);
+		for(x = 0; x < MAX_PIC_CLERKS; x++)
+		{					
+
+			if(picClerkStatuses[x] == CLERK_AVAILABLE)
+			{
+				myClerk = x;					
+				tprintf("Senator [%d]: Going to chill with PicClerk[%d]\n",*index,myClerk);					
+				picClerkStatuses[myClerk] = CLERK_BUSY;					
+				break;				
+			}
+			else
+				tprintf("Senator [%d]: PicClerk [%d] is unavailable\n",*index,x);
+		}
+		
+		/*picClerkLocks[myClerk]->Acquire();
+		appPicLineLock->Release();*/
+		Acquire(picClerkLocks[myClerk]);
+		Release(appPicLineLock);
+						
+		picClerkSSNs[myClerk] = *index;		
+		if(privLine)
+		{
+			printf("Senator [%d] is willing to pay $500 to PictureClerk[%d] for moving ahead in line\n",*index, myClerk);				
+			picClerkMoney[myClerk] += 500;
+			picClerkBribed[myClerk] = true;
+			*cashDollars -= 500;
+		}
+		tprintf("Senator [%d] Goes to PictureClerk[%d]\n",*index,myClerk);
+		/*interact with clerk, loop enabled picture to be taken multiple times*/
+		while(happyWithPhoto[myClerk] == FALSE)
+		{
+
+			tprintf("Senator [%d]: Getting my picture taken...\n",*index);
+			/*picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);
+			picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);	*/
+			Signal(picClerkCVs[myClerk], picClerkLocks[myClerk]);
+			Wait(picClerkCVs[myClerk], picClerkLocks[myClerk]);	
+
+			/*did I like my picture?*/
+			if(rand()%10 > 5)
+			{
+				happyWithPhoto[myClerk] = TRUE;
+				printf("Senator [%d] [likes] the picture provided by PictureClerk[%d]\n", *index,myClerk);
+			}
+			else
+			{
+				printf("Senator [%d] [dislikes] the picture provided by PictureClerk[%d]\n", *index,myClerk);
+				printf("The picture of Senator [%d] will be taken again.\n", *index);
+			}		
+
+			/*picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);	
+			picClerkCVs[myClerk]->Wait(picClerkLocks[myClerk]);		*/
+			Signal(picClerkCVs[myClerk], picClerkLocks[myClerk]);
+			Wait(picClerkCVs[myClerk], picClerkLocks[myClerk]);				
+
+		}
+
+		happyWithPhoto[myClerk] = FALSE; /*needs to be reset for future customers*/
+
+		tprintf("Senator [%d]: Picture taken. Like a boss.\n",*index);
+		/*picClerkLocks[myClerk]->Release();			*/
+		Release(picClerkLocks[myClerk]);
+
+		tprintf("Senator [%d]: Done and done.\n",*index);											
+		break;
+	}
+}
+
+static void doPassPortClerk(int *index, int* cashDollars){	
+
+	bool privLined = false;
+	bool bribed = false;
+	int myClerk, x, rando;
+
+	while(true)
+	{	
+	
+		myClerk = -1;
+		tprintf("Senator [%d]: Going to the PassportClerk\n",*index);
+		tprintf("Senator [%d]: Acquiring PassLineLock...\n",*index);		
+		/*passLineLock->Acquire();*/
+		Acquire(passLineLock);
+		printf("Senator [%d]: What line should I choose for the PassportClerk?\n",*index);
+		/*check for senator*/
+		if(*cashDollars > 100 || privLined) /*get in a privledged line*/
+		{								
+			privLined = true;				
+			tprintf("Senator [%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars);
+			privPassLineLength++;
+			tprintf("Senator [%d]: Waiting in the Priveledged Line for next available PassportClerk\n",*index);
+			/*privPassLineCV->Wait(passLineLock);*/
+			Wait(privPassLineCV, passLineLock);			
+		}
+		else /*get in a normal line*/
+		{
+			tprintf("Senator [%d]: Regular line, suckas. CashDollars = $%d\n",*index,*cashDollars);
+			regPassLineLength++;
+			tprintf("Senator [%d]: Waiting in the Regular Line for next available PassportClerk\n",*index);
+			/*regPassLineCV->Wait(passLineLock);		*/
+			Wait(regPassLineCV, passLineLock);	
+		}
+		tprintf("Senator [%d]: Finding available PassClerk...\n",*index);
+		for(x = 0; x < MAX_PASS_CLERKS; x++)
+		{				
+			if(passClerkStatuses[x] == CLERK_AVAILABLE)
+			{
+				myClerk = x;					
+				tprintf("Senator [%d]: Going to chill with PassClerk[%d]\n",*index,myClerk);					
+				passClerkStatuses[myClerk] = CLERK_BUSY;					
+				break;				
+			}
+			else
+				tprintf("Senator [%d]: PassClerk[%d] is unavailable\n",*index,x);
+
+		}
+		
+		/*passClerkLocks[myClerk]->Acquire();*/
+		Acquire(passClerkLocks[myClerk]);
+		/*passLineLock->Release();	*/
+		Release(passLineLock);						
+		passClerkSSNs[myClerk] = *index;
+		if(privLined && !bribed)
+		{
+			bribed = true;
+			printf("Senator [%d] is willing to pay $500 to PassportClerk[%d] for moving ahead in line\n",*index,myClerk);
+			passClerkMoney[myClerk] += 500;
+			passClerkBribed[myClerk] = true;
+			*cashDollars -= 500;
+		}
+		printf("Senator [%d] goes to PassportClerk[%d]\n",*index,myClerk);
+		/*interact with clerk		*/	
+		/*passClerkCVs[myClerk]->Signal(passClerkLocks[myClerk]);
+		passClerkCVs[myClerk]->Wait(passClerkLocks[myClerk]);*/
+		Signal(passClerkCVs[myClerk], passClerkLocks[myClerk]);
+		Wait(passClerkCVs[myClerk], passClerkLocks[myClerk]);
+		/*get passport from clerk, if not ready, go to the back of the line?*/
+		if(!passPunish[myClerk])
+		{
+			printf("Senator [%d] is [certified] by PassportClerk[%d]\n",*index,myClerk);
+			tprintf("Senator [%d]: Passport. GET!.\n", *index);						
+			tprintf("Senator [%d]: Done and done.\n",*index);
+			/*passClerkLocks[myClerk]->Release();*/
+			Release(passClerkLocks[myClerk]);
+			tprintf("Senator [%d]: Going to next clerk...\n",*index);
+			break;				
+		}
+		/*passClerkLocks[myClerk]->Release();*/
+		Release(passClerkLocks[myClerk]);
+		printf("Senator [%d] is [not certified] by PassportClerk[%d]\n",*index,myClerk);
+		printf("Senator [%d] is being forced to wait by PassportClerk[%d]\n",*index,myClerk);
+		rando = rand()%80+20;					
+		for(x = 0; x < rando; x++)
+			currentThread->Yield();															
+	}
+
+}
+
+
+static void doCashierClerk(int* index, int* cashDollars)
+{	
+	int myClerk, x, rando;
+	
+	while(true)
+	{	
+		
+		myClerk = -1;
+		tprintf("Senator [%d]: Going to the CashClerk\n",*index);	
+		/*cashLineLock->Acquire();	*/
+		Acquire(cashLineLock);
+		
+		regCashLineLength++;
+		tprintf("Senator [%d]: Waiting in the Regular Line for next available CashClerk\n",*index);
+		/*regCashLineCV->Wait(cashLineLock);	*/
+		Wait(regCashLineCV, cashLineLock);		
+				
+		tprintf("Senator[%d]: Finding available CashClerk...\n",*index);
+		for(x = 0; x < MAX_CASH_CLERKS; x++)
+		{				
+			if(cashClerkStatuses[x] == CLERK_AVAILABLE)
+			{
+				myClerk = x;					
+				tprintf("Senator [%d]: Going to chill with CashClerk[%d]\n",*index,myClerk);					
+				cashClerkStatuses[myClerk] = CLERK_BUSY;					
+				break;				
+			}
+			else
+				tprintf("Senator [%d]: CashClerk[%d] is unavailable\n",*index,x);
+
+		}	
+		
+		
+		/*cashClerkLocks[myClerk]->Acquire();
+		cashLineLock->Release();		*/
+		Acquire(cashClerkLocks[myClerk]);
+		Release(cashLineLock);
+							
+		cashClerkSSNs[myClerk] = *index;			
+		printf("Senator [%d] goes to CashClerk[%d]\n",*index,myClerk);			
+		/*interact with clerk			*/
+		/*cashClerkCVs[myClerk]->Signal(cashClerkLocks[myClerk]);
+		cashClerkCVs[myClerk]->Wait(cashClerkLocks[myClerk]);*/
+		Signal(cashClerkCVs[myClerk], cashClerkLocks[myClerk]);
+		Wait(cashClerkCVs[myClerk], cashClerkLocks[myClerk]);
+		
+		/*pay for passport. If it's not processed, get back in line*/
+		if(!cashPunish[myClerk])
+		{				
+			printf("Senator [%d] gets [valid] certification by Cashier[%d]\n",*index,myClerk);
+			printf("Senator [%d] pays $100 to Cashier[%d] for their passport\n",*index,myClerk);
+			cashClerkMoney[myClerk] += 100;				
+			*cashDollars-=100;
+			/*cashClerkCVs[myClerk]->Signal(cashClerkLocks[myClerk]);
+			cashClerkCVs[myClerk]->Wait(cashClerkLocks[myClerk]);*/
+			Signal(cashClerkCVs[myClerk], cashClerkLocks[myClerk]);
+			Wait(cashClerkCVs[myClerk], cashClerkLocks[myClerk]);
+			
+			tprintf("Senator [%d]: Passport paid for like a pro. CashDollars = [$%d]\n", *index, *cashDollars);											
+			/*cashClerkLocks[myClerk]->Release();*/
+			Release(cashClerkLocks[myClerk]);
+			
+			printf("Senator [%d] leaves the passport office...\n",*index);
+			/*customerOfficeLock->Acquire();*/
+			Acquire(customerOfficeLock);
+			customersInOffice--;
+			/*customerOfficeLock->Release();*/
+			Release(customerOfficeLock);
+			break;				
+		}
+		/*cashClerkLocks[myClerk]->Release();*/
+		Release(cashClerkLocks[myClerk]);
+		printf("Senator [%d] gets [invalid] certification by Cashier[%d]\n",*index,myClerk);
+		printf("Senator [%d] is punished to wait by Cashier[%d]\n",*index,myClerk);
+		tprintf("Senator [%d]: NOT READY!? Going back to the end of the line...\n",*index);
+		rando = rand()%80+20;					
+		for(x = 0; x < rando; x++)
+			currentThread->Yield();																				
+	}
+}
