@@ -663,7 +663,7 @@ void kernel_thread(int virtualAddr)
 	currentThread->space->RestoreState();
 	
 	//mod the stack		
-	machine->WriteRegister(StackReg, thread->startVPN + USER_STACK_SIZE - 16);	
+	machine->WriteRegister(StackReg, currentThread->startVPN + UserStackSize - 16);	
 	machine->Run();	
 }
 
