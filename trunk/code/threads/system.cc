@@ -185,7 +185,7 @@ int getPhysicalPage() {
 }
 
 void giveUpPhysicalPage(int physPageNum) {
-	physPageBitMap->Clear(i);
+	physPageBitMap->Clear(physPageNum);
 }
 
 //----------------------------------------------------------------------
