@@ -15,6 +15,7 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
+#include "bitmap.h"
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -29,6 +30,9 @@ extern Interrupt *interrupt;			// interrupt status
 extern Statistics *stats;			// performance metrics
 extern Timer *timer;				// the hardware alarm clock
 extern int threadCount;
+extern BitMap *physPageBitMap;
+#define PROCESS_TABLE_SIZE 10
+extern AddrSpace *processTable[PROCESS_TABLE_SIZE];	
 
 #ifdef USER_PROGRAM
 #include "machine.h"

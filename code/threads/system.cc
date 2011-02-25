@@ -18,8 +18,8 @@ Interrupt *interrupt;			// interrupt status
 Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
-BitMap *bitMap;
-AddrSpace *processTable[10];	
+BitMap *physPageBitMap;
+AddrSpace *processTable[PROCESS_TABLE_SIZE];	
 int threadCount;				
 
 #ifdef FILESYS_NEEDED
@@ -144,7 +144,7 @@ Initialize(int argc, char **argv)
 	timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
     threadToBeDestroyed = NULL;
-	bitMap = new BitMap(1028);
+	physPageBitMap = new BitMap(1028);
 	threadCount = 0;
 	for(int x = 0; x < 10; x++)
 		processTable[x] = NULL;
