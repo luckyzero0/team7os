@@ -16,7 +16,7 @@ int
 main()
 {
   /*  int i, j, tmp;*/
-	Write("Testing a basic write.\n", 25, ConsoleOutput);
+	/*Write("Testing a basic write.\n", 25, ConsoleOutput);*/
 	printf("About to initialize the array.\n", 0,0,0 "", "");
     /* first initialize the array, in reverse sorted order */
   /*  for (i = 0; i < 1024; i++)		
