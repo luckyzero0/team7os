@@ -29,12 +29,16 @@ int
 	Write(msg, strlen(msg), ConsoleOutput);
 	/*	printf("Initialized the array.\n", 0,0,0,"","");*/
 	/* then sort! */
-	for (i = 0; i < 1023; i++)
-		for (j = i; j < (1023 - i); j++)
+	for (i = 0; i < 1023; i++) {
+		for (j = i; j < (1023 - i); j++) {
 			if (A[j] > A[j + 1]) {	
 				tmp = A[j];
 				A[j] = A[j + 1];
 				A[j + 1] = tmp;
 			}
+		}
+	}
+
+	Write("A", 1, ConsoleOutput);
 	Exit(A[0]);		
 }
