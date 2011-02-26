@@ -229,10 +229,16 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 			printf("Ran out of physical pages!");
 			return;
 		}
+		pageTable[startVPN + i].physicalPage = physPage;
 		pageTable[startVPN + i].valid = TRUE;
 		pageTable[startVPN + i].use = FALSE;
 		pageTable[startVPN + i].dirty = FALSE;
 		pageTable[startVPN + i].readOnly = FALSE;
+	}
+	
+	for(int i = 0; i <numPages; i++)
+	{
+		DEBUG('a',"pageTable[%d]. Physical Page = [%d]. Valid = [%d]\n",i,pageTable[i].physicalPage,pageTable[i].valid);
 	}
 }
 
