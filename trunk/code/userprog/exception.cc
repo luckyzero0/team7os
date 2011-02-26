@@ -346,6 +346,15 @@ int getNumProcesses() {
 	return numProcesses;
 }
 
+int getSpaceID(AddrSpace* space) {
+	for (int i = 0; i < PROCESS_TABLE_SIZE; i++) {
+		if (processTable[i] == space) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 void Exit_Syscall(int status) {
 	// if this is NOT the last thread in the last process, Finish() currentThread
 /*	if (scheduler->HasThreadsRemaining()) {
@@ -361,7 +370,15 @@ void Exit_Syscall(int status) {
 
 	if (numProcesses == 1 && currentThread->space->numThreads == 0) { //we are the final thread remaining 
 		interrupt->Halt();
-	} 
+	} else if (currentThread->space->numThreads == 0) { //kill the process and free the address space and stuff
+		SpaceID spaceID = getSpaceID(currentThread->space);
+		delete currentThread->space;
+		processTable[spaceID] = NULL;
+		currentThread->Finish();
+	} else { //we are not the last thread in a process, so just kill the thread
+		currentThread->space->RemoveCurrentThread();
+		currentThread->Finish();
+	}
 
 }
 
