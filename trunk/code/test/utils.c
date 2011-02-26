@@ -24,6 +24,8 @@ void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 	char arg3buf[12];
 
 	char* msg = "Starting a call to printf.\n";
+
+	return; /* HACK */
 	Write(msg, strlen(msg), ConsoleOutput);
 	
 	itoa(arg1, arg1buf);
