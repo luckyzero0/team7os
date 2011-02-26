@@ -19,10 +19,10 @@ main()
 	Write("Testing a basic write.\n", 25, ConsoleOutput);
 	printf("About to initialize the array.\n", 0,0,0, "", "");
     /* first initialize the array, in reverse sorted order */
-  /*  for (i = 0; i < 1024; i++)		
+    for (i = 0; i < 1024; i++)		
         A[i] = 1024 - i;
 
-	printf("Initialized the array.\n", 0,0,0,"","");*/
+	printf("Initialized the array.\n", 0,0,0,"","");
     /* then sort! */
   /*  for (i = 0; i < 1023; i++)
         for (j = i; j < (1023 - i); j++)
