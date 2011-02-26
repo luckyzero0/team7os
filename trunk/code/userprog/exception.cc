@@ -176,9 +176,9 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	delete[] buf;
 
 	if ( f ) {
-		return 0;
+
 		AddrSpace* addrSpace = new AddrSpace(f);
-			
+		return 0;	
 		Thread* t = new Thread("damnitmihir");
 		t->space = addrSpace;
 		

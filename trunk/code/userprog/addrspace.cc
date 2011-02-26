@@ -164,6 +164,8 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 		// pages to be read-only
 	}
 
+	return;
+
 	// zero out the entire address space, to zero the unitialized data segment 
 	// and the stack segment
 	//   bzero(machine->mainMemory, size);
