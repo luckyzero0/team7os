@@ -260,6 +260,7 @@ void Write_Syscall(unsigned int vaddr, int len, int id) {
 	char *buf;		// Kernel buffer for output
 	OpenFile *f;	// Open file for output
 
+
 	if ( id == ConsoleInput) return;
 
 	if ( !(buf = new char[len]) ) {
@@ -373,6 +374,8 @@ void Exit_Syscall(int status) {
 	}*/
 	bigLock->Acquire();
 	int numProcesses = getNumProcesses();
+
+	printf("In exit!\n");
 
 
 	if (numProcesses == 1 && currentThread->space->numThreads == 0) { //we are the final thread remaining 
