@@ -123,6 +123,15 @@ int copyout(unsigned int vaddr, int len, char *buf) {
 	return n;
 }
 
+int getSpaceID(AddrSpace* space) {
+	for (int i = 0; i < PROCESS_TABLE_SIZE; i++) {
+		if (processTable[i] == space) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 /*I fed my goat vintage whiskey through a funnel while listening to this Nantes.
 
 As my tears fell and enveloped his rough hide, he sang me﻿ to sleep.
@@ -355,14 +364,7 @@ int getNumProcesses() {
 	return numProcesses;
 }
 
-int getSpaceID(AddrSpace* space) {
-	for (int i = 0; i < PROCESS_TABLE_SIZE; i++) {
-		if (processTable[i] == space) {
-			return i;
-		}
-	}
-	return -1;
-}
+
 
 void Exit_Syscall(int status) {
 	// if this is NOT the last thread in the last process, Finish() currentThread
