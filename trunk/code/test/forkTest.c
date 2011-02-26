@@ -8,19 +8,14 @@ void testProc();
 int main(){
 	
 	
-	/*Fork a thread*/
-	char* msg = "Forking thread 1...\n";
-	Write(msg,strlen(msg),ConsoleOutput);
-	print("Also testing a print %d suckas!\n", 49,0,0,"s","t");
-	
+	/*Fork a thread*/	
+	printf("Forking thread 1...\n",0,0,0,"","");
 	Fork(testProc);
 	
 	/*fork another thread*/
-	msg = "Forking thread 2...\n";
-	Write(msg,strlen(msg),ConsoleOutput);
-	Fork(testProc);
-		
-
+	printf("Forking thread 2...\n",0,0,0,"","");	
+	Fork(testProc);			
+	
   return 0;
 }
 

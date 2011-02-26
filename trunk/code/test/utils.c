@@ -10,7 +10,7 @@ int strlen(char* str){
 }
 
 /*printf-ish function, but without VA list*/
-void print(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
+void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 	char out[100];	
 	char* dmsg;
 	int i = 0;
