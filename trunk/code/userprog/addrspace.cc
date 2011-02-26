@@ -150,14 +150,15 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 		numPages, size);
 	// first, set up the translation 
 	pageTable = new TranslationEntry[numPages];
+
+	int startPPN = getContiguousPhysicalPages(numPages);
+	if (startPPN == -1) {
+		printf("We failed to allocate %d contiguous physical pages, so the process did not create correctly!\n", numPages);
+		return;
+	}
 	for (i = 0; i < numPages; i++) {
 		pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-		int physPage = getPhysicalPage();
-		if (physPage == -1) {
-			printf("Ran out of physical pages!");
-			return;
-		}
-		pageTable[i].physicalPage = physPage;
+		pageTable[i].physicalPage = startPPN + i;
 		pageTable[i].valid = TRUE;
 		pageTable[i].use = FALSE;
 		pageTable[i].dirty = FALSE;

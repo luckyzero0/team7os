@@ -38,6 +38,7 @@ extern Lock *bigLock;
 extern AddrSpace *processTable[PROCESS_TABLE_SIZE];	
 
 extern int getPhysicalPage();
+extern int getContiguousPhysicalPages(int);
 extern void giveUpPhysicalPage(int);
 
 #ifdef USER_PROGRAM
