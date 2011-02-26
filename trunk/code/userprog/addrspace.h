@@ -37,7 +37,7 @@ class AddrSpace {
     Table fileTable;			// Table of openfiles
     int numThreads;
 
-	void AddCurrentThread();
+	void AddNewThread(Thread* newThread);
 	void RemoveCurrentThread();
 
 	int getNumPages();
