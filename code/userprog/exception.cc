@@ -336,26 +336,33 @@ void Close_Syscall(int fd) {
 	}
 }
 
-void Exit_Syscall() {
-	// if this is NOT the last thread in the last process, Finish() currentThread
-	if (scheduler->HasThreadsRemaining()) {
-		DEBUG('a', "Threads remaining in the scheduler, so we only finish the current thread.\n");
-		currentThread->Finish();
-	} else { // else Halt() the machine
-		DEBUG('a', "No more threads remaining, so we're going to halt the machine.\n");
-		interrupt->Halt();
-	}
-
-/*	int numProcesses = 0;
+int getNumProcesses() {
+	int numProcesses = 0;
 	for (int i = 0; i < PROCESS_TABLE_SIZE; i++) {
 		if (processTable[i] != NULL) {
 			numProcesses++;
 		}
 	}
+	return numProcesses;
+}
+
+void Exit_Syscall(int status) {
+	// if this is NOT the last thread in the last process, Finish() currentThread
+/*	if (scheduler->HasThreadsRemaining()) {
+		DEBUG('a', "Threads remaining in the scheduler, so we only finish the current thread.\n");
+		currentThread->Finish();
+	} else { // else Halt() the machine
+		DEBUG('a', "No more threads remaining, so we're going to halt the machine.\n");
+		interrupt->Halt();
+	}*/
+
+	int numProcesses = getNumProcesses();
+
 
 	if (numProcesses == 1 && currentThread->space->numThreads == 0) { //we are the final thread remaining 
-		SpaceID spaceID = 
-	} */
+		interrupt->Halt();
+	} 
+
 }
 
 int getAvailableLockID() {
