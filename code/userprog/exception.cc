@@ -376,6 +376,7 @@ void Exit_Syscall(int status) {
 		processTable[spaceID] = NULL;
 		currentThread->Finish();
 	} else { //we are not the last thread in a process, so just kill the thread
+		printf("Giving up a non-final thread in a process.\n");
 		currentThread->space->RemoveCurrentThread();
 		currentThread->Finish();
 	}
