@@ -144,6 +144,8 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 
 	numThreads = 0;
 
+	return;
+
 	DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 		numPages, size);
 	// first, set up the translation 
@@ -163,8 +165,6 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 		// a separate page, we could set its 
 		// pages to be read-only
 	}
-
-	return;
 
 	// zero out the entire address space, to zero the unitialized data segment 
 	// and the stack segment
