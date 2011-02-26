@@ -11,7 +11,7 @@ int strlen(char* str){
 
 /*printf-ish function, but without VA list*/
 void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
-	char out[100];	
+	char out[100];
 	char* dmsg;
 	int i = 0;
 	int intArg = 0;
@@ -92,7 +92,7 @@ void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 			i++;
 		}
 	}
-	
+	out[outIndex] = '\0';
 	Write(out,strlen(out),ConsoleOutput);
 	
 	
