@@ -137,12 +137,16 @@ He brought me home to beirut.*/
 
 
 void exec_thread(int dontUse){
+	bigLock->Acquire();
 	currentThread->space->InitRegisters();		// set the initial register values
     currentThread->space->RestoreState();		// load page table register
+	bigLock->Release();
     machine->Run();
 }
 
 SpaceID Exec_Syscall(unsigned int vaddr, int len){
+	bigLock->Acquire();
+
 	OpenFile *f;			// The new open file
 	char *buf = new char[len+1];
 	if (!buf){
@@ -179,6 +183,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		}
 		
 		t->Fork(exec_thread, 0);
+		bigLock->Release();
 		return spaceID;
 	}
 	return -1;
@@ -364,7 +369,7 @@ void Exit_Syscall(int status) {
 		DEBUG('a', "No more threads remaining, so we're going to halt the machine.\n");
 		interrupt->Halt();
 	}*/
-
+	bigLock->Acqure();
 	int numProcesses = getNumProcesses();
 
 
@@ -374,10 +379,12 @@ void Exit_Syscall(int status) {
 		SpaceID spaceID = getSpaceID(currentThread->space);
 		delete currentThread->space;
 		processTable[spaceID] = NULL;
+		bigLock->Release();
 		currentThread->Finish();
 	} else { //we are not the last thread in a process, so just kill the thread
 		printf("Giving up a non-final thread in a process.\n");
 		currentThread->space->RemoveCurrentThread();
+		bigLock->Release();
 		currentThread->Finish();
 	}
 

@@ -20,7 +20,9 @@ Timer *timer;				// the hardware timer device,
 					// for invoking context switches
 BitMap *physPageBitMap;
 AddrSpace *processTable[PROCESS_TABLE_SIZE];	
-int threadCount;				
+int threadCount;	
+
+Lock *bigLock = new Lock("bigLock");
 
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
