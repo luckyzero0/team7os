@@ -158,6 +158,8 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	bigLock->Acquire();
 	static int called = 0; 
 
+	return 0;
+
 	printf("In EXEC for the %d time.", called++);
 
 	OpenFile *f;			// The new open file
