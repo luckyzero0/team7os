@@ -16,12 +16,12 @@ int
 main()
 {
     int i, j, tmp;
-
+	printf("About to initialize the array.\n");
     /* first initialize the array, in reverse sorted order */
     for (i = 0; i < 1024; i++)		
         A[i] = 1024 - i;
 
-	printf("Got to this point", 0,0,0,"","");
+	printf("Initialized the array.\n", 0,0,0,"","");
     /* then sort! */
     for (i = 0; i < 1023; i++)
         for (j = i; j < (1023 - i); j++)
