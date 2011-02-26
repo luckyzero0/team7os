@@ -29,8 +29,8 @@ int
 	/*	printf("Initialized the array.\n", 0,0,0,"","");*/
 	/* then sort! */
 	for (i = 0; i < 1023; i++) {
-		msg = "In the top loop!\n";
-		Write(msg, strlen(msg), ConsoleOutput);
+		/*msg = "In the top loop!\n";
+		Write(msg, strlen(msg), ConsoleOutput);*/
 		for (j = i; j < (1023 - i); j++) {
 			if (A[j] > A[j + 1]) {	
 				tmp = A[j];
@@ -41,5 +41,6 @@ int
 	}
 
 	Write("A", 1, ConsoleOutput);
-	Exit(A[0]);		
+	Halt();
+	/*Exit(A[0]);		*/
 }
