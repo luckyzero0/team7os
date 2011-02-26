@@ -375,7 +375,7 @@ void Exit_Syscall(int status) {
 	bigLock->Acquire();
 	int numProcesses = getNumProcesses();
 
-	printf("In exit!\n");
+	printf("In exit!, with %d processes currently active.\n", numProcesses);
 
 
 	if (numProcesses == 1 && currentThread->space->numThreads == 0) { //we are the final thread remaining 
