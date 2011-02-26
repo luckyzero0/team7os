@@ -369,7 +369,7 @@ void Exit_Syscall(int status) {
 		DEBUG('a', "No more threads remaining, so we're going to halt the machine.\n");
 		interrupt->Halt();
 	}*/
-	bigLock->Acqure();
+	bigLock->Acquire();
 	int numProcesses = getNumProcesses();
 
 
