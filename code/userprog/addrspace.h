@@ -16,6 +16,7 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "table.h"
+#include "thread.h"
 
 #define UserStackSize		1024 	// increase this as necessary!
 
