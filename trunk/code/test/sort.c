@@ -8,7 +8,7 @@
  */
 
 #include "syscall.h"
-/*#include "utils.h"*/
+#include "utils.h"
 
 int A[1024];	/* size of physical memory; with code, we'll run out of space!*/
 
