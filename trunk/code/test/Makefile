@@ -45,9 +45,9 @@ halt: halt.o start.o
 	../bin/coff2noff halt.coff halt
 
 sort.o: sort.c
-	$(CC) $(CFLAGS) -c sort.c
-sort: sort.o start.o
-	$(LD) $(LDFLAGS) start.o sort.o -o sort.coff
+	$(CC) $(CFLAGS) -c sort.c utils.c
+sort: sort.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o sort.o utils.o -o sort.coff
 	../bin/coff2noff sort.coff sort
 
 matmult.o: matmult.c
