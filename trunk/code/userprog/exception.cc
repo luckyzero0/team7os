@@ -726,10 +726,11 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	//allocate space for new thread	
 	thread->ID = threadCount++;
 	thread->space->AddNewThread(thread);
+	return;
 	
 	//fork the thread, somehow
 	thread->Fork(kernel_thread,funcAddr);
-	printf("Forked the thread.");
+	printf("Forked the thread.\n");
 	
 	
 	forkLock->Release();
