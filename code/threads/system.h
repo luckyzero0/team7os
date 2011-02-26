@@ -16,6 +16,7 @@
 #include "stats.h"
 #include "timer.h"
 #include "bitmap.h"
+#include "synch.h"
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
