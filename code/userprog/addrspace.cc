@@ -206,10 +206,10 @@ int AddrSpace::getNumPages() {
 	return numPages;
 }
 
-void AddrSpace::AddCurrentThread() {
+void AddrSpace::AddNewThread(Thread* newThread) {
 	numThreads++;
 	int startVPN = getStartVPN();
-	currentThread->startVPN = startVPN;
+	newThread->startVPN = startVPN;
 	if (startVPN >= numPages) {
 		// copy and remake our pageTable
 		TranslationEntry* newPageTable = new TranslationEntry[numPages + UserStackSize / PageSize];
