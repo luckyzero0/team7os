@@ -183,7 +183,6 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		}
 
 		printf("Made a new process at SpaceID[%d], forking the exec_thread.\n", spaceID);
-		exit(0);
 
 		t->Fork(exec_thread, 0);
 		bigLock->Release();
