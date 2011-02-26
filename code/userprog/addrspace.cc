@@ -271,7 +271,7 @@ void AddrSpace::RemoveCurrentThread() {
 	numThreads--;
 	int vpnStart = currentThread->startVPN;
 	for (int i = 0; i < UserStackSize / PageSize; i++) { //mark the physical pages as free and the virtual pages as invalid
-		giveUpPhysicalPage(vpnStart + i);
+		giveUpPhysicalPage(pageTable[vpnStart + i].physicalPage);
 		pageTable[vpnStart + i].physicalPage = -1;
 		pageTable[vpnStart + i].valid = FALSE;
 	}
