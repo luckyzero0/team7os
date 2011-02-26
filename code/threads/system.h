@@ -31,6 +31,8 @@ extern Statistics *stats;			// performance metrics
 extern Timer *timer;				// the hardware alarm clock
 extern int threadCount;
 extern BitMap *physPageBitMap;
+extern Lock *bigLock;
+
 #define PROCESS_TABLE_SIZE 10
 extern AddrSpace *processTable[PROCESS_TABLE_SIZE];	
 
