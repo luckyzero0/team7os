@@ -22,6 +22,9 @@ void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 	char arg1buf[12];
 	char arg2buf[12];
 	char arg3buf[12];
+
+	char* msg = "Starting a call to printf.\n";
+	Write(msg, strlen(msg), ConsoleOutput);
 	
 	itoa(arg1, arg1buf);
 	itoa(arg2, arg2buf);
