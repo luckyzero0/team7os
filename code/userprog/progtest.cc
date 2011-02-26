@@ -37,6 +37,7 @@ StartProcess(char *filename)
 	processTable[0] = space;
 
     currentThread->space = space;
+	currentThread->startVPN = currentThread->space->getMainThreadStartVPN();
 
     delete executable;			// close file
 

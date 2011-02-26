@@ -182,6 +182,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		
 		Thread* t = new Thread("damnitmihir");
 		t->space = addrSpace;
+		t->startVPN = t->space->getMainThreadStartVPN();
 		
 		SpaceID spaceID = -1;
 		//Update the process table and related data structures

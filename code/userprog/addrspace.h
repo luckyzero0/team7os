@@ -44,6 +44,8 @@ class AddrSpace {
 
 	int getNumPages();
 
+	int getMainThreadStartVPN();
+
  private:
 	 int getStartVPN();
 
@@ -51,6 +53,7 @@ class AddrSpace {
 					// for now!
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
+	int mainThreadStartVPN;
 };
 
 #endif // ADDRSPACE_H
