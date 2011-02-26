@@ -21,6 +21,6 @@ int main()
 	DestroyLock(lockID+1); /*Should give error*/
 	Write("Trying to destroy a lock that has been created. This should work.\n",67,ConsoleOutput);
 	DestroyLock(lockID);
-	Halt();
+	Exit(0);
 	
 }
