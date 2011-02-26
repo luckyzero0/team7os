@@ -176,7 +176,6 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	delete[] buf;
 
 	if ( f ) {
-		while(1);
 		AddrSpace* addrSpace = new AddrSpace(f);
 		//currentThread->space->RestoreState();
 		printf("Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
