@@ -712,7 +712,7 @@ void kernel_thread(int virtualAddr)
 	
 	//mod the stack		
 	machine->WriteRegister(StackReg, (currentThread->startVPN) * PageSize + UserStackSize - 16);
-	printf("Wrote the stack reg.");
+	printf("Wrote the stack reg.\n");
 	machine->Run();	
 }
 
@@ -730,9 +730,6 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	//fork the thread, somehow
 	thread->Fork(kernel_thread,funcAddr);
 	printf("Forked the thread.\n");
-	
-	while(1)
-		currentThread->Yield();
 	
 	forkLock->Release();
 	
