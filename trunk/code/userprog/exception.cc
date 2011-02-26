@@ -737,7 +737,7 @@ void ExceptionHandler(ExceptionType which) {
 
 		case SC_Exit:
 			DEBUG('a', "Exit syscall.\n");
-			Exit_Syscall();
+			Exit_Syscall(machine->ReadRegister(4));
 			break;
 
 		case SC_CreateLock:
