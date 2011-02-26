@@ -138,6 +138,7 @@ He brought me home to beirut.*/
 
 void exec_thread(int dontUse){
 	bigLock->Acquire();
+	printf("Exec thread is executing with spaceID[%d].\n", getSpaceID(currentThread->space));
 	currentThread->space->InitRegisters();		// set the initial register values
     currentThread->space->RestoreState();		// load page table register
 	bigLock->Release();
