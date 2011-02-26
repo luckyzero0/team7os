@@ -156,9 +156,9 @@ void exec_thread(int dontUse){
 
 SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	bigLock->Acquire();
-	static int i = 0; 
+	static int called = 0; 
 
-	printf("In EXEC for the %d time.", i++);
+	printf("In EXEC for the %d time.", called++);
 
 	OpenFile *f;			// The new open file
 	char *buf = new char[len+1];
