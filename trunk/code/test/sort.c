@@ -24,7 +24,7 @@ int
 	for (i = 0; i < 1024; i++)	{	
 		A[i] = 1024 - i;
 	}
-	msg = "Initialized the array.\n"; */
+	msg = "Initialized the array.\n";
 	Write(msg, strlen(msg), ConsoleOutput);
 	/*	printf("Initialized the array.\n", 0,0,0,"","");*/
 	/* then sort! */
