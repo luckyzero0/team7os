@@ -133,6 +133,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 
 	size = noffH.code.size + noffH.initData.size + noffH.uninitData.size ;
 	numPages = divRoundUp(size, PageSize) + divRoundUp(UserStackSize,PageSize);
+	mainThreadStartVPN = divRoundUp(size,PageSize);
 	// we need to increase the size
 	// to leave room for the stack
 	size = numPages * PageSize;
@@ -200,6 +201,10 @@ AddrSpace::~AddrSpace()
 		giveUpPhysicalPage(i);
 	}
 	delete pageTable;
+}
+
+int AddrSpace::getMainThreadStartVPN() {
+	return mainThreadStartVPN;
 }
 
 int AddrSpace::getNumPages() {
@@ -273,7 +278,7 @@ void AddrSpace::RemoveCurrentThread() {
 	printf("Removing thread with startVPN = %d.\n", vpnStart);
 	for (int i = 0; i < UserStackSize / PageSize; i++) { //mark the physical pages as free and the virtual pages as invalid
 		int physPage = pageTable[vpnStart + i].physicalPage;
-		printf("Giving up physical page = %d", physPage);
+		printf("Giving up physical page = %d\n", physPage);
 		giveUpPhysicalPage(physPage);
 		pageTable[vpnStart + i].physicalPage = -1;
 		pageTable[vpnStart + i].valid = FALSE;
