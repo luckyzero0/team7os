@@ -727,7 +727,7 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	thread->ID = threadCount++;
 	thread->space->AddNewThread(thread);
 
-	thead->space->RestoreState();
+	thread->space->RestoreState();
 	
 	//fork the thread, somehow
 	thread->Fork(kernel_thread,funcAddr);
