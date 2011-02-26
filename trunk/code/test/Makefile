@@ -62,6 +62,11 @@ testLocks: testLocks.o start.o
 	$(LD) $(LDFLAGS) start.o testLocks.o -o testLocks.coff
 	../bin/coff2noff testLocks.coff testLocks
 
+exec_testLocks.o: exec_testLocks.c
+	$(CC) $(CFLAGS) -c exec_testLocks.c
+exec_testLocks: exec_testLocks.o start.o
+	$(LD) $(LDFLAGS) start.o exec_testLocks.o -o exec_testLocks.coff
+	../bin/coff2noff exec_testLocks.coff exec_testLocks
 
 testfiles.o: testfiles.c
 	$(CC) $(CFLAGS) -c testfiles.c
