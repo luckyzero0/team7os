@@ -711,7 +711,8 @@ void kernel_thread(int virtualAddr)
 	currentThread->space->RestoreState();
 	
 	//mod the stack		
-	machine->WriteRegister(StackReg, (currentThread->startVPN) * PageSize + UserStackSize - 16);	
+	machine->WriteRegister(StackReg, (currentThread->startVPN) * PageSize + UserStackSize - 16);
+	printf("Wrote the stack reg.");
 	machine->Run();	
 }
 
