@@ -23,6 +23,7 @@ int main()
 	DestroyLock(lockIDPlus1); /*Should give error*/
 	printf("Trying to destroy a lock that has been created. This should work.\n",0,0,0,"","");
 	DestroyLock(lockID);
+	printf("About to exit!\n");
 	Exit(0);
 	
 }
