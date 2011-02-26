@@ -16,16 +16,16 @@ int
 	main()
 {
 	int i, j, tmp;
-	/*	char* msg = "Testing a basic write.\n";
+	char* msg = "Testing a basic write.\n";
 	Write(msg, strlen(msg), ConsoleOutput);
-	printf("About to initialize the array.\n", 0,0,0, "", "")
+	printf("About to initialize the array.\n", 0,0,0, "", "");
 	msg = "About to initialize the array.\n";
 	Write(msg, strlen(msg), ConsoleOutput);
 	/* first initialize the array, in reverse sorted order */
 	for (i = 0; i < 1024; i++)		
 		A[i] = 1024 - i;
 
-	/*	msg = "Initialized the array.\n";
+	/*	msg = "Initialized the array.\n"; */
 	Write(msg, strlen(msg), ConsoleOutput);
 	/*	printf("Initialized the array.\n", 0,0,0,"","");*/
 	/* then sort! */
