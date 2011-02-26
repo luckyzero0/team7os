@@ -18,18 +18,19 @@ int
 	int i, j, tmp;
 	char* msg = "Testing a basic write.\n";
 	Write(msg, strlen(msg), ConsoleOutput);
-	printf("About to initialize the array.\n", 0,0,0, "", "");
 	msg = "About to initialize the array.\n";
 	Write(msg, strlen(msg), ConsoleOutput);
 	/* first initialize the array, in reverse sorted order */
-	for (i = 0; i < 1024; i++)		
+	for (i = 0; i < 1024; i++)	{	
 		A[i] = 1024 - i;
-
-	/*	msg = "Initialized the array.\n"; */
+	}
+	msg = "Initialized the array.\n"; */
 	Write(msg, strlen(msg), ConsoleOutput);
 	/*	printf("Initialized the array.\n", 0,0,0,"","");*/
 	/* then sort! */
 	for (i = 0; i < 1023; i++) {
+		msg = "In the top loop!\n";
+		Write(msg, strlen(msg), ConsoleOutput);
 		for (j = i; j < (1023 - i); j++) {
 			if (A[j] > A[j + 1]) {	
 				tmp = A[j];
