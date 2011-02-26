@@ -121,6 +121,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	NoffHeader noffH;
 	unsigned int i, size;
 
+	return;
 	// Don't allocate the input or output to disk files
 	fileTable.Put(0);
 	fileTable.Put(0);
@@ -144,7 +145,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 
 	numThreads = 0;
 
-	return;
+	
 
 	DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 		numPages, size);
