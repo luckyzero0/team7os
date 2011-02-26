@@ -179,7 +179,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 
 		AddrSpace* addrSpace = new AddrSpace(f);
 		currentThread->space->RestoreState();
-		printf("Current thread in EXEC has %d numPages.\n", currentThread->space->numPages);
+		printf("Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
 		return 0;	
 		Thread* t = new Thread("damnitmihir");
 		t->space = addrSpace;
