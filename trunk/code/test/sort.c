@@ -15,7 +15,7 @@ int A[1024];	/* size of physical memory; with code, we'll run out of space!*/
 int
 main()
 {
-  /*  int i, j, tmp;*/
+    int i, j, tmp;
 	Write("Testing a basic write.\n", 25, ConsoleOutput);
 	printf("About to initialize the array.\n", 0,0,0, "", "");
     /* first initialize the array, in reverse sorted order */
