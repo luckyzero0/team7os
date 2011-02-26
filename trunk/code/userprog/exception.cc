@@ -386,7 +386,7 @@ void Exit_Syscall(int status) {
 		processTable[spaceID] = NULL;
 		bigLock->Release();
 		printf("In KILL PROCESS block of exit for SpaceID[%d]", spaceID);
-		currentThread->Finish();
+		while(1) currentThread->Yield(); //HACK
 	} else { //we are not the last thread in a process, so just kill the thread
 		printf("Giving up a non-final thread in a process.\n");
 		currentThread->space->RemoveCurrentThread();
