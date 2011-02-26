@@ -401,6 +401,7 @@ void Exit_Syscall(int status) {
 		printf("Giving up a non-final thread in a process.\n");
 		currentThread->space->RemoveCurrentThread();
 		bigLock->Release();
+		while(1) currentThread->Yield();  // VE DO ZE HANGING YA?
 		currentThread->Finish();
 	}
 
@@ -734,10 +735,7 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	thread->Fork(kernel_thread,funcAddr);
 	printf("Forked the thread.\n");
 
-	
-	
 	forkLock->Release();
-	while(1) currentThread->Yield();
 	
 }
 
