@@ -190,6 +190,31 @@ void giveUpPhysicalPage(int physPageNum) {
 	physPageBitMap->Clear(physPageNum);
 }
 
+int getContiguousPhysicalPages(int numPages) {
+	int startPPN = -1;
+	for (int i = 0; i < NumPhysPages - numPages; i++) {
+		bool worked = true;
+		for (int j = 0; j < numPages; j++) {
+			if (physPageBitMap->Test(i + j)) {
+				worked = false;
+				break;
+			}
+		}
+		if (worked) {
+			startPPN = i;
+			break;
+		}
+	}
+	
+	if (startPPN != -1) { // if we fail to find numPages contiguous free pages, return -1
+		for (int i = 0; i < numPages; i++) { // claim those pages as our own, and return the start page
+			physPageBitMap->Mark(startPPN + i);
+		}
+	}	
+	
+	return startPPN;
+}
+
 //----------------------------------------------------------------------
 // Cleanup
 // 	Nachos is halting.  De-allocate global data structures.
