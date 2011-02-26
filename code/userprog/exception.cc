@@ -382,10 +382,10 @@ void Exit_Syscall(int status) {
 		interrupt->Halt();
 	} else if (currentThread->space->numThreads == 0) { //kill the process and free the address space and stuff
 		SpaceID spaceID = getSpaceID(currentThread->space);
-		delete currentThread->space;
-		processTable[spaceID] = NULL;
+	//	delete currentThread->space;
+	//	processTable[spaceID] = NULL;
 		bigLock->Release();
-		printf("In KILL PROCESS block of exit for SpaceID[%d]", spaceID);
+		printf("In KILL PROCESS block of exit for SpaceID[%d].\n", spaceID);
 		currentThread->Finish();
 	} else { //we are not the last thread in a process, so just kill the thread
 		printf("Giving up a non-final thread in a process.\n");
