@@ -3,5 +3,5 @@
 
 int main() {
 	Exec("../test/testLocks", 17);
-	while(1);
+	Exit(0);
 }
