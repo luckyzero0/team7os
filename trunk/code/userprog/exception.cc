@@ -732,6 +732,8 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	thread->Fork(kernel_thread,funcAddr);
 	printf("Forked the thread.\n");
 	
+	while(1)
+		currentThread->Yield();
 	
 	forkLock->Release();
 	
