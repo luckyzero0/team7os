@@ -16,12 +16,13 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "table.h"
-#include "thread.h"
 
 #define UserStackSize		1024 	// increase this as necessary!
 
 #define MaxOpenFiles 256
 #define MaxChildSpaces 256
+
+class Thread;
 
 class AddrSpace {
   public:
