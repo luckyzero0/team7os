@@ -179,9 +179,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		AddrSpace* addrSpace = new AddrSpace(f);
 		//currentThread->space->RestoreState();
 		printf("Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
-		while(true) {
-			currentThread->Yield();
-		}
+		
 		Thread* t = new Thread("damnitmihir");
 		t->space = addrSpace;
 		
@@ -202,8 +200,11 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 
 		printf("Made a new process at SpaceID[%d], forking the exec_thread.\n", spaceID);
 
-	//	t->Fork(exec_thread, 0);
+		t->Fork(exec_thread, 0);
 		bigLock->Release();
+		while(true) {
+			currentThread->Yield();
+		}
 		return spaceID;
 	}
 	return -1;
