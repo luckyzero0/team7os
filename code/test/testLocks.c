@@ -11,7 +11,6 @@ int main()
 	printf("Creating a lock\n",0,0,0,"","");
 	lockID = CreateLock("Lock1",5);
 	lockIDPlus1 = lockID + 1;
-	Yield();
 	printf("Trying to acquire a lock that hasn't been created. This should not work.\n",0,0,0,"","");
 	Acquire(lockIDPlus1); 
 	printf("Trying to acquire a lock that has been created. This should work.\n",0,0,0,"","");
