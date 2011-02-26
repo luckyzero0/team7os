@@ -2,6 +2,11 @@
 #include "utils.h"
 
 int main() {
-	Exec("../test/testLocks", 17);
+	int i;
+	char* msg;
+	msg = "../test/testLocks";
+	for (i = 0; i < 10; i++) {
+		Exec(msg, strlen(msg));
+	}
 	Exit(0);
 }
