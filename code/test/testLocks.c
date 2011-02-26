@@ -6,11 +6,11 @@
 
 int main()
 {
-	int lockID;
+	int lockID, lockIDPlus1;
 	printf("\n\nRunning TestLocks Program\n",0,0,0,"","");
 	printf("Creating a lock\n",0,0,0,"","");
 	lockID = CreateLock("Lock1",5);
-	int lockIDPlus1 = lockID + 1;
+	lockIDPlus1 = lockID + 1;
 	printf("Trying to acquire a lock that hasn't been created. This should not work.\n",0,0,0,"","");
 	Acquire(lockIDPlus1); 
 	printf("Trying to acquire a lock that has been created. This should work.\n",0,0,0,"","");
