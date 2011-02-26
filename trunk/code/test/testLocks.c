@@ -2,24 +2,25 @@
 
 
 #include "syscall.h"
+#include "utils.h"
 int lockID;
 
 int main()
 {
-	Write("\n\nRunning TestLocks Program\n",31,ConsoleOutput);
-	Write("Creating a lock\n",17,ConsoleOutput);
+	printf("\n\nRunning TestLocks Program\n",0,0,0,"","");
+	printf("Creating a lock\n",17,0,0,"","");
 	lockID = CreateLock("Lock1",5);
-	Write("Trying to acquire a lock that hasn't been created. This should not work.\n",74,ConsoleOutput);
+	printf("Trying to acquire a lock that hasn't been created. This should not work.\n",74,0,0,"","");
 	Acquire(lockID+1); 
-	Write("Trying to acquire a lock that has been created. This should work.\n",67,ConsoleOutput);
+	printf("Trying to acquire a lock that has been created. This should work.\n",67,0,0,"","");
 	Acquire(lockID);
-	Write("Trying to release a lock that hasn't been created. This should not work.\n",74,ConsoleOutput);
+	printf("Trying to release a lock that hasn't been created. This should not work.\n",74,0,0,"","");
 	Release(lockID+1); /*Should give error*/
-	Write("Trying to release a lock that has been created. This should work.\n",67,ConsoleOutput);
+	printf("Trying to release a lock that has been created. This should work.\n",67,0,0,"","");
 	Release(lockID);
-	Write("Trying to destroy a lock that hasn't been created. This should not work.\n",74,ConsoleOutput);
+	printf("Trying to destroy a lock that hasn't been created. This should not work.\n",74,0,0,"","");
 	DestroyLock(lockID+1); /*Should give error*/
-	Write("Trying to destroy a lock that has been created. This should work.\n",67,ConsoleOutput);
+	printf("Trying to destroy a lock that has been created. This should work.\n",67,0,0,"","");
 	DestroyLock(lockID);
 	Exit(0);
 	
