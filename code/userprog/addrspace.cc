@@ -202,6 +202,10 @@ AddrSpace::~AddrSpace()
 	delete pageTable;
 }
 
+int AddrSpace::getNumPages() {
+	return numPages;
+}
+
 void AddrSpace::AddCurrentThread() {
 	numThreads++;
 	int startVPN = getStartVPN();

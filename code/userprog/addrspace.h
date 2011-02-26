@@ -40,6 +40,8 @@ class AddrSpace {
 	void AddCurrentThread();
 	void RemoveCurrentThread();
 
+	int getNumPages();
+
  private:
 	 int getStartVPN();
 
