@@ -737,7 +737,7 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	
 	
 	forkLock->Release();
-	while(1);
+	while(1) Yield();
 	
 }
 
