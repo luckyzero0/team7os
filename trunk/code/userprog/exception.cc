@@ -158,8 +158,6 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	bigLock->Acquire();
 	static int called = 0; 
 
-	return 0;
-
 	printf("In EXEC for the %d time.", called++);
 
 	OpenFile *f;			// The new open file
@@ -179,6 +177,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 
 	if ( f ) {
 		AddrSpace* addrSpace = new AddrSpace(f);
+			return 0;
 		Thread* t = new Thread("damnitmihir");
 		t->space = addrSpace;
 		
