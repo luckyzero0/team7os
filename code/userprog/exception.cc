@@ -703,6 +703,7 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 
 void kernel_thread(int virtualAddr)
 {
+	printf("Starting up the new kernel thread!\n");
 	//mod the PC to begin execution at the new thread
 	machine->WriteRegister(PCReg,virtualAddr);
 	machine->WriteRegister(NextPCReg,virtualAddr+4);	
