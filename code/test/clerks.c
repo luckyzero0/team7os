@@ -141,7 +141,7 @@ void AppClerkRun(){
 			/*appPicLineLock->Release();*/
 			Release(appPicLineLock);
 			/*appClerkLocks[index]->Acquire();*/
-			Acquire(appClerksLocks[index]);
+			Acquire(appClerkLocks[index]);
 			printf("ApplicationClerk [%d] is going on break\n", index,0,0,"","");
 			appClerkStatuses[index] = CLERK_ON_BREAK;
 			/*appClerkCVs[index]->Wait(appClerkLocks[index]);*/
@@ -214,7 +214,7 @@ void PicClerkRun(){
 			count = 1;
 			do{
 				if (count==1){
-					printf("PictureClerk [%d] takes picture of %s with SSN %d\n", index, SSN, getCustomerType(),"");
+					printf("PictureClerk [%d] takes picture of %s with SSN %d\n", index, SSN, 0, getCustomerType(),"");
 				}else{
 					printf("PictureClerk [%d] takes picture of %s with SSN %d again\n", index, SSN, 0, getCustomerType(),"");
 				}
@@ -403,7 +403,7 @@ void CashClerkRun(){
 
 		
 		if (regCashLineLength>0){ /*Check if anyone is in reg line*/
-			tprintf("CashClerk %d: has spotted %s in regCashLine (length = %d)\n",index, regCashLineLength, 0,getCustomeType(),"");
+			tprintf("CashClerk %d: has spotted %s in regCashLine (length = %d)\n",index, regCashLineLength, 0,getCustomerType(),"");
 			regCashLineLength--;
 			tprintf("CashClerk %d: Becoming Available!\n",index,0,0,"","");
 			cashClerkStatuses[index] = CLERK_AVAILABLE;
