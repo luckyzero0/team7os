@@ -48,7 +48,7 @@ class AddrSpace {
 
 	int getMainThreadStartVPN();
 
-	bool constructedSuccessfully();
+	bool didConstructSuccessfully();
 
  private:
 	 int getStartVPN();

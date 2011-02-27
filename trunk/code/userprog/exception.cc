@@ -183,7 +183,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 
 	if ( f ) {
 		AddrSpace* addrSpace = new AddrSpace(f);
-		if (!addrSpace->constructedSuccessfully()) {
+		if (!addrSpace->didConstructSuccessfully()) {
 			return;
 		}
 
