@@ -184,6 +184,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	if ( f ) {
 		AddrSpace* addrSpace = new AddrSpace(f);
 		if (!addrSpace->didConstructSuccessfully()) {
+			printf("Error in AddrSpace constructor, aborting EXEC call.\n");
 			return -1;
 		}
 
