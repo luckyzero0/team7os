@@ -144,7 +144,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	size = numPages * PageSize;
 	codeSize = noffH.code.size;
 
-	if(numPages <= NumPhysPages) {
+	if(numPages > NumPhysPages) {
 		printf("Not enough physical pages in total for this AddressSpace to allocate.\n");
 		return;
 	}		// check we're not trying
