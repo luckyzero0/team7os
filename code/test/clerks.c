@@ -80,7 +80,7 @@ void AppClerkRun(){
 			tprintf("AppClerk %d: there are people in line.\n", index,0,0,"","");
 			if (privAppLineLength>0){ /*Checking if anyone is in priv line*/
 				tprintf("AppClerk %d: people in my priv line.\n", index,0,0,"","");
-				tprintf("AppClerk %d: has spotted %s in privAppLine(length = %d)\n",index, privAppLineLength, 0,getCustomerType(),"");
+				tprintf("AppClerk %d: has spotted %s in privAppLine(length = %d)\n",index, privAppLineLength, 0,"person"/*getCustomerType()*/,"");
 				privAppLineLength--;
 				tprintf("AppClerk %d: Becoming Available!\n",index,0,0,"","");
 				appClerkStatuses[index] = CLERK_AVAILABLE;
