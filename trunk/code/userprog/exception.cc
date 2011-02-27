@@ -173,6 +173,8 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		bigLock->Release();
 		return -1;
 	}
+
+	DEBUG('a', "We are trying to open the file: %s", buf);
 	
 	f = fileSystem->Open(buf);
 	delete[] buf;
