@@ -142,6 +142,7 @@ void AppClerkRun(){
 			/*appPicLineLock->Release();*/
 			Release(appPicLineLock);
 			/*appClerkLocks[index]->Acquire();*/
+			tprintf("ApplicationClerk [%d] acquiring his own lock\n", index,0,0,"","");
 			Acquire(appClerkLocks[index]);
 			printf("ApplicationClerk [%d] is going on break\n", index,0,0,"","");
 			appClerkStatuses[index] = CLERK_ON_BREAK;
