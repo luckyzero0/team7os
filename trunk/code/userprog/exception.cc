@@ -741,7 +741,7 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	}
 	if(funcAddr%4 != 0)
 	{
-		printf("Cannot Fork FunctionPointer[0x%x]. Address not aligned.\n");
+		printf("Cannot Fork FunctionPointer[0x%x]. Address not aligned.\n", funcAddr);
 		bigLock->Release();
 		return;
 	}
