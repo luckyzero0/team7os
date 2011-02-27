@@ -125,7 +125,6 @@ void Lock::Acquire() {
 		this->waitQueue->Append(currentThread);
 		currentThread->Sleep();
 	}
-	interrupt->SetLevel(oldLevel);
 }
 
 
@@ -224,7 +223,7 @@ void Condition::Signal(Lock* conditionLock) {
 		waitingLock = NULL;
 	}
 	
-	interrupt->SetLevel(oldLevel);
+	interrupt->SetLevel(IntOff);
 }
 
 void Condition::Broadcast(Lock* conditionLock) {
