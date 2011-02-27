@@ -48,6 +48,8 @@ class AddrSpace {
 
 	int getMainThreadStartVPN();
 
+	bool constructedSuccessfully();
+
  private:
 	 int getStartVPN();
 
@@ -57,6 +59,7 @@ class AddrSpace {
 					// address space
 	int mainThreadStartVPN;
 	int codeSize;
+	bool constructedSuccessfully;
 };
 
 #endif // ADDRSPACE_H

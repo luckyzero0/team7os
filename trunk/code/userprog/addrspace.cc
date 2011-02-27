@@ -121,6 +121,8 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	NoffHeader noffH;
 	unsigned int i, size;
 
+	constructedSuccessfully = true;
+
 	// Don't allocate the input or output to disk files
 	fileTable.Put(0);
 	fileTable.Put(0);
@@ -129,7 +131,10 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	if ((noffH.noffMagic != NOFFMAGIC) && 
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
 		SwapHeader(&noffH);
-	ASSERT(noffH.noffMagic == NOFFMAGIC);
+	if(noffH.noffMagic != NOFFMAGIC) {
+		printf("Tried to construct an AddressSpace with a non NOFF file.");
+		return;
+	}
 
 	size = noffH.code.size + noffH.initData.size + noffH.uninitData.size ;
 	numPages = divRoundUp(size, PageSize) + divRoundUp(UserStackSize,PageSize);
@@ -139,7 +144,10 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	size = numPages * PageSize;
 	codeSize = noffH.code.size;
 
-	ASSERT(numPages <= NumPhysPages);		// check we're not trying
+	if(numPages <= NumPhysPages) {
+		printf("Not enough physical pages in total for this AddressSpace to allocate.\n");
+		return;
+	}		// check we're not trying
 	// to run anything too big --
 	// at least until we have
 	// virtual memory
@@ -187,6 +195,8 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 			noffH.initData.size, noffH.initData.inFileAddr);
 	}
 
+	constructedSuccessfully = true;
+
 }
 
 //----------------------------------------------------------------------
@@ -214,6 +224,10 @@ int AddrSpace::getNumPages() {
 
 int AddrSpace::getCodeSize(){
 	return codeSize;
+}
+
+bool AddrSpace::constructedSuccessfully() {
+	return constructedSuccessfully;
 }
 
 void AddrSpace::AddNewThread(Thread* newThread) {
