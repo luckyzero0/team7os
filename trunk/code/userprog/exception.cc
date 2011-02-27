@@ -206,7 +206,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		}
 		
 		if (spaceID == -1){
-			printf("%s","No space on the process table for this new process!");
+			printf("%s","No space on the process table for this new process!\n");
 			bigLock->Release();
 			return spaceID;
 		}
