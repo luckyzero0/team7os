@@ -96,7 +96,6 @@ void CustomerRun() {
 
 	/*customer start up code*/		
 	cashDollars = ((Rand() % 4) * 500) + 100;	
-	clerkStatus;
 
 	printf("Customer [%d] has money = [$%d]\n",index,cashDollars,0,"","");
 	/*customerOfficeLock->Acquire();*/

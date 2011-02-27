@@ -43,7 +43,6 @@ void SenatorRun() {
 
 	/*senator start up code*/		
 	cashDollars = ((Rand() % 4) * 500) + 100;	
-	clerkStatus;
 
 	printf("Senator [%d] has money = [$%d]\n",index,cashDollars,0,"","");
 
