@@ -119,7 +119,7 @@ void initOfficeLocks(){
 	appPicLineLock = CreateLock("appPicLineLock",14);
 	regAppLineCV = CreateCondition("regAppLineCV",12);
 	privAppLineCV = CreateCondition("privAppLineCV",13);
-	regPicLineCV = CreateConditionCondition("regPicLineCV",12);
+	regPicLineCV = CreateCondition("regPicLineCV",12);
 	privPicLineCV = CreateCondition("privPicLineCV",13);
 
 	passLineLock = CreateLock("passLineLock",12);

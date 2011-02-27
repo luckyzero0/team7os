@@ -91,7 +91,7 @@ void tryToWakeUpSenators() {
 			Release(passLineLock);
 			tprintf("Manager: Releasing appPicLineLock\n",0,0,0,"","");
 			/*appPicLineLock->Release();*/
-			ReleasE(appPicLineLock);
+			Release(appPicLineLock);
 
 			
 			/*customerOfficeLock->Acquire();*/
