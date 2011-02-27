@@ -230,7 +230,7 @@ int Machine::ReadRegister(int num)
 void Machine::WriteRegister(int num, int value)
     {
 	ASSERT((num >= 0) && (num < NumTotalRegs));
-	// DEBUG('m', "WriteRegister %d, value %d\n", num, value);
+		 DEBUG('m', "WriteRegister %d, value %d\n", num, value);
 	registers[num] = value;
     }
 

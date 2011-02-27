@@ -81,6 +81,11 @@ forkTest: forkTest.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o forkTest.o utils.o -o forkTest.coff
 	../bin/coff2noff forkTest.coff forkTest
 
+randTest.o: randTest.c
+	$(CC) $(CFLAGS) -c randTest.c utils.c
+randTest: randTest.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o randTest.o utils.o -o randTest.coff
+	../bin/coff2noff randTest.coff randTest
 
 clean:
 	rm -f *.o *.coff

@@ -741,6 +741,11 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	
 }
 
+int Rand_Syscall()
+{
+	return rand();	
+}
+
 void ExceptionHandler(ExceptionType which) {
 	int type = machine->ReadRegister(2); // Which syscall?
 	int rv=0; 	// the return value from a syscall
@@ -846,6 +851,11 @@ void ExceptionHandler(ExceptionType which) {
 			DEBUG('a', "Exec syscall.\n");
 			rv = Exec_Syscall(machine->ReadRegister(4),
 				machine->ReadRegister(5));
+			break;
+			
+		case SC_Rand:
+			DEBUG('a', "Rand syscall.\n");
+			rv = Rand_Syscall();
 			break;
 		}
 

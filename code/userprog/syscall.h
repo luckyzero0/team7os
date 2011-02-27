@@ -38,6 +38,7 @@
 #define	SC_Signal			17
 #define SC_Wait				18
 #define SC_Broadcast		19
+#define SC_Rand				20
 
 
 
@@ -163,6 +164,8 @@ void Signal(ConditionID conditionID, LockID lockID);
 void Wait(ConditionID conditionID, LockID lockID);
 
 void Broadcast(ConditionID conditionID, LockID lockID);
+
+void Rand();
 
 #endif /* IN_ASM */
 
