@@ -31,8 +31,8 @@ int main(){
 	printf("Trying to pass an unaligned function address...\n",0,0,0,"","");
 	Fork(unaligned);
 
-/*	printf("WHAT THE FUCK!?",0,0,0,"","");
-	printf("Trying to pass generically bad fnAddresses from 0 to [0x%x]...\n",testProc,0,0,"","");*/
+	printf("WHAT THE FUCK!?",0,0,0,"","");
+	printf("Trying to pass generically bad fnAddresses from 0 to [0x%x]...\n",testProc,0,0,"","");
 	/*while(i < testProc)
 	{
 		printf("Trying to pass generically bad function addresses[0x%x]...\n",i,0,0,"","");
