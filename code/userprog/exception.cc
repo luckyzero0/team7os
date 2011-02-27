@@ -184,7 +184,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	if ( f ) {
 		AddrSpace* addrSpace = new AddrSpace(f);
 		if (!addrSpace->didConstructSuccessfully()) {
-			return;
+			return -1;
 		}
 
 		//For right now we assume physical pages were handed out successfully, because we were told we have infinite space for this assignment.
