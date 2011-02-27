@@ -152,6 +152,7 @@ void AppClerkRun(){
 		}
 		Yield();
 	}
+	printf("About to exit!");
 	Exit(0);
 }
 
