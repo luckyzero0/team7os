@@ -204,7 +204,7 @@ void PicClerkRun(){
 			Acquire(picClerkLocks[index]);
 			tprintf("PicClerk %d: Releasing appPicLineLock\n",index,0,0,"","");
 			/*appPicLineLock->Release();*/
-			
+			Release(appPicLineLock);
 
 			tprintf("PicClerk %d: Putting myself to sleep...\n",index,0,0,"","");
 			/*picClerkCVs[index]->Wait(picClerkLocks[index]);*/
