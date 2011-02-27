@@ -1,9 +1,6 @@
 
 #include "office.h"
-#include "system.h"
 #include "utils.h"
-#include <iostream>
-
 
 static void doAppClerk(int* index, int* cashDollars);
 static void doPicClerk(int* index, int* cashDollars);
