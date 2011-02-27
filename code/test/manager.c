@@ -462,5 +462,6 @@ void ManagerRun(){
 			Yield();
 		}
 	}
+	Exit(0);
 }
 

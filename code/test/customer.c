@@ -174,6 +174,8 @@ void CustomerRun() {
 
 	/*proceed to cashier*/
 	doCashierClerk(&index, &cashDollars);
+
+	Exit(0);
 }
 
 static void doAppClerk(int* index, int* cashDollars)
