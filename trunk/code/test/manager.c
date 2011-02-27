@@ -35,7 +35,7 @@ void tryToWakeUpSenators() {
 		/*acquire all line CVs*/
 		/*customerOfficeLock->Acquire();*/
 		Acquire(customerOfficeLock);
-		if (customersInOffice > 0) { //if there are customers in the office, tell them to get the hell out.
+		if (customersInOffice > 0) { /*if there are customers in the office, tell them to get the hell out.*/
 			tprintf("Manager: I need to tell all %d customers to GTFO\n", customersInOffice,0,0,"","");
 			/*customerOfficeLock->Release();*/
 			Release(customerOfficeLock);
@@ -49,7 +49,7 @@ void tryToWakeUpSenators() {
 			/*cashLineLock->Acquire();*/
 			Acquire(cashLineLock);
 
-			//Setting all lines to 0;
+			/*Setting all lines to 0;*/
 			privAppLineLength = 0;
 			regAppLineLength = 0;
 			privPicLineLength = 0;
@@ -180,7 +180,7 @@ void ManagerRun(){
 					appClerkStatuses[i] = CLERK_COMING_BACK;
 					/*appClerkCVs[i]->Signal(appClerkLocks[i]);*/
 					Signal(appClerkCVs[i], appClerkLocks[i]);
-					printf("Manager calls an ApplicationClerk back from break\n"0,0,0,"","");
+					printf("Manager calls an ApplicationClerk back from break\n",0,0,0,"","");
 					/*appClerkLocks[i]->Release();*/
 					Release(appClerkLocks[i]);
 					break;
@@ -388,7 +388,7 @@ void ManagerRun(){
 		if(regCashLineLength >= 3)
 		{
 			tprintf("Manager: Making sure the CashClerks are working\n",0,0,0,"","");
-			for(int i = 0; i < MAX_CASH_CLERKS; i++)
+			for(i = 0; i < MAX_CASH_CLERKS; i++)
 			{
 				/*put onbreak clerks to work*/
 				if(cashClerkStatuses[i] == CLERK_ON_BREAK)
@@ -398,7 +398,7 @@ void ManagerRun(){
 					Acquire(cashClerkLocks[i]);
 					cashClerkStatuses[i] = CLERK_COMING_BACK;
 					/*cashClerkCVs[i]->Signal(cashClerkLocks[i]);*/
-					Signal(cashClerkCVs[i]. cashClerkLocks[i]);
+					Signal(cashClerkCVs[i], cashClerkLocks[i]);
 					printf("Manager calls back a cashier from break\n",0,0,0,"","");
 					/*cashClerkLocks[i]->Release();*/
 					Release(cashClerkLocks[i]);
