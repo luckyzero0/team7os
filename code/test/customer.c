@@ -98,7 +98,7 @@ void CustomerRun() {
 	tprintf("Customer [%d]: Entering the passport office...\n",index,0,0,"","");
 
 	/*customer start up code*/		
-	cashDollars = ((rand() % 4) * 500) + 100;	
+	cashDollars = ((Rand() % 4) * 500) + 100;	
 	clerkStatus;
 
 	printf("Customer [%d] has money = [$%d]\n",index,cashDollars,0,"","");
@@ -150,7 +150,7 @@ void CustomerRun() {
 		{
 			/*appPicLineLock->Release();*/
 			Release(appPicLineLock);
-			printf("Customer [%d] goes to [ApplicationClerk].\n",index);	
+			printf("Customer [%d] goes to [ApplicationClerk].\n",index,0,0,"","");	
 			doAppClerk(&index, &cashDollars);
 			waitAndRestart(NULL, index); /*SENATOR*/
 			doPicClerk(&index, &cashDollars);
@@ -352,7 +352,7 @@ static void doPicClerk(int* index, int* cashDollars)
 			Wait(picClerkCVs[myClerk], picClerkLocks[myClerk]);	
 
 			/*did I like my picture?*/
-			if(rand()%10 > 5)
+			if(Rand()%10 > 5)
 			{
 				happyWithPhoto[myClerk] = TRUE;
 				printf("Customer [%d] [likes] the picture provided by PictureClerk[%d]\n", *index,myClerk,0,"","");
@@ -468,21 +468,21 @@ static void doPassPortClerk(int *index, int* cashDollars){
 		/*get passport from clerk, if not ready, go to the back of the line?*/
 		if(!passPunish[myClerk])
 		{
-			printf("Customer [%d] is [certified] by PassportClerk[%d]\n",*index,myClerk);
-			tprintf("Customer [%d]: Passport. GET!.\n", *index);						
-			tprintf("Customer [%d]: Done and done.\n",*index);
+			printf("Customer [%d] is [certified] by PassportClerk[%d]\n",*index,myClerk,0,"","");
+			tprintf("Customer [%d]: Passport. GET!.\n", *index,0,0,"","");						
+			tprintf("Customer [%d]: Done and done.\n",*index,0,0,"","");
 			/*passClerkLocks[myClerk]->Release();*/
 			Release(passClerkLocks[myClerk]);
-			tprintf("Customer [%d]: Going to next clerk...\n",*index);
+			tprintf("Customer [%d]: Going to next clerk...\n",*index,0,0,"","");
 			break;				
 		}
 		/*passClerkLocks[myClerk]->Release();*/
 		Release(passClerkLocks[myClerk]);
-		printf("Customer [%d] is [not certified] by PassportClerk[%d]\n",*index,myClerk);
-		printf("Customer [%d] is being forced to wait by PassportClerk[%d]\n",*index,myClerk);
-		rando = rand()%80+20;					
+		printf("Customer [%d] is [not certified] by PassportClerk[%d]\n",*index,myClerk,0,"","");
+		printf("Customer [%d] is being forced to wait by PassportClerk[%d]\n",*index,myClerk,0,"","");
+		rando = Rand()%80+20;					
 		for(x = 0; x < rando; x++)
-			currentThread->Yield();															
+			Yield();															
 	}
 
 }
@@ -507,7 +507,7 @@ static void doCashierClerk(int* index, int* cashDollars)
 		/*regCashLineCV->Wait(cashLineLock);	*/
 		Wait(regCashLineCV, cashLineLock);		
 				
-		tprintf("Customer[%d]: Finding available CashClerk...\n",*index);
+		tprintf("Customer[%d]: Finding available CashClerk...\n",*index,0,0,"","");
 		for(x = 0; x < MAX_CASH_CLERKS; x++)
 		{				
 			if(cashClerkStatuses[x] == CLERK_AVAILABLE)
@@ -577,8 +577,8 @@ static void doCashierClerk(int* index, int* cashDollars)
 		printf("Customer [%d] gets [invalid] certification by Cashier[%d]\n",*index,myClerk,0,"","");
 		printf("Customer [%d] is punished to wait by Cashier[%d]\n",*index,myClerk,0,"","");
 		tprintf("Customer [%d]: NOT READY!? Going back to the end of the line...\n",*index,0,0,"","");
-		rando = rand()%80+20;					
+		rando = Rand()%80+20;					
 		for(x = 0; x < rando; x++)
-			currentThread->Yield();																				
+			Yield();																				
 	}
 }
