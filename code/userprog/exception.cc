@@ -97,6 +97,8 @@ int copyin(unsigned int vaddr, int len, char *buf) {
 		vaddr++;
 	}
 
+	buf[n] = '\0';
+
 	delete paddr;
 	return len;
 }
@@ -158,7 +160,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	bigLock->Acquire();
 	static int called = 0; 
 
-	DEBUG('e', "In EXEC for the %d time.", called++);
+	DEBUG('e', "In EXEC for the %d time.\n", called++);
 
 	OpenFile *f;			// The new open file
 	char *buf = new char[len+1];
@@ -174,7 +176,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		return -1;
 	}
 
-	DEBUG('e', "We are trying to open the file: %s", buf);
+	DEBUG('e', "We are trying to open the file: %s\n", buf);
 	
 	f = fileSystem->Open(buf);
 	delete[] buf;
