@@ -194,7 +194,7 @@ void ManagerRun(){
 			tprintf("Manager: Making sure at least one AppClerk is working\n",0,0,0,"","");
 			for(i = 0; i < MAX_APP_CLERKS; i++)
 			{
-				//search to see if any clerks are available
+				/*search to see if any clerks are available*/
 				if(appClerkStatuses[i] == CLERK_AVAILABLE)
 				{	
 					tprintf("Manager: AppClerk[%d] is available. Moving on.\n",i,0,0,"","");					
@@ -215,7 +215,7 @@ void ManagerRun(){
 				}  
 				else if(appClerkStatuses[i] == CLERK_ON_BREAK)
 				{
-					//we'll wake up this clerk if no one is available
+					/*we'll wake up this clerk if no one is available*/
 					tprintf("Manager: Tagging AppClerk[%d] to work...\n", i,0,0,"","");
 					wakeup = i;
 				}
@@ -242,7 +242,7 @@ void ManagerRun(){
 			tprintf("Manager: Making sure the PicClerks are working\n",0,0,0,"","");
 			for(i = 0; i < MAX_PIC_CLERKS; i++)
 			{
-				//put onbreak clerks to work
+				/*put onbreak clerks to work*/
 				if(picClerkStatuses[i] == CLERK_ON_BREAK)
 				{	
 					tprintf("Manager: Whipping PicClerk[%d] back to work\n",i,0,0,"","");
@@ -265,7 +265,7 @@ void ManagerRun(){
 			tprintf("Manager: Making sure at least one PicClerk is working\n",0,0,0,"","");
 			for(i = 0; i < MAX_PIC_CLERKS; i++)
 			{
-				//search to see if any clerks are available
+				/*search to see if any clerks are available*/
 				if(picClerkStatuses[i] == CLERK_AVAILABLE)
 				{	
 					tprintf("Manager: PicClerk[%d] is available. Moving on.\n",i,0,0,"","");					
@@ -287,7 +287,7 @@ void ManagerRun(){
 				else if(picClerkStatuses[i] == CLERK_ON_BREAK)
 				{
 					tprintf("Manager: Tagging PicClerk[%d] to work...\n", i,0,0,"","");
-					//we'll wake up this clerk if no one is available
+					/*we'll wake up this clerk if no one is available*/
 					wakeup = i;
 				}
 			}
@@ -316,7 +316,7 @@ void ManagerRun(){
 			tprintf("Manager: Making sure the PassClerks are working\n",0,0,0,"","");
 			for(i = 0; i < MAX_PASS_CLERKS; i++)
 			{
-				//put onbreak clerks to work
+				/*put onbreak clerks to work*/
 				if(passClerkStatuses[i] == CLERK_ON_BREAK)
 				{	
 					tprintf("Manager: Whipping PassClerk[%d] back to work\n",i,0,0,"","");
@@ -339,7 +339,7 @@ void ManagerRun(){
 			tprintf("Manager: Making sure at least one PassClerk is working\n",0,0,0,"","");
 			for(i = 0; i < MAX_PASS_CLERKS; i++)
 			{
-				//search to see if any clerks are available
+				/*search to see if any clerks are available*/
 				if(passClerkStatuses[i] == CLERK_AVAILABLE)
 				{	
 					tprintf("Manager: PassClerk[%d] is available. Moving on.\n",i,0,0,"","");					
@@ -360,7 +360,7 @@ void ManagerRun(){
 				} 
 				else if(passClerkStatuses[i] == CLERK_ON_BREAK)
 				{
-					//we'll wake up this clerk if no one is available
+					/*we'll wake up this clerk if no one is available*/
 					tprintf("Manager: Tagging PassClerk[%d] to work...\n", i,0,0,"","");
 					wakeup = i;
 				}
