@@ -86,6 +86,13 @@ randTest.o: randTest.c
 randTest: randTest.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o randTest.o utils.o -o randTest.coff
 	../bin/coff2noff randTest.coff randTest
+	
+	
+execTest.o: execTest.c
+	$(CC) $(CFLAGS) -c execTest.c utils.c
+execTest: execTest.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o execTest.o utils.o -o execTest.coff
+	../bin/coff2noff execTest.coff execTest
 
 clean:
 	rm -f *.o *.coff
