@@ -11,10 +11,15 @@ static void doPassPortClerk(int* index, int* cashDollars);
 static void doCashierClerk(int* index, int* cashDollars);
 
 
-void SenatorRun(int index) {	
+void SenatorRun() {	
 
 	int cashDollars;
 	int clerkStatus;
+	int index;
+
+	Acquire(customerSenatorUIDLock);
+	index = customerSenatorUID++;
+	Release(customerSenatorUIDLock);
 
 	tprintf("Senator[%d]: Acquiring customerOfficeLock\n", index,0,0,"","");
 	/*customerOfficeLock->Acquire();*/
