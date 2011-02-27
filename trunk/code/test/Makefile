@@ -94,5 +94,25 @@ execTest: execTest.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o execTest.o utils.o -o execTest.coff
 	../bin/coff2noff execTest.coff execTest
 
+office.o: office.c
+	$(CC) $(CFLAGS) -c office.c utils.c
+	
+clerks.o: clerks.c
+	$(CC) $(CFLAGS) -c clerks.c utils.c
+	
+customer.o: customer.c
+	$(CC) $(CFLAGS) -c customer.c utils.c
+	
+senator.o: senator.c
+	$(CC) $(CFLAGS) -c senator.c utils.c
+	
+manager.o: manager.c
+	$(CC) $(CFLAGS) -c manager.c utils.c
+	
+office: office.o clerks.o customer.o senator.o manager.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o office.o clerks.o customer.o senator.o manager.o utils.o -o office.coff
+	../bin/coff2noff office.coff office	
+
+
 clean:
 	rm -f *.o *.coff
