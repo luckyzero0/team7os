@@ -137,6 +137,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	// we need to increase the size
 	// to leave room for the stack
 	size = numPages * PageSize;
+	codeSize = noffH.code.size;
 
 	ASSERT(numPages <= NumPhysPages);		// check we're not trying
 	// to run anything too big --
@@ -209,6 +210,10 @@ int AddrSpace::getMainThreadStartVPN() {
 
 int AddrSpace::getNumPages() {
 	return numPages;
+}
+
+int AddrSpace::getCodeSize(){
+	return codeSize;
 }
 
 void AddrSpace::AddNewThread(Thread* newThread) {

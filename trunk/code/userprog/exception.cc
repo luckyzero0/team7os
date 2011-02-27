@@ -722,7 +722,26 @@ void kernel_thread(int virtualAddr)
 
 void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 {	
-	forkLock->Acquire();	
+	bigLock->Acquire();	
+	if(funcAddr >= currentThread->space->getCodeSize() || funcAddr < 0)
+	{
+		printf("Cannot Fork FunctionPointer[0x%x]. Out of bounds.\n", funcAddr);
+		bigLock->Release();
+		return;
+	}	
+	if(funcAddr == 0)
+	{
+		printf("Cannot Fork FunctionPointer[0x%x]. Forking would result in non-terminal execution.\n", funcAddr); 
+		bigLock->Release();
+		return;
+	}
+	if(funcAddr%4 != 0)
+	{
+		printf("Cannot Fork FunctionPointer[0x%x]. Address not aligned.\n");
+		bigLock->Release();
+		return;
+	}
+			
 	//create the new thread
 	Thread* thread = new Thread("kernelthread");	
 	thread->space = currentThread->space; //put it in the same addrspace
@@ -736,9 +755,8 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	//fork the thread, somehow
 	thread->Fork(kernel_thread,funcAddr);
 	DEBUG('a', "Forked the thread.\n");
-
-	forkLock->Release();
 	
+	bigLock->Release();
 }
 
 int Rand_Syscall()
