@@ -38,11 +38,13 @@ class AddrSpace {
     void RestoreState();		// info on a context switch
     Table fileTable;			// Table of openfiles
     int numThreads;
-
+	
+	
 	void AddNewThread(Thread* newThread);
 	void RemoveCurrentThread();
 
 	int getNumPages();
+	int getCodeSize();
 
 	int getMainThreadStartVPN();
 
@@ -54,6 +56,7 @@ class AddrSpace {
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
 	int mainThreadStartVPN;
+	int codeSize;
 };
 
 #endif // ADDRSPACE_H
