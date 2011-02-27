@@ -123,7 +123,7 @@ void tryToWakeUpSenators() {
 void ManagerRun(){
 	int i, wakeup;
 	int totalCashCollected;
-	while(true)
+	while(TRUE)
 	{
 		tryToWakeUpSenators();
 		tryToWakeUpCustomers();

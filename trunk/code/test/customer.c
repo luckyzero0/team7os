@@ -177,11 +177,11 @@ void CustomerRun() {
 
 static void doAppClerk(int* index, int* cashDollars)
 {
-	bool privLine = false;
+	bool privLine = FALSE;
 	int myClerk, x;
 
 
-	while(true)
+	while(TRUE)
 	{	
 		myClerk = -1;
 		tprintf("Customer [%d]: Going to the AppClerk\n",*index,0,0,"","");
@@ -191,7 +191,7 @@ static void doAppClerk(int* index, int* cashDollars)
 		/*check for senator*/
 		if(*cashDollars > 100) /*get in a privledged line*/
 		{					
-			privLine = true;					
+			privLine = TRUE;					
 			tprintf("Customer [%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars,0,"","");
 			privAppLineLength++;
 			tprintf("Customer [%d]: Waiting in the Priveledged Line for next available AppClerk\n",*index,0,0,"","");
@@ -245,7 +245,7 @@ static void doAppClerk(int* index, int* cashDollars)
 		{
 			printf("Customer [%d] is willing to pay $500 to ApplicationClerk [%d] for moving ahead in line\n",*index, myClerk,0,"","");				
 			appClerkMoney[myClerk] += 500;
-			appClerkBribed[myClerk] = true;
+			appClerkBribed[myClerk] = TRUE;
 			*cashDollars -= 500;
 		}
 		tprintf("Customer [%d]: Interacting with AppClerk [%d]\n",*index,myClerk,0,"","");
@@ -268,10 +268,10 @@ static void doAppClerk(int* index, int* cashDollars)
 static void doPicClerk(int* index, int* cashDollars)
 {
 
-	bool privLine = false;
+	bool privLine = FALSE;
 	int myClerk, x;
 	
-	while(true)
+	while(TRUE)
 	{	
 		myClerk = -1;
 		tprintf("Customer [%d]: Going to the PicClerk\n",*index.0,0,"","");
@@ -281,7 +281,7 @@ static void doPicClerk(int* index, int* cashDollars)
 		/*check for senator*/
 		if(*cashDollars > 100) /*get in a privledged line*/
 		{						
-			privLine = true;
+			privLine = TRUE;
 			tprintf("Customer [%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars,0,"","");
 			privPicLineLength++;
 			tprintf("Customer [%d]: Waiting in the Priveledged Line for next available PicClerk\n",*index,0,0,"","");
@@ -336,7 +336,7 @@ static void doPicClerk(int* index, int* cashDollars)
 		{
 			printf("Customer [%d] is willing to pay $500 to PictureClerk[%d] for moving ahead in line\n",*index, myClerk,0,"","");				
 			picClerkMoney[myClerk] += 500;
-			picClerkBribed[myClerk] = true;
+			picClerkBribed[myClerk] = TRUE;
 			*cashDollars -= 500;
 		}
 		tprintf("Customer [%d] Goes to PictureClerk[%d]\n",*index,myClerk,0,"","");
@@ -382,11 +382,11 @@ static void doPicClerk(int* index, int* cashDollars)
 
 static void doPassPortClerk(int *index, int* cashDollars){	
 
-	bool privLined = false;
-	bool bribed = false;
+	bool privLined = FALSE;
+	bool bribed = FALSE;
 	int myClerk, x, rando;
 
-	while(true)
+	while(TRUE)
 	{	
 		if (waitAndRestart(NULL, *index)){
 			continue;
@@ -400,7 +400,7 @@ static void doPassPortClerk(int *index, int* cashDollars){
 		/*check for senator*/
 		if(*cashDollars > 100 || privLined) /*get in a privledged line*/
 		{								
-			privLined = true;				
+			privLined = TRUE;				
 			tprintf("Customer [%d]: Priveleged line, baby. CashDollars = $%d\n",*index,*cashDollars,0,"","");
 			privPassLineLength++;
 			tprintf("Customer [%d]: Waiting in the Priveledged Line for next available PassportClerk\n",*index,0,0,"","");
@@ -452,10 +452,10 @@ static void doPassPortClerk(int *index, int* cashDollars){
 		passClerkSSNs[myClerk] = *index;
 		if(privLined && !bribed)
 		{
-			bribed = true;
+			bribed = TRUE;
 			printf("Customer [%d] is willing to pay $500 to PassportClerk[%d] for moving ahead in line\n",*index,myClerk,0,"","");
 			passClerkMoney[myClerk] += 500;
-			passClerkBribed[myClerk] = true;
+			passClerkBribed[myClerk] = TRUE;
 			*cashDollars -= 500;
 		}
 		printf("Customer [%d] goes to PassportClerk[%d]\n",*index,myClerk,0,"","");
@@ -491,7 +491,7 @@ static void doCashierClerk(int* index, int* cashDollars)
 {	
 	int myClerk, x, rando;
 	
-	while(true)
+	while(TRUE)
 	{	
 		if (waitAndRestart(NULL, *index)){
 			continue;
