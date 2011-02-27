@@ -713,7 +713,7 @@ void kernel_thread(int virtualAddr)
 	//mod the stack
 	int newStackReg = (currentThread->startVPN) * PageSize + UserStackSize - 16;
 	DEBUG('a', "Thread[%d] getting startVPN = %d.\n", currentThread->ID, currentThread->startVPN);
-	DEBUG('a', Thread[%d] setting stack reg to %d.\n", currentThread->ID, newStackReg);
+	DEBUG('a', "Thread[%d] setting stack reg to %d.\n", currentThread->ID, newStackReg);
 	machine->WriteRegister(StackReg, newStackReg);
 	DEBUG('a', "Wrote the stack reg.\n");
 	bigLock->Release();
