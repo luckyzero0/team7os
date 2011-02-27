@@ -24,7 +24,7 @@ int main(){
 void testProc(){
 	printf("Entering test proc with x = %d.\n", x, 0, 0, "", "");
 	x+=5;
-	printf("Entering test proc with x = %d.\n", x, 0, 0, "", "");
+	printf("Exiting test proc with x = %d.\n", x, 0, 0, "", "");
 	Exit(0);
 }
 
