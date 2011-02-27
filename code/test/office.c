@@ -150,7 +150,7 @@ void initOfficeLocks(){
 
 void Office() {
 
-	char* msg
+	char* msg;
 	int i;
 	initOfficeLocks();
 	msg = "Number of Customers = %d\n";
