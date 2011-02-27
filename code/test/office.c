@@ -4,7 +4,7 @@
 
 
 
-int TESTING = FALSE;
+int TESTING = TRUE;
 int FINISHED_FORKING = FALSE;
 
 int appClerkUID = 0;
