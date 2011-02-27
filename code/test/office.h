@@ -21,8 +21,6 @@
 #define PASSPORT 2
 #define CASHIER 3
 
-typedef int LockID;
-typedef int ConditionID;
 typedef int bool;
 typedef int ClerkStatus;
 typedef int ClerkType;
