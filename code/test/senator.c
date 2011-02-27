@@ -443,10 +443,10 @@ static void doCashierClerk(int* index, int* cashDollars)
 			
 			printf("Senator [%d] leaves the passport office...\n",*index,0,0,"","");
 			/*customerOfficeLock->Acquire();*/
-			Acquire(customerOfficeLock);
-			customersInOffice--;
+			Acquire(senatorOfficeLock);
+			senatorsInOffice--;
 			/*customerOfficeLock->Release();*/
-			Release(customerOfficeLock);
+			Release(senatorOfficeLock);
 			break;				
 		}
 		/*cashClerkLocks[myClerk]->Release();*/
