@@ -105,7 +105,7 @@ void CustomerRun() {
 	/*customerOfficeLock->Release();
 	senatorOfficeLock->Release();
 	senatorWaitingRoomLock->Release();*/
-	Release(customerWaitingRoomLock);
+	Release(customerOfficeLock);
 	Release(senatorWaitingRoomLock);
 	Release(senatorOfficeLock);
 	
