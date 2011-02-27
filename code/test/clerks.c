@@ -69,7 +69,7 @@ void AppClerkRun(){
 	index = appClerkUID++;
 	Release(appClerkUIDLock);
 
-	while (true){
+	while (TRUE){
 		tprintf("AppClerk %d: has acquired the appPicLineLock\n", index,0,0,"","");
 		/*appPicLineLock->Acquire();*/
 		Acquire(appPicLineLock);
@@ -167,7 +167,7 @@ void PicClerkRun(){
 	Acquire(picClerkUIDLock);
 	index = picClerkUID++;
 	Release(picClerkUIDLock);
-	while (true){
+	while (TRUE){
 		/*appPicLineLock->Acquire();*/
 		Acquire(appPicLineLock);
 
@@ -286,7 +286,7 @@ void PassClerkRun(){
 	Acquire(passClerkUIDLock);
 	index = passClerkUID++;
 	Release(passClerkUIDLock);
-	while (true){
+	while (TRUE){
 		/*  printf("PassClerk %d: has acquired the passLineLock\n", index);
 		passLineLock->Acquire();*/
 		Acquire(passLineLock);
@@ -396,7 +396,7 @@ void CashClerkRun(){
 	Acquire(cashClerkUIDLock);
 	index = cashClerkUID++;
 	Release(cashClerkUIDLock);
-	while (true){
+	while (TRUE){
 	
 		/*cashLineLock->Acquire();*/
 		Acquire(cashLineLock);
