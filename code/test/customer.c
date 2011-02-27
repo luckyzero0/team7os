@@ -57,10 +57,15 @@ int waitAndRestart(int lineToExit, int index){
 
 }
 
-void CustomerRun(int index) {	
+void CustomerRun() {	
 
 	int cashDollars;
 	int clerkStatus;
+	int index;
+
+	Acquire(customerSenatorUIDLock);
+	index = customerSenatorUID++;
+	Release(customerSenatorUIDLock);
 
 	tprintf("Customer [%d]: Deciding whether to go to waiting room or straight into office...\n",index,0,0,"","");
 	/*senatorWaitingRoomLock->Acquire();*/

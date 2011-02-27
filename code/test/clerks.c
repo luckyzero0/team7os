@@ -56,9 +56,13 @@ void passClerkFileData(int SSN){
 
 
 
-void AppClerkRun(int index){
+void AppClerkRun(){
 	int SSN, i;
-	
+	int index;
+	Acquire(appClerkUIDLock);
+	index = appClerkUID++;
+	Release(appClerkUIDLock);
+
 	while (true){
 		tprintf("AppClerk %d: has acquired the appPicLineLock\n", index,0,0,"","");
 		/*appPicLineLock->Acquire();*/
@@ -147,9 +151,13 @@ void AppClerkRun(int index){
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void PicClerkRun(int index){
+void PicClerkRun(){
 	
 	int SSN, count, i;
+	int index;
+	Acquire(picClerkUIDLock);
+	index = picClerkUID++;
+	Release(picClerkUIDLock);
 	while (true){
 		/*appPicLineLock->Acquire();*/
 		Acquire(appPicLineLock);
@@ -258,9 +266,13 @@ void PicClerkRun(int index){
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void PassClerkRun(int index){
+void PassClerkRun(){
 
 	int SSN, i;
+	int index;
+	Acquire(passClerkUIDLock);
+	index = passClerkUID++;
+	Release(passClerkUIDLock);
 	while (true){
 		/*  printf("PassClerk %d: has acquired the passLineLock\n", index);
 		passLineLock->Acquire();*/
@@ -361,8 +373,12 @@ void PassClerkRun(int index){
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void CashClerkRun(int index){
+void CashClerkRun(){
 	int SSN;
+	int index;
+	Acquire(cashClerkUIDLock);
+	index = cashClerkUID++;
+	Release(cashClerkUIDLock);
 	while (true){
 	
 		/*cashLineLock->Acquire();*/

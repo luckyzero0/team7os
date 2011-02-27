@@ -122,7 +122,7 @@ void tryToWakeUpSenators() {
 
 }
 
-void ManagerRun(int notUsed){
+void ManagerRun(){
 	int i, wakeup;
 	int totalCashCollected;
 	while(true)
