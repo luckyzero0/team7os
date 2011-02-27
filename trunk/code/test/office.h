@@ -1,8 +1,6 @@
 #ifndef OFFICE_H
 #define OFFICE_H
 
-#include "synch.h"
-
 #define TRUE 1
 #define FALSE 0
 
