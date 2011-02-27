@@ -10,15 +10,28 @@
 #define MAX_CASH_CLERKS (3)
 #define MAX_CUSTOMERS (23)
 
+#define CLERK_BUSY 0
+#define CLERK_AVAILABLE 1
+#define CLERK_ON_BREAK 2
+#define CLERK_INVALID 3
+#define CLERK_COMING_BACK 4
+
+#define APPLICATION 0
+#define PICTURE 1
+#define PASSPORT 2
+#define CASHIER 3
+
 typedef int LockID;
 typedef int ConditionID;
 typedef int bool;
+typedef int ClerkStatus;
+typedef int ClerkType;
 
 extern int TESTING;
 extern int FINISHED_FORKING;
 
-enum ClerkStatus {CLERK_BUSY, CLERK_AVAILABLE, CLERK_ON_BREAK, CLERK_INVALID, CLERK_COMING_BACK};
-enum ClerkType {APPLICATION, PICTURE, PASSPORT, CASHIER};
+/*enum ClerkStatus {CLERK_BUSY, CLERK_AVAILABLE, CLERK_ON_BREAK, CLERK_INVALID, CLERK_COMING_BACK};
+enum ClerkType {APPLICATION, PICTURE, PASSPORT, CASHIER};*/
 /* ApplicationClerk and PictureClerk lines*/
 extern LockID appPicLineLock;
 
@@ -83,7 +96,7 @@ extern int numCashClerks;
 extern int numSenators;
 
 /* ApplicationClerk and PictureClerk States*/
-extern ClerkStatus[] appClerkStatuses;
+extern ClerkStatus appClerkStatuses[];
 extern ClerkStatus picClerkStatuses[];
 extern LockID appClerkLocks[];
 extern LockID picClerkLocks[];
