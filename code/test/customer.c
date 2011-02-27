@@ -274,7 +274,7 @@ static void doPicClerk(int* index, int* cashDollars)
 	while(TRUE)
 	{	
 		myClerk = -1;
-		tprintf("Customer [%d]: Going to the PicClerk\n",*index.0,0,"","");
+		tprintf("Customer [%d]: Going to the PicClerk\n",*index,0,0,"","");
 		/*appPicLineLock->Acquire();	*/
 		Acquire(appPicLineLock);
 		tprintf("Customer [%d]: What line should I choose for the PicClerk?\n",*index,0,0,"","");
@@ -359,7 +359,7 @@ static void doPicClerk(int* index, int* cashDollars)
 			else
 			{
 				printf("Customer [%d] [dislikes] the picture provided by PictureClerk[%d]\n", *index,myClerk,0,"","");
-				printf("The picture of Customer [%d] will be taken again.\n", *index,0,"","");
+				printf("The picture of Customer [%d] will be taken again.\n", *index,0,0,"","");
 			}		
 
 			/*picClerkCVs[myClerk]->Signal(picClerkLocks[myClerk]);	
@@ -563,7 +563,7 @@ static void doCashierClerk(int* index, int* cashDollars)
 			/*cashClerkLocks[myClerk]->Release();*/
 			Release(cashClerkLocks[myClerk]);
 			
-			printf("Customer [%d] leaves the passport office...\n",*index,0,"","");
+			printf("Customer [%d] leaves the passport office...\n",*index,0,0,"","");
 			/*customerOfficeLock->Acquire();*/
 			Acquire(customerOfficeLock);
 			customersInOffice--;
