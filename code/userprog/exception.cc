@@ -183,6 +183,10 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 
 	if ( f ) {
 		AddrSpace* addrSpace = new AddrSpace(f);
+		if (!addrSpace->constructedSuccessfully()) {
+			return;
+		}
+
 		//For right now we assume physical pages were handed out successfully, because we were told we have infinite space for this assignment.
 		DEBUG('e', "Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
 		
