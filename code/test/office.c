@@ -442,3 +442,8 @@ void tprintf(char* formatString, int arg1, int arg2, int arg3, char* arg4, char*
 		printf(formatString, arg1, arg2, arg3, arg4, arg5);
 	}
 }
+
+int main(){
+	Office();
+	Exit(0);
+}
