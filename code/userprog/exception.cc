@@ -147,7 +147,7 @@ He brought me home to beirut.*/
 
 void exec_thread(int dontUse){
 	bigLock->Acquire();
-	printf("Exec thread is executing with spaceID[%d].\n", getSpaceID(currentThread->space));
+	DEBUG('a', "Exec thread is executing with spaceID[%d].\n", getSpaceID(currentThread->space));
 	currentThread->space->InitRegisters();		// set the initial register values
     currentThread->space->RestoreState();		// load page table register
 	bigLock->Release();
@@ -158,18 +158,20 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	bigLock->Acquire();
 	static int called = 0; 
 
-	printf("In EXEC for the %d time.", called++);
+	DEBUG('a', "In EXEC for the %d time.", called++);
 
 	OpenFile *f;			// The new open file
 	char *buf = new char[len+1];
 	if (!buf){
 		printf("%s","Can't allocate kernel buffer in Open\n");
-		return NULL;
+		bigLock->Release();
+		return -1;
 	}
 	if( copyin(vaddr,len,buf) == -1 ) {
 		printf("%s","Bad pointer passed to Exec\n");
 		delete buf;
-		return NULL;
+		bigLock->Release();
+		return -1;
 	}
 	
 	f = fileSystem->Open(buf);
@@ -177,10 +179,10 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 
 	if ( f ) {
 		AddrSpace* addrSpace = new AddrSpace(f);
-		//currentThread->space->RestoreState();
-		printf("Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
+		//For right now we assume physical pages were handed out successfully, because we were told we have infinite space for this assignment.
+		DEBUG('a', "Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
 		
-		Thread* t = new Thread("damnitmihir");
+		Thread* t = new Thread("dammitmihir");
 		t->space = addrSpace;
 		t->startVPN = t->space->getMainThreadStartVPN();
 		
@@ -196,17 +198,21 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		
 		if (spaceID == -1){
 			printf("%s","No space on the process table for this new process!");
+			bigLock->Release();
 			return spaceID;
 		}
 
-		printf("Made a new process at SpaceID[%d], forking the exec_thread.\n", spaceID);
+		DEBUG('a', "Made a new process at SpaceID[%d], forking the exec_thread.\n", spaceID);
 
 		t->Fork(exec_thread, 0);
 		bigLock->Release();
 
 		return spaceID;
+	} else {
+		printf("Couldn't open the specified file in EXEC!\n");
+		bigLock->Release();
+		return -1;
 	}
-	return -1;
 }
 
 
@@ -375,19 +381,10 @@ int getNumProcesses() {
 
 
 void Exit_Syscall(int status) {
-	// if this is NOT the last thread in the last process, Finish() currentThread
-/*	if (scheduler->HasThreadsRemaining()) {
-		DEBUG('a', "Threads remaining in the scheduler, so we only finish the current thread.\n");
-		currentThread->Finish();
-	} else { // else Halt() the machine
-		DEBUG('a', "No more threads remaining, so we're going to halt the machine.\n");
-		interrupt->Halt();
-	}*/
 	bigLock->Acquire();
 	int numProcesses = getNumProcesses();
 
-	printf("In exit!, with %d processes currently active.\n", numProcesses);
-
+	DEBUG('a', "In exit!, with %d processes currently active.\n", numProcesses);
 
 	if (numProcesses == 1 && currentThread->space->numThreads == 0) { //we are the final thread remaining 
 		interrupt->Halt();
@@ -396,10 +393,10 @@ void Exit_Syscall(int status) {
 		delete currentThread->space;
 		processTable[spaceID] = NULL;
 		bigLock->Release();
-		printf("In KILL PROCESS block of exit for SpaceID[%d].\n", spaceID);
+		DEBUG('a', "In KILL PROCESS block of exit for SpaceID[%d].\n", spaceID);
 		currentThread->Finish();
 	} else { //we are not the last thread in a process, so just kill the thread
-		printf("Giving up a non-final thread in a process.\n");
+		DEBUG('a', "Giving up a non-final thread in a process.\n");
 		currentThread->space->RemoveCurrentThread();
 		bigLock->Release();
 		currentThread->Finish();
@@ -441,7 +438,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 		locks[index].space = currentThread->space;
 	}
 	locksLock->Release();
-	printf("Returning lock index: %d\n", index); //DEBUG
+	DEBUG('a', "Returning lock index: %d\n", index); //DEBUG
 	return index;
 }
 
@@ -465,10 +462,10 @@ void DestroyLock_Syscall(LockID id) {
 	} else {
 		if (locks[id].lock->IsBusy() || locks[id].aboutToBeAcquired > 0) {
 			locks[id].needsToBeDeleted = TRUE;
-			printf("Lock[%d] will be deleted when possible.\n",id); //DEBUG
+			DEBUG('a', "Lock[%d] will be deleted when possible.\n",id); //DEBUG
 		} else {
 			deleteLock(id);
-			printf("Lock[%d] has been deleted.\n",id);//DEBUG
+			DEBUG('a', "Lock[%d] has been deleted.\n",id);//DEBUG
 		}
 	}
 	locksLock->Release();
@@ -555,7 +552,7 @@ void Acquire_Syscall(LockID id) {
 	locksLock->Release();
 	locks[id].lock->Acquire();
 	locks[id].aboutToBeAcquired--;
-	printf("Lock [%d] has been acquired.\n", id); //DEBUG
+	DEBUG('a', "Lock [%d] has been acquired.\n", id); //DEBUG
 }
 
 void Release_Syscall(LockID id) {
@@ -578,7 +575,7 @@ void Release_Syscall(LockID id) {
 	}
 	locksLock->Release();
 
-	printf("Releasing lock[%d].\n",id); //DEBUG
+	DEBUG('a', "Releasing lock[%d].\n",id); //DEBUG
 }
 
 void Signal_Syscall(ConditionID conditionID, LockID lockID) {
@@ -704,7 +701,8 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 
 void kernel_thread(int virtualAddr)
 {
-	printf("Starting up the new kernel thread!\n");
+	bigLock->Acquire();
+	DEBUG('a', "Starting up the new kernel thread!\n");
 	//mod the PC to begin execution at the new thread
 	machine->WriteRegister(PCReg,virtualAddr);
 	machine->WriteRegister(NextPCReg,virtualAddr+4);	
@@ -714,10 +712,11 @@ void kernel_thread(int virtualAddr)
 	
 	//mod the stack
 	int newStackReg = (currentThread->startVPN) * PageSize + UserStackSize - 16;
-	printf("Thread[%d] getting startVPN = %d.\n", currentThread->ID, currentThread->startVPN);
-	printf("Thread[%d] setting stack reg to %d.\n", currentThread->ID, newStackReg);
+	DEBUG('a', "Thread[%d] getting startVPN = %d.\n", currentThread->ID, currentThread->startVPN);
+	DEBUG('a', Thread[%d] setting stack reg to %d.\n", currentThread->ID, newStackReg);
 	machine->WriteRegister(StackReg, newStackReg);
-	printf("Wrote the stack reg.\n");
+	DEBUG('a', "Wrote the stack reg.\n");
+	bigLock->Release();
 	machine->Run();	
 }
 
@@ -736,7 +735,7 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	
 	//fork the thread, somehow
 	thread->Fork(kernel_thread,funcAddr);
-	printf("Forked the thread.\n");
+	DEBUG('a', "Forked the thread.\n");
 
 	forkLock->Release();
 	
