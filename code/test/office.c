@@ -13,6 +13,12 @@ int passClerkUID = 0;
 int cashClerkUID = 0;
 int customerSenatorUID = 0;
 
+LockID appClerkUIDLock;
+LockID picClerkUIDLock;
+LockID passClerkUIDLock;
+LockID cashClerkUIDLock;
+LockID customerSenatorUIDLock;
+
 int numAppClerks = 3; 
 int numPicClerks = 3;
 int numPassClerks = 3;
@@ -21,42 +27,42 @@ int numCustomers = 20;
 int numSenators = 3;  
 
 /* ApplicationClerk and PictureClerk lines*/
-/*LockID appPicLineLock; 
+LockID appPicLineLock; 
 ConditionID regAppLineCV; 
 ConditionID privAppLineCV;
 ConditionID regPicLineCV; 
-ConditionID privPicLineCV;*/
+ConditionID privPicLineCV;
 int regAppLineLength = 0;
 int privAppLineLength = 0;
 int regPicLineLength = 0;
 int privPicLineLength = 0;
 
-/*LockID passLineLock;
+LockID passLineLock;
 ConditionID regPassLineCV;
-ConditionID privPassLineCV;*/
+ConditionID privPassLineCV;
 int regPassLineLength = 0;
 int privPassLineLength = 0;
 
-/*LockID cashLineLock;
+LockID cashLineLock;
 ConditionID regCashLineCV;
-ConditionID privCashLineCV;*/
+
 int regCashLineLength = 0;
-int privCashLineLength = 0;
+
 
 /* Senators in office and waiting room */
-/*LockID senatorWaitingRoomLock;
-ConditionID senatorWaitingRoomCV;*/
+LockID senatorWaitingRoomLock;
+ConditionID senatorWaitingRoomCV;
 int senatorsInWaitingRoom = 0;
 
-/*LockID senatorOfficeLock;*/
+LockID senatorOfficeLock;
 int senatorsInOffice = 0;
 
 /* Customers in office and waiting room */
-/*LockID customerWaitingRoomLock;
-ConditionID customerWaitingRoomCV;*/
+LockID customerWaitingRoomLock;
+ConditionID customerWaitingRoomCV;
 int customersInWaitingRoom = 0;
 
-/*LockID customerOfficeLock;*/
+LockID customerOfficeLock;
 int customersInOffice = 0;
 
 /* ApplicationClerk and PictureClerk States */
@@ -122,7 +128,6 @@ void initOfficeLocks(){
 	
 	cashLineLock = CreateLock("cashLineLock",12);
 	regCashLineCV = CreateCondition("regCashLineCV",13);
-	privCashLineCV = CreateCondition("privCashLineCV",14);
 
 	/* Senators in office and waiting room */
 	senatorWaitingRoomLock = CreateLock("senatorWaitingRoomLock",22);

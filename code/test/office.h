@@ -77,7 +77,7 @@ extern LockID appClerkUIDLock;
 extern LockID picClerkUIDLock;
 extern LockID passClerkUIDLock;
 extern LockID cashClerkUIDLock;
-extern LockID customerSenatorUID;
+extern LockID customerSenatorUIDLock;
 
 extern int appClerkUID;
 extern int picClerkUID;
