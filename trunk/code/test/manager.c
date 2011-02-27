@@ -102,7 +102,7 @@ void tryToWakeUpSenators() {
 				tprintf("Manager: Waiting for remaining %d customers to leave\n", customersInOffice,0,0,"","");
 				/*customerOfficeLock->Release();*/
 				Release(customerOfficeLock);
-				currentThread->Yield();
+				Yield();
 				/*customerOfficeLock->Acquire();*/
 				Acquire(customerOfficeLock);
 			}
@@ -459,7 +459,7 @@ void ManagerRun(){
 		/*cashLineLock->Release();*/
 		Release(cashLineLock);
 		for (i = 0; i < 50; i++) {
-			currentThread->Yield();
+			Yield();
 		}
 	}
 }

@@ -45,7 +45,7 @@ void SenatorRun() {
 	tprintf("Senator [%d]: Entering the passport office...\n",index,0,0,"","");
 
 	/*senator start up code*/		
-	cashDollars = ((rand() % 4) * 500) + 100;	
+	cashDollars = ((Rand() % 4) * 500) + 100;	
 	clerkStatus;
 
 	printf("Senator [%d] has money = [$%d]\n",index,cashDollars,0,"","");
@@ -262,7 +262,7 @@ static void doPicClerk(int* index, int* cashDollars)
 			Wait(picClerkCVs[myClerk], picClerkLocks[myClerk]);	
 
 			/*did I like my picture?*/
-			if(rand()%10 > 5)
+			if(Rand()%10 > 5)
 			{
 				happyWithPhoto[myClerk] = TRUE;
 				printf("Senator [%d] [likes] the picture provided by PictureClerk[%d]\n", *index,myClerk,0,"","");
@@ -373,9 +373,9 @@ static void doPassPortClerk(int *index, int* cashDollars){
 		Release(passClerkLocks[myClerk]);
 		printf("Senator [%d] is [not certified] by PassportClerk[%d]\n",*index,myClerk,0,"","");
 		printf("Senator [%d] is being forced to wait by PassportClerk[%d]\n",*index,myClerk,0,"","");
-		rando = rand()%80+20;					
+		rando = Rand()%80+20;					
 		for(x = 0; x < rando; x++)
-			currentThread->Yield();															
+			Yield();															
 	}
 
 }
@@ -456,8 +456,8 @@ static void doCashierClerk(int* index, int* cashDollars)
 		printf("Senator [%d] gets [invalid] certification by Cashier[%d]\n",*index,myClerk,0,"","");
 		printf("Senator [%d] is punished to wait by Cashier[%d]\n",*index,myClerk,0,"","");
 		tprintf("Senator [%d]: NOT READY!? Going back to the end of the line...\n",*index,0,0,"","");
-		rando = rand()%80+20;					
+		rando = Rand()%80+20;					
 		for(x = 0; x < rando; x++)
-			currentThread->Yield();																				
+			Yield();																				
 	}
 }

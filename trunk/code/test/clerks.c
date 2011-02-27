@@ -21,35 +21,41 @@ char* getCustomerType(){
 	}
 }
 
-void appClerkFileData(int SSN){
-	int randomNum = rand()%80 + 20;
-	int i=0;
-	for(i = 0; i< randomNum; i++){
-		currentThread->Yield();
+void appClerkFileData(){ /*int SSN*/
+	int randomNum; 
+	int i;
+
+	randomNum = Rand()%80 + 20;
+	/*for(i = 0; i< randomNum; i++){
+		Yield();
 	}
-	appFiled[SSN] = TRUE;
-	tprintf("ApplicationClerk informs %s with SSN %d that the application has been filed\n", getCustomerType(), SSN,0,"",""); 
+	appFiled[SSN] = TRUE;*/
+	tprintf("ApplicationClerk informs %s with SSN %d that the application has been filed\n", -2,0, 0,getCustomerType(),""); 
 
 }
 
-void picClerkFileData(int SSN){
-	int randomNum = rand()%80 + 20;
-	int i=0;
-	for(i = 0; i< randomNum; i++){
-		currentThread->Yield();
+void picClerkFileData(){ /*int SSN*/
+	int randomNum; 
+	int i;
+
+	randomNum = Rand()%80 + 20;
+	/*for(i = 0; i< randomNum; i++){
+		Yield();
 	}
-	picFiled[SSN] = TRUE;
-	tprintf("PictureClerk informs %s with SSN %d that the picture has been filed\n", getCustomerType(), SSN,0,"",""); 
+	picFiled[SSN] = TRUE;*/
+	tprintf("PictureClerk informs %s with SSN %d that the picture has been filed\n",-2,0,0,getCustomerType(),""); 
 }
 
-void passClerkFileData(int SSN){
-	int randomNum = rand()%80 + 20;
-	int i=0;
-	for(i = 0; i< randomNum; i++){
+void passClerkFileData(){ /*int SSN*/
+	int randomNum; 
+	int i;
+
+	randomNum = Rand()%80 + 20;
+	/*for(i = 0; i< randomNum; i++){
 		currentThread->Yield();
 	}
-	passFiled[SSN] = TRUE;
-	tprintf("PassportClerk informs %s with SSN %d that the passport has been filed\n", getCustomerType(), SSN,0,"",""); 
+	passFiled[SSN] = TRUE;*/
+	tprintf("PassportClerk informs %s with SSN %d that the passport has been filed\n", -2,0,0,getCustomerType(),""); 
 
 }
 
@@ -72,7 +78,7 @@ void AppClerkRun(){
 		if (privAppLineLength+regAppLineLength>0){
 
 			if (privAppLineLength>0){ /*Checking if anyone is in priv line*/
-				tprintf("AppClerk %d: has spotted %s in privAppLine(length = %d)\n",index, getCustomerType(), privAppLineLength,"","");
+				tprintf("AppClerk %d: has spotted %s in privAppLine(length = %d)\n",index, privAppLineLength, 0,getCustomerType(),"");
 				privAppLineLength--;
 				tprintf("AppClerk %d: Becoming Available!\n",index,0,0,"","");
 				appClerkStatuses[index] = CLERK_AVAILABLE;
@@ -81,7 +87,7 @@ void AppClerkRun(){
 				Signal(privAppLineCV, appPicLineLock);
 			}
 			else{ /*Check if anyone is in reg line*/
-				tprintf("AppClerk %d: has spotted %s in regAppLine (length = %d)\n",index, getCustomerType(),regAppLineLength,"","");
+				tprintf("AppClerk %d: has spotted %s in regAppLine (length = %d)\n",index, regAppLineLength, 0, getCustomerType(),"");
 				regAppLineLength--;
 				tprintf("AppClerk %d: Becoming Available!\n",index,0,0,"","");
 				appClerkStatuses[index] = CLERK_AVAILABLE;
@@ -103,19 +109,21 @@ void AppClerkRun(){
 			tprintf("AppClerk %d: Just woke up!\n",index,0,0,"","");
 			
 			SSN = appClerkSSNs[index];
-			tprintf("AppClerk %d: Just receieved %s's SSN: %d\n",index, getCustomerType(), SSN,"","");
+			tprintf("AppClerk %d: Just receieved %s's SSN: %d\n",index, SSN, 0, getCustomerType(),"");
 
 			if (appClerkBribed[index] == TRUE){
-				printf("ApplicationClerk [%d] accepts money = 500 from %s with SSN %d\n", index, getCustomerType(), appClerkSSNs[index],"","");
+				printf("ApplicationClerk [%d] accepts money = 500 from %s with SSN %d\n", index, appClerkSSNs[index], 0,getCustomerType(),"");
 				appClerkBribed[index] = FALSE;
 			}
 
-			printf("ApplicationClerk [%d] informs %s with SSN %d that the procedure has been completed.\n", index, getCustomerType(), SSN,"",""); 
+			printf("ApplicationClerk [%d] informs %s with SSN %d that the procedure has been completed.\n", index, SSN, 0, getCustomerType(),""); 
 			
 			/*Thread* newThread = new Thread("Filing Thread");
 			newThread->Fork((VoidFunctionPtr)appClerkFileData, SSN);
 			
 			NEED TO CONVERT THIS*/
+			Fork(appClerkFileData);
+			appFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
 			
 			/*for (i=0; i<10; i++){
 				tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
@@ -142,7 +150,7 @@ void AppClerkRun(){
 			/*appClerkLocks[index]->Release();*/
 			Release(appClerkLocks[index]);
 		}
-		currentThread->Yield();
+		Yield();
 	}
 }
 
@@ -166,7 +174,7 @@ void PicClerkRun(){
 		if(privPicLineLength+regPicLineLength>0){
 
 			if (privPicLineLength>0){	/*Checking if anyone is in priv line*/
-				tprintf("PicClerk %d: has spotted %s in privPicLine(length = %d)\n",index, getCustomerType(), privPicLineLength,"","");
+				tprintf("PicClerk %d: has spotted %s in privPicLine(length = %d)\n",index, privPicLineLength, 0,getCustomerType(),"");
 				privPicLineLength--;
 				tprintf("PicClerk %d: Becoming Available!\n",index,0,0,"","");
 				picClerkStatuses[index] = CLERK_AVAILABLE;
@@ -175,7 +183,7 @@ void PicClerkRun(){
 				Signal(privPicLineCV, appPicLineLock);
 			}
 			else{ /*Checking if anyone is in reg line*/
-				tprintf("PicClerk %d: has spotted %s in regPicLine (length = %d)\n",index, getCustomerType(), regPicLineLength,"","");
+				tprintf("PicClerk %d: has spotted %s in regPicLine (length = %d)\n",index, regPicLineLength, 0,getCustomerType(),"");
 				regPicLineLength--;
 				tprintf("PicClerk %d: Becoming Available!\n",index,0,0,"","");
 				picClerkStatuses[index] = CLERK_AVAILABLE;
@@ -199,17 +207,17 @@ void PicClerkRun(){
 			SSN = picClerkSSNs[index];
 			if (picClerkBribed[index] == TRUE){
 				/*printf("PicClerk %d: I've just been bribed for $500! Total amount I've collected to so far: $%d\n", index, picClerkMoney[index]);*/
-				printf("PictureClerk %d accepts money = 500 from %s with SSN %d\n", index, getCustomerType(), index,"","");
+				printf("PictureClerk %d accepts money = 500 from %s with SSN %d\n", index, SSN,0,getCustomerType(),"");
 				picClerkBribed[index] = FALSE;
 			}
 			count = 1;
 			do{
 				if (count==1){
-					printf("PictureClerk [%d] takes picture of %s with SSN %d\n", index, getCustomerType(), SSN,"","");
+					printf("PictureClerk [%d] takes picture of %s with SSN %d\n", index, SSN, getCustomerType(),"");
 				}else{
-					printf("PictureClerk [%d] takes picture of %s with SSN %d again\n", index, getCustomerType(), SSN,"","");
+					printf("PictureClerk [%d] takes picture of %s with SSN %d again\n", index, SSN, 0, getCustomerType(),"");
 				}
-				tprintf("PicClerk %d: Taking picture of %s for the %dst/nd/rd/th time (Signaling my CV)!\n",index, getCustomerType(), count,"","");
+				tprintf("PicClerk %d: Taking picture of %s for the %dst/nd/rd/th time (Signaling my CV)!\n",index, count, 0, getCustomerType(),"");
 				/*picClerkCVs[index]->Signal(picClerkLocks[index]);*/
 				Signal(picClerkCVs[index], picClerkLocks[index]);
 				tprintf("PicClerk %d: Going to sleep...\n",index,0,0,"","");
@@ -222,20 +230,23 @@ void PicClerkRun(){
 					/*Thread* t = new Thread("Pass Filing Thread");
 					t->Fork((VoidFunctionPtr)picClerkFileData, SSN);
 					NEEDS TO BE DEALT WITH*/
+
+					Fork(picClerkFileData);
+					picFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
 					
 					for (i=0; i<10; i++){
 						tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i],0,"","");
 					}
-					tprintf("PicClerk %d: Just woke up, %s with SSN %d liked their picture!\n",index, getCustomerType(), SSN,"","");
+					tprintf("PicClerk %d: Just woke up, %s with SSN %d liked their picture!\n",index, SSN, 0,getCustomerType(),"");
 				}
 				else{
-					tprintf("PicClerk %d: Just woke up, %s did not like their picture.\n",index, getCustomerType(),0,"","");
+					tprintf("PicClerk %d: Just woke up, %s did not like their picture.\n",index, 0, 0,getCustomerType(),"");
 				}
 
 				count++;
 
 			}while(happyWithPhoto[index] == FALSE);
-			printf("PictureClerk [%d] informs %s with SSN %d that the procedure has been completed\n", index, getCustomerType(), SSN,"",""); 
+			printf("PictureClerk [%d] informs %s with SSN %d that the procedure has been completed\n", index,SSN, 0,getCustomerType(),""); 
 
 			/*picClerkCVs[index]->Signal(picClerkLocks[index]);*/
 			Signal(picClerkCVs[index], picClerkLocks[index]);
@@ -259,7 +270,7 @@ void PicClerkRun(){
 			/*picClerkLocks[index]->Release();*/
 			Release(picClerkLocks[index]);
 		}
-		currentThread->Yield();
+		Yield();
 	}
 }
 
@@ -282,7 +293,7 @@ void PassClerkRun(){
 		if (privPassLineLength+regPassLineLength>0){
 
 			if (privPassLineLength>0){ /*Checking if anyone is in priv line*/
-				tprintf("PassClerk %d: has spotted %s in privPassLine(length = %d)\n", index, getCustomerType(), privPassLineLength,"","");
+				tprintf("PassClerk %d: has spotted %s in privPassLine(length = %d)\n", index, privPassLineLength, 0,getCustomerType(),"");
 				privPassLineLength--;
 				tprintf("PassClerk %d: Becoming Available!\n",index,0,0,"","");
 				passClerkStatuses[index] = CLERK_AVAILABLE;
@@ -291,7 +302,7 @@ void PassClerkRun(){
 				Signal(privPassLineCV, passLineLock);
 			}
 			else{ /*Check if anyone is in reg line*/
-				tprintf("PassClerk %d: has spotted %s in regPassLine (length = %d)\n",index, getCustomerType(), regPassLineLength,"","");
+				tprintf("PassClerk %d: has spotted %s in regPassLine (length = %d)\n",index, regPassLineLength, 0, getCustomerType(),"");
 				regPassLineLength--;
 				tprintf("PassClerk %d: Becoming Available!\n",index,0,0,"","");
 				passClerkStatuses[index] = CLERK_AVAILABLE;
@@ -314,7 +325,7 @@ void PassClerkRun(){
 			SSN = passClerkSSNs[index];
 			if (passClerkBribed[index] == TRUE){
 				
-				printf("PassportClerk %d accepts money = 500 from %s with SSN %d\n", index, getCustomerType(), index,"","");
+				printf("PassportClerk %d accepts money = 500 from %s with SSN %d\n", index, SSN, 0,getCustomerType(),"");
 				passClerkBribed[index] = FALSE;
 			}
 					
@@ -323,24 +334,27 @@ void PassClerkRun(){
 					tprintf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n",appFiled[i],picFiled[i], passFiled[i],"","");
 				}
 				
-				printf("PassportClerk [%d] gives invalid certification to %s with SSN %d\n", index, getCustomerType(), SSN,"",""); 
-				printf("PassportClerk [%d] punishes %s with SSN %d to wait\n", index, getCustomerType(), SSN,"",""); 
+				printf("PassportClerk [%d] gives invalid certification to %s with SSN %d\n", index, SSN, 0, getCustomerType(),""); 
+				printf("PassportClerk [%d] punishes %s with SSN %d to wait\n", index, SSN, 0, getCustomerType(),""); 
 				passPunish[index] = TRUE;
 			}
 			else{
 			
-				printf("PassportClerk [%d] gives valid certification to %s with SSN %d\n", index, getCustomerType(), SSN,"",""); 
+				printf("PassportClerk [%d] gives valid certification to %s with SSN %d\n", index, SSN, 0, getCustomerType(),""); 
 				
 				passPunish[index] = FALSE;
 				/*Thread* newThread = new Thread("Passport Filing Thread");
 				newThread->Fork((VoidFunctionPtr)passClerkFileData, SSN);
 				NEEDS TO BE DEALT WITH*/
 
+				Fork(passClerkFileData);
+				passFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
+
 				/*DEBUG
 				for (int i=0; i<10; i++){
 					tprintf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n", appFiled[i], picFiled[i], passFiled[i]);
 				}*/
-				printf("PassportClerk [%d] informs %s with SSN %d that the procedure has completed.\n", index, getCustomerType(), SSN,"",""); 
+				printf("PassportClerk [%d] informs %s with SSN %d that the procedure has completed.\n", index, SSN, 0, getCustomerType(),""); 
 			}
 			
 
@@ -366,7 +380,7 @@ void PassClerkRun(){
 			/*passClerkLocks[index]->Release();*/
 			Release(passClerkLocks[index]);
 		}
-		currentThread->Yield();
+		Yield();
 	}
 }
 
@@ -386,7 +400,7 @@ void CashClerkRun(){
 
 		
 		if (regCashLineLength>0){ /*Check if anyone is in reg line*/
-			tprintf("CashClerk %d: has spotted %s in regCashLine (length = %d)\n",index, getCustomerType(), regCashLineLength,"","");
+			tprintf("CashClerk %d: has spotted %s in regCashLine (length = %d)\n",index, regCashLineLength, 0,getCustomeType(),"");
 			regCashLineLength--;
 			tprintf("CashClerk %d: Becoming Available!\n",index,0,0,"","");
 			cashClerkStatuses[index] = CLERK_AVAILABLE;
@@ -410,19 +424,19 @@ void CashClerkRun(){
 		
 			if(passFiled[SSN] == FALSE){
 				
-				printf("Cashier [%d] gives invalid certification to %s with SSN %d\n", index, getCustomerType(), SSN,"","");
-				printf("Cashier [%d] punishes %s with SSN %d to wait\n", index, getCustomerType(), SSN,"",""); 
+				printf("Cashier [%d] gives invalid certification to %s with SSN %d\n", index, SSN, 0, getCustomerType(),"");
+				printf("Cashier [%d] punishes %s with SSN %d to wait\n", index, SSN, 0, getCustomerType(),""); 
 				
 				cashPunish[index] = TRUE;
 			}
 			else{
-				tprintf("CashClerk %d: %s with SSN %d has everything filed correctly!\n",index, getCustomerType(), SSN,"","");
-				printf("Cashier [%d] gives valid certification to %s with SSN %d\n", index, getCustomerType(), SSN,"","");
-				printf("Cashier [%d] records %s with SSN %d's passport\n", index, getCustomerType(), SSN,"","");
-				printf("Cashier [%d] has recorded the passport for %s with SSN %d\n", index, getCustomerType(), SSN,"","");
+				tprintf("CashClerk %d: %s with SSN %d has everything filed correctly!\n",index,SSN,0,getCustomerType(),"");
+				printf("Cashier [%d] gives valid certification to %s with SSN %d\n", index, SSN, 0, getCustomerType(),"");
+				printf("Cashier [%d] records %s with SSN %d's passport\n", index, SSN, 0, getCustomerType(),"");
+				printf("Cashier [%d] has recorded the passport for %s with SSN %d\n", index, SSN, 0, getCustomerType(),"");
 				cashPunish[index] = FALSE;
 				cashFiled[SSN] = TRUE;
-				printf("Cashier [%d] accepts money = 100 from %s with SSN %d\n", index, getCustomerType(), SSN,"","");
+				printf("Cashier [%d] accepts money = 100 from %s with SSN %d\n", index, SSN, 0, getCustomerType(),"");
 				/*cashClerkCVs[index]->Signal(cashClerkLocks[index]);*/
 				Signal(cashClerkCVs[index], cashClerkLocks[index]);
 				/*cashClerkCVs[index]->Wait(cashClerkLocks[index]);*/
@@ -455,7 +469,7 @@ void CashClerkRun(){
 			/*cashClerkLocks[index]->Release();*/
 			Release(cashClerkLocks[index]);
 		}
-		currentThread->Yield();
+		Yield();
 
 	}
 
