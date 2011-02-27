@@ -62,7 +62,7 @@ void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 					i+=2;
 				}
 			}
-			else if(str[i+1] == 'a')
+			else if(str[i+1] == 's')
 			{
 				strArg++;
 				if(strArg == 1)
