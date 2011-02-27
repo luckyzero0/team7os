@@ -226,7 +226,7 @@ int AddrSpace::getCodeSize(){
 	return codeSize;
 }
 
-bool AddrSpace::constructedSuccessfully() {
+bool AddrSpace::didConstructSuccessfully() {
 	return constructedSuccessfully;
 }
 
