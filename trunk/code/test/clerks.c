@@ -152,7 +152,7 @@ void AppClerkRun(){
 		}
 		Yield();
 	}
-	printf("About to exit!");
+	printf("About to exit!", 0,0,0,"","");
 	Exit(0);
 }
 
