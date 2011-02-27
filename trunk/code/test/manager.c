@@ -31,7 +31,7 @@ void tryToWakeUpSenators() {
 	if (senatorsInWaitingRoom > 0) {
 		/*senatorWaitingRoomLock->Release();*/
 		Release(senatorWaitingRoomLock);
-		tprintf("Manager: There are senators in the waiting room! \n"0,0,0,"","");
+		tprintf("Manager: There are senators in the waiting room! \n", 0,0,0,"","");
 		/*acquire all line CVs*/
 		/*customerOfficeLock->Acquire();*/
 		Acquire(customerOfficeLock);
