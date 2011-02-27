@@ -70,9 +70,10 @@ void AppClerkRun(){
 	Release(appClerkUIDLock);
 
 	while (TRUE){
-		tprintf("AppClerk %d: has acquired the appPicLineLock\n", index,0,0,"","");
+		tprintf("AppClerk %d: is about the appPicLineLock\n", index,0,0,"","");
 		/*appPicLineLock->Acquire();*/
 		Acquire(appPicLineLock);
+		tprintf("AppClerk %d: did acquire the appPicLineLock\n", index,0,0,"","");
 
 		/*Checking if anyone is in line*/
 		if (privAppLineLength+regAppLineLength>0){
