@@ -158,7 +158,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	bigLock->Acquire();
 	static int called = 0; 
 
-	DEBUG('a', "In EXEC for the %d time.", called++);
+	DEBUG('e', "In EXEC for the %d time.", called++);
 
 	OpenFile *f;			// The new open file
 	char *buf = new char[len+1];
@@ -174,7 +174,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 		return -1;
 	}
 
-	DEBUG('a', "We are trying to open the file: %s", buf);
+	DEBUG('e', "We are trying to open the file: %s", buf);
 	
 	f = fileSystem->Open(buf);
 	delete[] buf;
@@ -182,7 +182,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	if ( f ) {
 		AddrSpace* addrSpace = new AddrSpace(f);
 		//For right now we assume physical pages were handed out successfully, because we were told we have infinite space for this assignment.
-		DEBUG('a', "Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
+		DEBUG('e', "Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
 		
 		Thread* t = new Thread("dammitmihir");
 		t->space = addrSpace;
@@ -204,7 +204,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 			return spaceID;
 		}
 
-		DEBUG('a', "Made a new process at SpaceID[%d], forking the exec_thread.\n", spaceID);
+		DEBUG('e', "Made a new process at SpaceID[%d], forking the exec_thread.\n", spaceID);
 
 		t->Fork(exec_thread, 0);
 		bigLock->Release();
