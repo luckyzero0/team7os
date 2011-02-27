@@ -83,7 +83,7 @@ extern int numCashClerks;
 extern int numSenators;
 
 /* ApplicationClerk and PictureClerk States*/
-extern ClerkStatus appClerkStatuses[];
+extern ClerkStatus[] appClerkStatuses;
 extern ClerkStatus picClerkStatuses[];
 extern LockID appClerkLocks[];
 extern LockID picClerkLocks[];
