@@ -132,7 +132,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
 		SwapHeader(&noffH);
 	if(noffH.noffMagic != NOFFMAGIC) {
-		printf("Tried to construct an AddressSpace with a non NOFF file.");
+		printf("Tried to construct an AddressSpace with a non NOFF file.\n");
 		return;
 	}
 
