@@ -1,6 +1,4 @@
 /* File for the Application, Picture, Passport and Cashier Clerks*/
-#include "system.h" 
-#include "thread.h"
 #include "utils.h"
 #include "office.h"
 

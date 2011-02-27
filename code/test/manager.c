@@ -1,8 +1,6 @@
 
 #include "office.h"
-#include "system.h"
 #include "utils.h"
-#include <iostream>
 
 void tryToWakeUpSenators();
 void tryToWakeUpCustomers();
