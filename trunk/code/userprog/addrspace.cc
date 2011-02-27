@@ -121,7 +121,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	NoffHeader noffH;
 	unsigned int i, size;
 
-	constructedSuccessfully = true;
+	constructedSuccessfully = false;
 
 	// Don't allocate the input or output to disk files
 	fileTable.Put(0);
