@@ -1,6 +1,9 @@
 #ifndef OFFICE_H
 #define OFFICE_H
 
+#include "syscall.h"
+#include "utils.h"
+
 #define TRUE 1
 #define FALSE 0
 
