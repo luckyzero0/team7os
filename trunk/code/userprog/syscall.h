@@ -165,7 +165,7 @@ void Wait(ConditionID conditionID, LockID lockID);
 
 void Broadcast(ConditionID conditionID, LockID lockID);
 
-void Rand();
+int Rand();
 
 #endif /* IN_ASM */
 
