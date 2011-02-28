@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
  printf("\nRunning %s\n", call);
 
- for(int x = StartRS; x < EndRS x++)
+ for(int x = StartRS; x < EndRS; x++)
  {
   call[11] = '0' + x/1000;		// doesn't need % since x < 10000
   call[12] = '0' + (x/100)%10;		// mod 10 pops last digit
