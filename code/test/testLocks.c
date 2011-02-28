@@ -1,4 +1,11 @@
-/*Quick test program to check if lock related SYSCALLS are working.*/
+/*Quick test program to check if lock related SYSCALLS are working.
+* Performs a few tests to check bad construction data, as well as
+* Passing bad lock IDs to demonstrate attempting to acquire non-owned
+* locks.
+* The final test demonstrates a small mutex scenario, in which the final
+* result of raceCondition should should be 0, 5, or 10, depending on which
+* thread runs first, but never any value in between.
+*/
 
 
 #include "syscall.h"
