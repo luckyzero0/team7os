@@ -248,9 +248,9 @@ void PicClerkRun(){
 					ForkWithArg(picClerkFileData, SSN);
 					/* picFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
 					
-					for (i=0; i<10; i++){
+				/*	for (i=0; i<10; i++){
 						tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i],0,"","");
-					}
+					}*/
 					tprintf("PicClerk %d: Just woke up, %s with SSN %d liked their picture!\n",index, SSN, 0,getCustomerType(),"");
 				}
 				else{
@@ -345,9 +345,9 @@ void PassClerkRun(){
 			}
 					
 			if(appFiled[SSN] == FALSE || picFiled[SSN] == FALSE){
-				for (i=0; i<10; i++){
+			/*	for (i=0; i<10; i++){
 					tprintf("AppFiled: %d,    PicFiled: %d,     PassFiled: %d\n",appFiled[i],picFiled[i], passFiled[i],"","");
-				}
+				}*/
 				
 				printf("PassportClerk [%d] gives invalid certification to %s with SSN %d\n", index, SSN, 0, getCustomerType(),""); 
 				printf("PassportClerk [%d] punishes %s with SSN %d to wait\n", index, SSN, 0, getCustomerType(),""); 
