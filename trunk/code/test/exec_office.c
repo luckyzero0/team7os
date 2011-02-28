@@ -5,9 +5,10 @@
 
 int main() {
 	int howMany;
+	int i;
 
 	howMany = 2;
-	for (int i = 0; i < howMany; i++) {
+	for (i = 0; i < howMany; i++) {
 		Exec("../test/office", 14);
 	}
 
