@@ -466,7 +466,18 @@ void tprintf(char* formatString, int arg1, int arg2, int arg3, char* arg4, char*
 	}
 }
 
-int main(){
+
+void OfficeTest1(){
+	printf("Initializing the office...\n",0,0,0,"","");
+	numAppClerks = 1; 
+	numPicClerks = 0;
+	numPassClerks = 0;
+	numCashClerks = 0;
+	numCustomers = 2;
+	numSenators = 0;
+	privAppLineLength = 3;
+	privPicLineLength = 3;
 	Office();
-	Exit(0);
+	Exit(0);	
 }
+

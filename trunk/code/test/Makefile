@@ -132,5 +132,19 @@ testConditions: testConditions.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o testConditions.o utils.o -o testConditions.coff
 	../bin/coff2noff testConditions.coff testConditions
 
+
+officeMain.o: officeMain.c
+	$(CC) $(CFLAGS) -c officeMain.c utils.c 
+officeMain: officeMain.o start.o utils.o office.o manager.o customer.o clerks.o senator.o
+	$(LD) $(LDFLAGS) start.o officeMain.o utils.o office.o manager.o customer.o clerks.o senator.o -o officeMain.coff
+	../bin/coff2noff officeMain.coff officeMain
+
+officeMainDEBUG.o: officeMainDEBUG.c
+	$(CC) $(CFLAGS) -c officeMainDEBUG.c utils.c 
+officeMainDEBUG: officeMainDEBUG.o start.o utils.o office.o manager.o customer.o clerks.o senator.o
+	$(LD) $(LDFLAGS) start.o officeMainDEBUG.o utils.o office.o manager.o customer.o clerks.o senator.o -o officeMainDEBUG.coff
+	../bin/coff2noff officeMainDEBUG.coff officeMainDEBUG
+
+
 clean:
 	rm -f *.o *.coff
