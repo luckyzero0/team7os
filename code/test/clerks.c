@@ -22,12 +22,15 @@ char* getCustomerType(){
 void appClerkFileData(){ /*int SSN*/
 	int randomNum; 
 	int i;
+	int SSN;
+
+	SSN = GetForkArg();
 
 	randomNum = Rand()%80 + 20;
-	/*for(i = 0; i< randomNum; i++){
+	for(i = 0; i< randomNum; i++){
 		Yield();
 	}
-	appFiled[SSN] = TRUE;*/
+	appFiled[SSN] = TRUE;
 	tprintf("ApplicationClerk informs %s with SSN %d that the application has been filed\n", -2,0, 0,getCustomerType(),""); 
 	Exit(0);
 }
@@ -35,12 +38,15 @@ void appClerkFileData(){ /*int SSN*/
 void picClerkFileData(){ /*int SSN*/
 	int randomNum; 
 	int i;
+	int SSN;
+
+	SSN = GetForkArg();
 
 	randomNum = Rand()%80 + 20;
-	/*for(i = 0; i< randomNum; i++){
+	for(i = 0; i< randomNum; i++){
 		Yield();
 	}
-	picFiled[SSN] = TRUE;*/
+	picFiled[SSN] = TRUE;
 	tprintf("PictureClerk informs %s with SSN %d that the picture has been filed\n",-2,0,0,getCustomerType(),""); 
 	Exit(0);
 }
@@ -48,12 +54,15 @@ void picClerkFileData(){ /*int SSN*/
 void passClerkFileData(){ /*int SSN*/
 	int randomNum; 
 	int i;
+	int SSN;
+
+	SSN = GetForkArg();
 
 	randomNum = Rand()%80 + 20;
-	/*for(i = 0; i< randomNum; i++){
+	for(i = 0; i< randomNum; i++){
 		currentThread->Yield();
 	}
-	passFiled[SSN] = TRUE;*/
+	passFiled[SSN] = TRUE;
 	tprintf("PassportClerk informs %s with SSN %d that the passport has been filed\n", -2,0,0,getCustomerType(),""); 
 	Exit(0);
 
@@ -125,7 +134,7 @@ void AppClerkRun(){
 			
 			NEED TO CONVERT THIS*/
 			Fork(appClerkFileData);
-			appFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
+			/* appFiled[SSN] = TRUE; GET RID OF THIS ONCE WE FIX SHIT*/
 			
 			/*for (i=0; i<10; i++){
 				tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
@@ -237,7 +246,7 @@ void PicClerkRun(){
 					NEEDS TO BE DEALT WITH*/
 
 					Fork(picClerkFileData);
-					picFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
+					/* picFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
 					
 					for (i=0; i<10; i++){
 						tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i],0,"","");
@@ -354,7 +363,7 @@ void PassClerkRun(){
 				NEEDS TO BE DEALT WITH*/
 
 				Fork(passClerkFileData);
-				passFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
+				/* passFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
 
 				/*DEBUG
 				for (int i=0; i<10; i++){
