@@ -23,9 +23,9 @@ void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 	char arg2buf[12];
 	char arg3buf[12];
 	
-	itoa(arg1, arg1buf);
-	itoa(arg2, arg2buf);
-	itoa(arg3, arg3buf);
+	
+	
+	
 	
 	while(str[i] != '\0')
 	{
@@ -36,6 +36,7 @@ void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 				intArg++;
 				if(intArg == 1)
 				{
+					itoa(arg1, arg1buf);
 					for(x = 0; x < strlen(arg1buf); x++)
 					{
 						out[outIndex] = arg1buf[x];
@@ -45,6 +46,7 @@ void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 				}
 				if(intArg == 2)
 				{
+					itoa(arg2, arg2buf);
 					for(x = 0; x < strlen(arg2buf); x++)
 					{
 						out[outIndex] = arg2buf[x];
@@ -54,6 +56,7 @@ void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 				}
 				if(intArg == 3)
 				{
+					itoa(arg3, arg3buf);
 					for(x = 0; x < strlen(arg3buf); x++)
 					{
 						out[outIndex] = arg3buf[x];
