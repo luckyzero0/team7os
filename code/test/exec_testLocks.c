@@ -1,3 +1,8 @@
+/* exec_testLocks.c */
+/*	This will run the test "testLocks"
+*	in 9 processes simultaneously, then shutdown.
+*/
+
 #include "syscall.h"
 #include "utils.h"
 
