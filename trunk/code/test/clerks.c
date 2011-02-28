@@ -133,7 +133,7 @@ void AppClerkRun(){
 			newThread->Fork((VoidFunctionPtr)appClerkFileData, SSN);
 			
 			NEED TO CONVERT THIS*/
-			Fork(appClerkFileData);
+			ForkWithArg(appClerkFileData, SSN);
 			/* appFiled[SSN] = TRUE; GET RID OF THIS ONCE WE FIX SHIT*/
 			
 			/*for (i=0; i<10; i++){
@@ -245,7 +245,7 @@ void PicClerkRun(){
 					t->Fork((VoidFunctionPtr)picClerkFileData, SSN);
 					NEEDS TO BE DEALT WITH*/
 
-					Fork(picClerkFileData);
+					ForkWithArg(picClerkFileData, SSN);
 					/* picFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
 					
 					for (i=0; i<10; i++){
@@ -362,7 +362,7 @@ void PassClerkRun(){
 				newThread->Fork((VoidFunctionPtr)passClerkFileData, SSN);
 				NEEDS TO BE DEALT WITH*/
 
-				Fork(passClerkFileData);
+				ForkWithArg(passClerkFileData, SSN);
 				/* passFiled[SSN] = TRUE; /*GET RID OF THIS ONCE WE FIX SHIT*/
 
 				/*DEBUG
