@@ -2,20 +2,6 @@
 #include "utils.h"
 #include "syscall.h"
 
-int main() {
-	printf("Doing some basic testing of ForkWithArg.\n", 0,0,0,"","");
-	printf("Forking a thread with arg = 1\n", 0,0,0,"","");
-	ForkWithArg(threadWithArg1, 1);
-
-	printf("Forking a thread with arg = 22\n", 0,0,0,"","");
-	ForkWithArg(threadWithArg22, 22);
-
-	printf("Forking a thread without an arg, arg in there is defaulted to -2 (no real reason).\n", 0,0,0,"","");
-	Fork(threadWithNoArg);
-
-	Exit(0);
-}
-
 void threadWithArg1() {
 	int arg;
 
@@ -48,5 +34,19 @@ void threadWithNoArg() {
 	arg = GetForkArg();
 
 	printf("threadWithArg22 has an undefined arg, and the GetForkArg gives back a %d.\n", arg, 0,0,"","");
+}
+
+int main() {
+	printf("Doing some basic testing of ForkWithArg.\n", 0,0,0,"","");
+	printf("Forking a thread with arg = 1\n", 0,0,0,"","");
+	ForkWithArg(threadWithArg1, 1);
+
+	printf("Forking a thread with arg = 22\n", 0,0,0,"","");
+	ForkWithArg(threadWithArg22, 22);
+
+	printf("Forking a thread without an arg, arg in there is defaulted to -2 (no real reason).\n", 0,0,0,"","");
+	Fork(threadWithNoArg);
+
+	Exit(0);
 }
 
