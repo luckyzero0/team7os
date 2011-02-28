@@ -31,7 +31,7 @@
 
 int main(int argc, char **argv)
 {
- char call[50] = "nachos -rs xxxx -x ../test/officeMain";	// if you need an input stream...
+ char call[100] = "nachos -rs xxxx -x ../test/officeMain";	// if you need an input stream...
  int error = 0;
 
  //argv++;
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
  printf("\nRunning %s\n", call);
 
- for(int x = StartRS; x < EndRS && !error; x++)
+ for(int x = StartRS; x < EndRS x++)
  {
   call[11] = '0' + x/1000;		// doesn't need % since x < 10000
   call[12] = '0' + (x/100)%10;		// mod 10 pops last digit
@@ -51,8 +51,10 @@ int main(int argc, char **argv)
   call[14] = '0' + x%10;
   printf("%d -rs's done\n", x);
   error = system(call);
-  if(error)
-   printf(" ERROR FOUND! With rs = %d\n", x);
+  if(error) {
+	printf(" ERROR FOUND! With rs = %d\n", x);
+	return error;
+  }
  }
  return error;
 }
