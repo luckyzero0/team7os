@@ -24,7 +24,7 @@ int numPicClerks = 3;
 int numPassClerks = 3;
 int numCashClerks = 3;
 int numCustomers = 20;
-int numSenators = 3;  
+int numSenators = 0;  
 
 /* ApplicationClerk and PictureClerk lines*/
 LockID appPicLineLock; 
