@@ -35,11 +35,13 @@ void SenatorRun() {
 		Wait(senatorWaitingRoomCV, senatorWaitingRoomLock);
 		tprintf("Senator[%d]: Waking up, going to the passport office!\n", index,0,0,"","");
 		senatorsInWaitingRoom--;
+		Release(senatorWaitingRoomLock);
 		Acquire(senatorOfficeLock);
+		Acquire(customerOfficeLock);
 		
 	}else{
 		/*customerOfficeLock->Release();*/
-		Release(customerOfficeLock);
+		/*Release(customerOfficeLock);*/
 	}
 	
 	tprintf("Senator [%d]: Entering the passport office...\n",index,0,0,"","");
@@ -55,7 +57,7 @@ void SenatorRun() {
 	/*senatorOfficeLock->Release();
 	senatorWaitingRoomLock->Release(); */
 	Release(senatorOfficeLock);
-	Release(senatorWaitingRoomLock);/*Ensures that senators are either in the waiting room or in the office*/
+	Release(customerOfficeLock);/*Ensures that senators are either in the waiting room or in the office*/
 
 	/*choose line*/		
 	tprintf("Senator [%d]: Deciding between AppClerk and PictureClerk...\n", index,0,0,"","");
