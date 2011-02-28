@@ -212,11 +212,17 @@ Rand:
 	syscall
 	j	$31
 	.end Rand
+
+	.globl ForkWithArg
+	.ent ForkWithArg
 ForkWithArg:
 	addiu $2,$0,SC_ForkWithArg
 	syscall
 	j	$31
 	.end ForkWithArg
+
+	.globl GetForkArg
+	.ent GetForkArg
 GetForkArg:
 	addiu $2,$0,SC_GetForkArg
 	syscall
