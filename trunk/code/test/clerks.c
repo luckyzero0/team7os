@@ -60,7 +60,7 @@ void passClerkFileData(){ /*int SSN*/
 
 	randomNum = Rand()%80 + 20;
 	for(i = 0; i< randomNum; i++){
-		currentThread->Yield();
+		Yield();
 	}
 	passFiled[SSN] = TRUE;
 	tprintf("PassportClerk informs %s with SSN %d that the passport has been filed\n", SSN,0,0,getCustomerType(),""); 
