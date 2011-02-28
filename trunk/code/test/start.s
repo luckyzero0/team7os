@@ -212,6 +212,16 @@ Rand:
 	syscall
 	j	$31
 	.end Rand
+ForkWithArg:
+	addiu $2,$0,SC_ForkWithArg
+	syscall
+	j	$31
+	.end ForkWithArg
+GetForkArg:
+	addiu $2,$0,SC_GetForkArg
+	syscall
+	j	$31
+	.end GetForkArg
 
 
 /* dummy function to keep gcc happy */
