@@ -1,6 +1,6 @@
 /* forkArg.c */
 #include "utils.h"
-#include "syscalls.h"
+#include "syscall.h"
 
 int main() {
 	printf("Doing some basic testing of ForkWithArg.\n", 0,0,0,"","");
