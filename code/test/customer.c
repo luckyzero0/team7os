@@ -119,21 +119,19 @@ void CustomerRun() {
 		if(privAppLineLength<=privPicLineLength)
 		{
 			/*appPicLineLock->Release();*/
-			Release(appPicLineLock);
 			printf("Customer [%d] goes to [ApplicationClerk].\n",index,0,0,"","");			
-			doAppClerk(&index, &cashDollars);
+			doAppClerk(&index, &cashDollars, FALSE);
 			waitAndRestart(-1, index); /*SENATOR*/
-			doPicClerk(&index, &cashDollars);
+			doPicClerk(&index, &cashDollars, TRUE);
 			waitAndRestart(-1, index); /*SENATOR*/
 		}
 		else
 		{
 			/*appPicLineLock->Release();*/
-			Release(appPicLineLock);
 			printf("Customer [%d] goes to [PictureClerk].\n",index,0,0,"","");	
-			doPicClerk(&index, &cashDollars);
+			doPicClerk(&index, &cashDollars, FALSE);
 			waitAndRestart(-1, index); /*SENATOR*/
-			doAppClerk(&index, &cashDollars);
+			doAppClerk(&index, &cashDollars, TRUE);
 			waitAndRestart(-1, index); /*SENATOR*/
 		}	
 	}
@@ -174,7 +172,7 @@ void CustomerRun() {
 	Exit(0);
 }
 
-static void doAppClerk(int* index, int* cashDollars)
+static void doAppClerk(int* index, int* cashDollars, int needToAcquire)
 {
 	bool privLine = FALSE;
 	int myClerk, x;
@@ -185,7 +183,10 @@ static void doAppClerk(int* index, int* cashDollars)
 		myClerk = -1;
 		tprintf("Customer [%d]: Going to the AppClerk\n",*index,0,0,"","");
 		/*appPicLineLock->Acquire();	*/
-		Acquire(appPicLineLock);	
+		if (needToAcquire) {
+			Acquire(appPicLineLock);
+		}
+		needToAcquire = 1;
 		tprintf("Customer [%d]: What line should I choose for the AppClerk?\n",*index,0,0,"","");
 		/*check for senator*/
 		if(*cashDollars > 100) /*get in a privledged line*/
@@ -264,7 +265,7 @@ static void doAppClerk(int* index, int* cashDollars)
 	}
 }
 
-static void doPicClerk(int* index, int* cashDollars)
+static void doPicClerk(int* index, int* cashDollars, int needToAcquire)
 {
 
 	bool privLine = FALSE;
@@ -275,7 +276,10 @@ static void doPicClerk(int* index, int* cashDollars)
 		myClerk = -1;
 		tprintf("Customer [%d]: Going to the PicClerk\n",*index,0,0,"","");
 		/*appPicLineLock->Acquire();	*/
-		Acquire(appPicLineLock);
+		if (needToAcquire) {
+			Acquire(appPicLineLock);
+		}
+		needToAcquire = 1;
 		tprintf("Customer [%d]: What line should I choose for the PicClerk?\n",*index,0,0,"","");
 		/*check for senator*/
 		if(*cashDollars > 100) /*get in a privledged line*/
