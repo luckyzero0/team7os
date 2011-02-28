@@ -93,6 +93,12 @@ execTest.o: execTest.c
 execTest: execTest.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o execTest.o utils.o -o execTest.coff
 	../bin/coff2noff execTest.coff execTest
+	
+forkArg.o: forkArg.c
+	$(CC) $(CFLAGS) -c forkArg.c utils.c
+forkArg: forkArg.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o forkArg.o utils.o -o forkArg.coff
+	../bin/coff2noff forkArg.coff forkArg
 
 office.o: office.c
 	$(CC) $(CFLAGS) -c office.c utils.c
