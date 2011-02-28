@@ -122,9 +122,9 @@ void CustomerRun() {
 			Release(appPicLineLock);
 			printf("Customer [%d] goes to [ApplicationClerk].\n",index,0,0,"","");			
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(NULL, index); /*SENATOR*/
+			waitAndRestart(-1, index); /*SENATOR*/
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(NULL, index); /*SENATOR*/
+			waitAndRestart(-1, index); /*SENATOR*/
 		}
 		else
 		{
@@ -132,9 +132,9 @@ void CustomerRun() {
 			Release(appPicLineLock);
 			printf("Customer [%d] goes to [PictureClerk].\n",index,0,0,"","");	
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(NULL, index); /*SENATOR*/
+			waitAndRestart(-1, index); /*SENATOR*/
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(NULL, index); /*SENATOR*/
+			waitAndRestart(-1, index); /*SENATOR*/
 		}	
 	}
 	else/*find regular line with shortest length*/
@@ -148,9 +148,9 @@ void CustomerRun() {
 			Release(appPicLineLock);
 			printf("Customer [%d] goes to [ApplicationClerk].\n",index,0,0,"","");	
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(NULL, index); /*SENATOR*/
+			waitAndRestart(-1, index); /*SENATOR*/
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(NULL, index); /*SENATOR*/
+			waitAndRestart(-1, index); /*SENATOR*/
 		}
 		else
 		{
@@ -158,9 +158,9 @@ void CustomerRun() {
 			Release(appPicLineLock);
 			printf("Customer [%d] goes to [PictureClerk].\n",index,0,0,"","");
 			doPicClerk(&index, &cashDollars);
-			waitAndRestart(NULL, index); /*SENATOR*/
+			waitAndRestart(-1, index); /*SENATOR*/
 			doAppClerk(&index, &cashDollars);
-			waitAndRestart(NULL, index); /*SENATOR*/
+			waitAndRestart(-1, index); /*SENATOR*/
 		}	
 	}
 
@@ -387,7 +387,7 @@ static void doPassPortClerk(int *index, int* cashDollars){
 
 	while(TRUE)
 	{	
-		if (waitAndRestart(NULL, *index)){
+		if (waitAndRestart(-1, *index)){
 			continue;
 		}
 		myClerk = -1;
@@ -492,7 +492,7 @@ static void doCashierClerk(int* index, int* cashDollars)
 	
 	while(TRUE)
 	{	
-		if (waitAndRestart(NULL, *index)){
+		if (waitAndRestart(-1, *index)){
 			continue;
 		}
 		myClerk = -1;
