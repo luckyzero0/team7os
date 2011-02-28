@@ -69,12 +69,14 @@ void CustomerRun() {
 	Acquire(senatorWaitingRoomLock);
 	/*senatorOfficeLock->Acquire();*/
 	Acquire(senatorOfficeLock);
+	Acquire(customerOfficeLock);
 	while(senatorsInOffice+senatorsInWaitingRoom > 0){ /*check for senators as we enter office*/
 		tprintf("Customer [%d]: Senator is in the office or waiting room.. have to wait...\n",index,0,0,"","");
 		/*senatorOfficeLock->Release();*/
 		Release(senatorOfficeLock);
 		/*senatorWaitingRoomLock->Release();*/
 		Release(senatorWaitingRoomLock);
+		Release(customerOfficeLock);
 		/*customerWaitingRoomLock->Acquire();*/
 		Acquire(customerWaitingRoomLock);
 		customersInWaitingRoom++;
@@ -89,6 +91,7 @@ void CustomerRun() {
 		Release(customerWaitingRoomLock);
 		Acquire(senatorWaitingRoomLock);
 		Acquire(senatorOfficeLock);
+		Acquire(customerOfficeLock);
 
 	}
 
@@ -99,7 +102,7 @@ void CustomerRun() {
 
 	printf("Customer [%d] has money = [$%d]\n",index,cashDollars,0,"","");
 	/*customerOfficeLock->Acquire();*/
-	Acquire(customerOfficeLock);
+
 	customersInOffice++;
 	/*customerOfficeLock->Release();
 	senatorOfficeLock->Release();
