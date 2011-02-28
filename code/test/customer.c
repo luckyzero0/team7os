@@ -2,8 +2,8 @@
 #include "office.h"
 #include "utils.h"
 
-static void doAppClerk(int* index, int* cashDollars);
-static void doPicClerk(int* index, int* cashDollars);
+static void doAppClerk(int* index, int* cashDollars, int needToAcquire);
+static void doPicClerk(int* index, int* cashDollars, int needToAcquire);
 static void doPassPortClerk(int* index, int* cashDollars);
 static void doCashierClerk(int* index, int* cashDollars);
 
@@ -143,21 +143,19 @@ void CustomerRun() {
 		if(regAppLineLength<=regPicLineLength)
 		{
 			/*appPicLineLock->Release();*/
-			Release(appPicLineLock);
 			printf("Customer [%d] goes to [ApplicationClerk].\n",index,0,0,"","");	
-			doAppClerk(&index, &cashDollars);
+			doAppClerk(&index, &cashDollars, FALSE);
 			waitAndRestart(-1, index); /*SENATOR*/
-			doPicClerk(&index, &cashDollars);
+			doPicClerk(&index, &cashDollars, TRUE);
 			waitAndRestart(-1, index); /*SENATOR*/
 		}
 		else
 		{
 			/*appPicLineLock->Release();*/
-			Release(appPicLineLock);
 			printf("Customer [%d] goes to [PictureClerk].\n",index,0,0,"","");
-			doPicClerk(&index, &cashDollars);
+			doPicClerk(&index, &cashDollars, FALSE);
 			waitAndRestart(-1, index); /*SENATOR*/
-			doAppClerk(&index, &cashDollars);
+			doAppClerk(&index, &cashDollars, TRUE);
 			waitAndRestart(-1, index); /*SENATOR*/
 		}	
 	}
