@@ -7,7 +7,7 @@ int main() {
 	int howMany;
 	int i;
 
-	howMany = 2;
+	howMany = 4;
 	for (i = 0; i < howMany; i++) {
 		Exec("../test/office", 14);
 	}
