@@ -4,7 +4,7 @@
 
 
 
-int TESTING = FALSE;
+int TESTING = TRUE;
 int FINISHED_FORKING = FALSE;
 
 int appClerkUID = 0;
@@ -24,7 +24,7 @@ int numPicClerks = 3;
 int numPassClerks = 3;
 int numCashClerks = 3;
 int numCustomers = 20;
-int numSenators = 0;  
+int numSenators = 3;  
 
 /* ApplicationClerk and PictureClerk lines*/
 LockID appPicLineLock; 
