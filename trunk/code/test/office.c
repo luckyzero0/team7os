@@ -471,17 +471,45 @@ void tprintf(char* formatString, int arg1, int arg2, int arg3, char* arg4, char*
 }
 
 
+/*
+ * Test to ensure that customers get in line properly.
+ */
 void OfficeTest1(){
 	printf("Initializing the office...\n",0,0,0,"","");
-	numAppClerks = 1; 
+	numAppClerks = 0; 
 	numPicClerks = 0;
 	numPassClerks = 0;
 	numCashClerks = 0;
-	numCustomers = 2;
+	numCustomers = 6;
 	numSenators = 0;
 	privAppLineLength = 3;
-	privPicLineLength = 3;
+	privPicLineLength = 0;
 	Office();
 	Exit(0);	
 }
+
+/*
+ * Test to ensure that the manager cannot multitask.
+ */ 
+void OfficeTest2(){
+	numAppClerks = 2; 
+	numPicClerks = 2;
+	numPassClerks = 2;
+	numCashClerks = 2;
+	numCustomers = 0;
+	numSenators = 0;
+	
+	Office();
+	
+	appClerkMoney[0] = 500;
+	picClerkMoney[0] = 500;
+	passClerkMoney[0] = 500;
+	cashClerkMoney[0] = 0; /*to trigger the manager-collection sequence*/
+	appClerkMoney[1] = 500;
+	picClerkMoney[1] = 500;
+	passClerkMoney[1] = 500;
+	cashClerkMoney[1] = 0;
+	Exit(0);
+}
+
 
