@@ -135,7 +135,7 @@ void Lock::Release() {
 	  if (this->owner == NULL) {
 	    printf("Lock %s: has a NULL owner!\n", this->getName());
 	  }
-	  printf("Cannot release lock from a non-owning thread!\n");
+	  printf("Cannot release lock from a non-owning thread! id = %d\n", currentThread->ID);
 		interrupt->SetLevel(oldLevel);
 		return;
 	}
