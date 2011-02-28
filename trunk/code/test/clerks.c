@@ -31,7 +31,7 @@ void appClerkFileData(){ /*int SSN*/
 		Yield();
 	}
 	appFiled[SSN] = TRUE;
-	tprintf("ApplicationClerk informs %s with SSN %d that the application has been filed\n", -2,0, 0,getCustomerType(),""); 
+	tprintf("ApplicationClerk informs %s with SSN %d that the application has been filed\n", SSN,0, 0,getCustomerType(),""); 
 	Exit(0);
 }
 
@@ -47,7 +47,7 @@ void picClerkFileData(){ /*int SSN*/
 		Yield();
 	}
 	picFiled[SSN] = TRUE;
-	tprintf("PictureClerk informs %s with SSN %d that the picture has been filed\n",-2,0,0,getCustomerType(),""); 
+	tprintf("PictureClerk informs %s with SSN %d that the picture has been filed\n",SSN,0,0,getCustomerType(),""); 
 	Exit(0);
 }
 
@@ -63,7 +63,7 @@ void passClerkFileData(){ /*int SSN*/
 		currentThread->Yield();
 	}
 	passFiled[SSN] = TRUE;
-	tprintf("PassportClerk informs %s with SSN %d that the passport has been filed\n", -2,0,0,getCustomerType(),""); 
+	tprintf("PassportClerk informs %s with SSN %d that the passport has been filed\n", SSN,0,0,getCustomerType(),""); 
 	Exit(0);
 
 }
