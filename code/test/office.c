@@ -4,7 +4,7 @@
 
 
 
-int TESTING = TRUE;
+int TESTING = FALSE;
 int FINISHED_FORKING = FALSE;
 
 int appClerkUID = 0;
@@ -199,46 +199,59 @@ void Office() {
 
 void initializeClerkArrays() {
 	int i;
-	for (i = 0; i < numAppClerks; i++) {
-		appClerkStatuses[i] = CLERK_AVAILABLE;
-		appClerkLocks[i] = CreateLock("",0);
-		appClerkCVs[i] = CreateCondition("",0);
-		appClerkSSNs[i] = -1;
-		appClerkMoney[i] = 0;
-		appClerkBribed[i] = FALSE;
+	for (i = 0; i < MAX_APP_CLERKS; i++) {
+		if (i < numAppClerks) {
+			appClerkStatuses[i] = CLERK_AVAILABLE;
+			appClerkLocks[i] = CreateLock("",0);
+			appClerkCVs[i] = CreateCondition("",0);
+			appClerkSSNs[i] = -1;
+			appClerkMoney[i] = 0;
+			appClerkBribed[i] = FALSE;
+		} else {
+			appClerkStatuses[i] = CLERK_INVALID;
+		}
 	}
 
-	for (i = 0; i < numPicClerks; i++) {
-		
-		picClerkStatuses[i] = CLERK_AVAILABLE;
-		picClerkLocks[i] = CreateLock("",0);
-		picClerkCVs[i] = CreateCondition("",0);
-		picClerkSSNs[i] = -1;
-		picClerkMoney[i] = 0;
-		picClerkBribed[i] = FALSE;
-		happyWithPhoto[i] = FALSE;
+	for (i = 0; i < MAX_PIC_CLERKS; i++) {
+		if (i < numPicClerks) {
+			picClerkStatuses[i] = CLERK_AVAILABLE;
+			picClerkLocks[i] = CreateLock("",0);
+			picClerkCVs[i] = CreateCondition("",0);
+			picClerkSSNs[i] = -1;
+			picClerkMoney[i] = 0;
+			picClerkBribed[i] = FALSE;
+			happyWithPhoto[i] = FALSE;
+		} else {
+			picClerkStatuses[i] = CLERK_INVALID;
+		}
 
 	}
 
-	for ( i = 0; i < numPassClerks; i++) {
-		
-		passClerkStatuses[i] = CLERK_AVAILABLE;
-		passClerkLocks[i] = CreateLock("",0);
-		passClerkCVs[i] = CreateCondition("",0);
-		passClerkSSNs[i] = -1;
-		passClerkMoney[i] = 0;
-		passClerkBribed[i] = FALSE;
-		passPunish[i] = TRUE;
+	for ( i = 0; i < MAX_PASS_CLERKS; i++) {
+		if (i < numPassClerks) {
+			passClerkStatuses[i] = CLERK_AVAILABLE;
+			passClerkLocks[i] = CreateLock("",0);
+			passClerkCVs[i] = CreateCondition("",0);
+			passClerkSSNs[i] = -1;
+			passClerkMoney[i] = 0;
+			passClerkBribed[i] = FALSE;
+			passPunish[i] = TRUE;
+		} else {
+			passClerkStatuses[i] = CLERK_INVALID;
+		}
 	}
 
-	for ( i = 0; i < numCashClerks; i++) {
-		
-		cashClerkStatuses[i] = CLERK_AVAILABLE;
-		cashClerkLocks[i] = CreateLock("",0);
-		cashClerkCVs[i] = CreateCondition("",0);
-		cashClerkSSNs[i] = -1;
-		cashClerkMoney[i] = 0;
-		cashPunish[i] = TRUE;
+	for ( i = 0; i < MAX_CASH_CLERKS; i++) {
+		if (i < numCashClerks) {
+			cashClerkStatuses[i] = CLERK_AVAILABLE;
+			cashClerkLocks[i] = CreateLock("",0);
+			cashClerkCVs[i] = CreateCondition("",0);
+			cashClerkSSNs[i] = -1;
+			cashClerkMoney[i] = 0;
+			cashPunish[i] = TRUE;
+		} else {
+			cashClerkStatuses[i] = CLERK_INVALID;
+		}
 	}
 }
 
