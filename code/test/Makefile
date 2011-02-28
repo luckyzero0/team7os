@@ -146,5 +146,12 @@ officeMainDEBUG: officeMainDEBUG.o start.o utils.o office.o manager.o customer.o
 	../bin/coff2noff officeMainDEBUG.coff officeMainDEBUG
 
 
+customerLineTest.o: customerLineTest.c
+	$(CC) $(CFLAGS) -c customerLineTest.c utils.c 
+customerLineTest: customerLineTest.o start.o utils.o office.o manager.o customer.o clerks.o senator.o
+	$(LD) $(LDFLAGS) start.o customerLineTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o customerLineTest.coff
+	../bin/coff2noff customerLineTest.coff customerLineTest
+
+
 clean:
 	rm -f *.o *.coff

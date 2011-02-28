@@ -8,6 +8,6 @@
 #include "office.h"
 
 int main(){
-	Fork(Office);
+	Office();
 	Exit(0);
 }
