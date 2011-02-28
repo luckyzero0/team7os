@@ -1,4 +1,9 @@
 /* exec_office.c */
+/* 
+ * Execs 4 office programs to run simultaneously to 
+ * test multiprogramming.
+ */
+
 
 #include "utils.h"
 #include "syscall.h"

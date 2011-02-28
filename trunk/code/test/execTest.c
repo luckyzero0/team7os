@@ -1,4 +1,9 @@
 /*execTest.c*/
+/*
+ *	Tests the Exec function call with some bad input
+ *	as well as a normative case.
+ */
+
 #include "syscall.h"
 #include "utils.h"
 

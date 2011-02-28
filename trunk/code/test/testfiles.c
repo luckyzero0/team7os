@@ -1,5 +1,6 @@
 /* testfiles.c
  *	Simple program to test the file handling system calls
+ *	and writing to console.
  */
 
 #include "syscall.h"

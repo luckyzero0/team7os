@@ -1,21 +1,29 @@
 /*testConditions.c*/
+/*
+ * Tests CVs. Attempt to pass bad construction data,
+ * as well as access CVs with bad parameters.
+ * If successfully, bad CVs are not created, and
+ * t2 will run before t1.
+ * Finally, tests broadcast. If successful, all threads will
+ * exit.
+ */
 #include "syscall.h"
 #include "utils.h"
 
 void t1();
 void t2();
+void broadcastTest();
 int raceCondition = 0;
 int i = 0;
 int lockID;
 int runLockCV;
+int forkLock;
 int cvID;
 
 int main(){	
 	printf("Beggining CV Testing suite...\n",0,0,0,"","");
 	printf("Trying to create bad CVs...\n",0,0,0,"","");
-	
-	printf("Attempting to create CV with bad nameLength (too short)...\n",0,0,0,"","");
-	cvID = CreateCondition("RaceCV",2);
+		
 	printf("Attempting to create CV with bad nameLength (too long)...\n",0,0,0,"","");
 	cvID = CreateCondition("RaceCV",21);
 	
@@ -28,11 +36,15 @@ int main(){
 	Signal(cvID, lockID+1);
 	printf("Attempting to Wait with a bad lock...\n",0,0,0,"","");
 	Wait(cvID,lockID+1);
+	printf("Attempting to Broadcast with a bad lock...\n",0,0,0,"","");
+	Broadcast(cvID,lockID+1);
 	
 	printf("Attempting to signal a non-owned CV...\n",0,0,0,"","");
 	Signal(cvID+1,lockID);
 	printf("Attempting to wait on a non-owned CV...\n",0,0,0,"","");
 	Wait(cvID+1,lockID);
+	printf("Attempting to broadcast on a non-owned CV...\n",0,0,0,"","");
+	Broadcast(cvID+1,lockID);
 				
 	printf("Creating threads to *actually* test CV functionallity...\n",0,0,0,"","");
 	runLockCV = CreateCondition("runCV",5);
@@ -41,6 +53,17 @@ int main(){
 	Fork(t2);	
 	Wait(runLockCV,lockID);
 	printf("RaceCondition = [%d], and should = 80 if t2 ran before t1.\n",raceCondition,0,0,"","");
+	
+	printf("Setting up broadcast test. Forking a lot of threads.\n",0,0,0,"","");	
+	for(i = 0; i < 10; i++)
+	{		
+		ForkWithArg(broadcastTest,i);				
+	}	
+	Acquire(lockID);
+	Wait(runLockCV,lockID);
+	printf("Acquiring lock and broadcasting on the CV.\n",0,0,0,"","");	
+	Broadcast(cvID,lockID);
+	Release(lockID);
 	
 	Exit(0);
 }
@@ -73,3 +96,15 @@ void t2(){
 	Exit(0); 
 }
 
+void broadcastTest(){	
+	int myArg;
+	myArg = GetForkArg();
+	printf("Thread[%d] Forked. Waiting on CV\n",myArg,0,0,"","");	
+	Acquire(lockID);
+	if(myArg == 9) /*this is the last thread*/
+		Signal(runLockCV,lockID);
+	Wait(cvID,lockID);	
+	printf("Broadcast received. Thread[%d] exiting.\n",myArg,0,0,"","");
+	Release(lockID);
+	Exit(0);
+}
