@@ -162,7 +162,7 @@ static void doAppClerk(int* index, int* cashDollars)
 		}
 
 		if (myClerk == -1) {
-			printf("Senator [%d]: Woke up with a AppClerk index of -1, halting the machine for now.");
+			printf("Senator [%d]: Woke up with a AppClerk index of -1, halting the machine for now.", 0,0,0,"","");
 			Halt();
 		}
 	
@@ -241,7 +241,7 @@ static void doPicClerk(int* index, int* cashDollars)
 		}
 
 		if (myClerk == -1) {
-			printf("Senator [%d]: Woke up with a PicClerk index of -1, halting the machine for now.");
+			printf("Senator [%d]: Woke up with a PicClerk index of -1, halting the machine for now.", 0,0,0,"","");
 			Halt();
 		}
 		
@@ -348,7 +348,7 @@ static void doPassPortClerk(int *index, int* cashDollars){
 		}
 
 		if (myClerk == -1) {
-			printf("Senator [%d]: Woke up with a PassClerk index of -1, halting the machine for now.");
+			printf("Senator [%d]: Woke up with a PassClerk index of -1, halting the machine for now.", 0,0,0,"","");
 			Halt();
 		}
 		
@@ -427,7 +427,7 @@ static void doCashierClerk(int* index, int* cashDollars)
 		}	
 		
 		if (myClerk == -1) {
-			printf("Senator [%d]: Woke up with a CashClerk index of -1, halting the machine for now.");
+			printf("Senator [%d]: Woke up with a CashClerk index of -1, halting the machine for now.", 0,0,0,"","");
 			Halt();
 		}
 
