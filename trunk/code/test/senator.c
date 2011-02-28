@@ -160,6 +160,11 @@ static void doAppClerk(int* index, int* cashDollars)
 				tprintf("Senator [%d]: AppClerk [%d] is unavailable\n",*index,x,0,"","");
 
 		}
+
+		if (myClerk == -1) {
+			printf("Senator [%d]: Woke up with a AppClerk index of -1, halting the machine for now.");
+			Halt();
+		}
 	
 		/*appClerkLocks[myClerk]->Acquire();
 		appPicLineLock->Release();*/
@@ -233,6 +238,11 @@ static void doPicClerk(int* index, int* cashDollars)
 			}
 			else
 				tprintf("Senator [%d]: PicClerk [%d] is unavailable\n",*index,x,0,"","");
+		}
+
+		if (myClerk == -1) {
+			printf("Senator [%d]: Woke up with a PicClerk index of -1, halting the machine for now.");
+			Halt();
 		}
 		
 		/*picClerkLocks[myClerk]->Acquire();
@@ -336,6 +346,11 @@ static void doPassPortClerk(int *index, int* cashDollars){
 				tprintf("Senator [%d]: PassClerk[%d] is unavailable\n",*index,x,0,"","");
 
 		}
+
+		if (myClerk == -1) {
+			printf("Senator [%d]: Woke up with a PassClerk index of -1, halting the machine for now.");
+			Halt();
+		}
 		
 		/*passClerkLocks[myClerk]->Acquire();*/
 		Acquire(passClerkLocks[myClerk]);
@@ -411,7 +426,11 @@ static void doCashierClerk(int* index, int* cashDollars)
 
 		}	
 		
-		
+		if (myClerk == -1) {
+			printf("Senator [%d]: Woke up with a CashClerk index of -1, halting the machine for now.");
+			Halt();
+		}
+
 		/*cashClerkLocks[myClerk]->Acquire();
 		cashLineLock->Release();		*/
 		Acquire(cashClerkLocks[myClerk]);
