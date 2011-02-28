@@ -59,6 +59,9 @@ void CustomerRun() {
 	int cashDollars;
 	int clerkStatus;
 	int index;
+	int tid;
+
+	tid = GetThreadID();
 
 	Acquire(customerSenatorUIDLock);
 	index = customerSenatorUID++;
@@ -97,7 +100,7 @@ void CustomerRun() {
 	/*customer start up code*/		
 	cashDollars = ((Rand() % 4) * 500) + 100;	
 
-	printf("Customer [%d] has money = [$%d]\n",index,cashDollars,0,"","");
+	printf("Customer [%d] has money = [$%d] ... tid = %d\n",index,cashDollars,tid,"","");
 	/*customerOfficeLock->Acquire();*/
 	Acquire(customerOfficeLock);
 	customersInOffice++;

@@ -41,6 +41,7 @@
 #define SC_Rand				20
 #define SC_ForkWithArg		21
 #define SC_GetForkArg		22
+#define SC_GetThreadID		23
 
 
 
@@ -172,6 +173,8 @@ int Rand();
 void ForkWithArg(void (*func)(), int arg);
 
 int GetForkArg();
+
+int GetThreadID();
 
 #endif /* IN_ASM */
 

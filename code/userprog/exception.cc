@@ -786,6 +786,10 @@ int GetForkArg_Syscall() {
 	return threadArgs[currentThread->ID];
 }
 
+int GetThreadID_Syscall() {
+	return currentThread->ID;
+}
+
 void ExceptionHandler(ExceptionType which) {
 	int type = machine->ReadRegister(2); // Which syscall?
 	int rv=0; 	// the return value from a syscall
@@ -906,6 +910,11 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_GetForkArg:
 			DEBUG('a', "GetForkArg syscall.\n");
 			rv = GetForkArg_Syscall();
+			break;
+
+		case SC_GetThreadID:
+			DEBUG('a', "GetThreadID syscall.\n");
+			rv = GetThreadID();
 			break;
 		}
 

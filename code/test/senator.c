@@ -13,6 +13,9 @@ void SenatorRun() {
 	int cashDollars;
 	int clerkStatus;
 	int index;
+	int tid;
+
+	tid = GetThreadID();
 
 	Acquire(customerSenatorUIDLock);
 	index = customerSenatorUID++;
@@ -45,7 +48,7 @@ void SenatorRun() {
 	/*senator start up code*/		
 	cashDollars = ((Rand() % 4) * 500) + 100;	
 
-	printf("Senator [%d] has money = [$%d]\n",index,cashDollars,0,"","");
+	printf("Senator [%d] has money = [$%d] ... tid = %d\n",index,cashDollars,tid,"","");
 
 	/*senatorOfficeLock->Acquire();*/
 	Acquire(senatorOfficeLock);
