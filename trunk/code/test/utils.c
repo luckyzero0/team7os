@@ -100,6 +100,7 @@ void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 	Write(out,strlen(out),ConsoleOutput);
 }
 
+/* This is the K&R implementation found on Wikipedia */
 void itoa(int n, char s[])
 {
      int i, sign;

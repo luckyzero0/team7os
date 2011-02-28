@@ -1,4 +1,7 @@
-/*randTest.c*/
+/*randTest.c
+*	Produces a few random numbers.
+*	Should always produce the exact same numbers for a given -rs value
+*/
 #include "utils.h"
 
 int main(){
