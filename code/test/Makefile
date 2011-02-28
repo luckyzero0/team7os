@@ -152,6 +152,13 @@ customerLineTest: customerLineTest.o start.o utils.o office.o manager.o customer
 	$(LD) $(LDFLAGS) start.o customerLineTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o customerLineTest.coff
 	../bin/coff2noff customerLineTest.coff customerLineTest
 
+managerTest.o: managerTest.c
+	$(CC) $(CFLAGS) -c managerTest.c utils.c 
+managerTest: managerTest.o start.o utils.o office.o manager.o customer.o clerks.o senator.o
+	$(LD) $(LDFLAGS) start.o managerTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o managerTest.coff
+	../bin/coff2noff managerTest.coff managerTest
+
+
 
 clean:
 	rm -f *.o *.coff
