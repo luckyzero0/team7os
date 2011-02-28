@@ -1,4 +1,9 @@
 /* forkArg.c */
+/*	This test tries out the GetForkArg syscall to make sure that
+*	threads receive the appropriate argument. The behavior for
+*	GetForkArg on threads not forked with an arg is not guaranteed,
+*	but right now the implementation always returns -2.
+*/
 #include "utils.h"
 #include "syscall.h"
 
