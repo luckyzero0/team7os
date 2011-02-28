@@ -31,7 +31,7 @@
 
 int main(int argc, char **argv)
 {
- char call[50] = "nachos -rs xxxx -x ../test/office";	// if you need an input stream...
+ char call[50] = "nachos -rs xxxx -x ../test/officeMain";	// if you need an input stream...
  int error = 0;
 
  //argv++;
