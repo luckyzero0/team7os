@@ -78,6 +78,8 @@ extern int customersInWaitingRoom;
 extern LockID customerOfficeLock;
 extern int customersInOffice;
 
+extern LockID entryLock;
+
 extern LockID appClerkUIDLock;
 extern LockID picClerkUIDLock;
 extern LockID passClerkUIDLock;
