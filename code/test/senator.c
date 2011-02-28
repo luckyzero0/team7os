@@ -21,11 +21,13 @@ void SenatorRun() {
 	tprintf("Senator[%d]: Acquiring customerOfficeLock\n", index,0,0,"","");
 	/*customerOfficeLock->Acquire();*/
 	Acquire(customerOfficeLock);
+	Acquire(senatorOfficeLock);
 	if (customersInOffice > 0){
 		tprintf("Senator[%d]: There are no other Customers in office, going to Senator waiting room\n", index,0,0,"","");
 		/*customerOfficeLock->Release();
 		senatorWaitingRoomLock->Acquire();*/
 		Release(customerOfficeLock);
+		Release(senatorOfficeLock);
 		Acquire(senatorWaitingRoomLock);
 		senatorsInWaitingRoom++;
 		tprintf("Senator[%d]: In the waiting room, taking a nap...\n", index,0,0,"","");
@@ -33,6 +35,7 @@ void SenatorRun() {
 		Wait(senatorWaitingRoomCV, senatorWaitingRoomLock);
 		tprintf("Senator[%d]: Waking up, going to the passport office!\n", index,0,0,"","");
 		senatorsInWaitingRoom--;
+		Acquire(senatorOfficeLock);
 		
 	}else{
 		/*customerOfficeLock->Release();*/
@@ -47,7 +50,7 @@ void SenatorRun() {
 	printf("Senator [%d] has money = [$%d]\n",index,cashDollars,0,"","");
 
 	/*senatorOfficeLock->Acquire();*/
-	Acquire(senatorOfficeLock);
+
 	senatorsInOffice++;
 	/*senatorOfficeLock->Release();
 	senatorWaitingRoomLock->Release(); */
