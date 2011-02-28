@@ -9,6 +9,6 @@
 
 int main(){
 	TESTING = TRUE;
-	Fork(Office);
+	Office();
 	Exit(0);
 }
