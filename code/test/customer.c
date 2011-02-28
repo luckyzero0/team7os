@@ -7,10 +7,10 @@ static void doPicClerk(int* index, int* cashDollars, int needToAcquire);
 static void doPassPortClerk(int* index, int* cashDollars);
 static void doCashierClerk(int* index, int* cashDollars);
 
-int waitAndRestart(int lineToExit, int index){
+int waitAndRestart(LockID lineToExit, int index){
 	tprintf("Customer [%d]: waitAndRestart entered\n", index,0,0,"","");
 	/*senatorWaitingRoomLock->Acquire();*/
-	Acquire(senatorWaitingRoomLock);
+	Acquire(entryLock);
 	if (senatorsInWaitingRoom>0){
 		if(lineToExit > -1){
 			/*lineToExit->Release();*/
@@ -19,27 +19,12 @@ int waitAndRestart(int lineToExit, int index){
 		tprintf("Customer [%d]: There are %d senators in waiting room\n", index, senatorsInWaitingRoom,0,"","");
 		printf("Customer [%d] leaves the Passport Office as a senator arrives.\n",index,0,0,"","");
 		/*senatorWaitingRoomLock->Release();*/
-		Release(senatorWaitingRoomLock);
-		/*customerWaitingRoomLock->Acquire();*/
-		Acquire(customerWaitingRoomLock);
-		/*customerOfficeLock->Acquire();*/
-		Acquire(customerOfficeLock);
 		customersInWaitingRoom++;
 		customersInOffice--;
-		/*customerOfficeLock->Release();*/
-		Release(customerOfficeLock);
-		tprintf("Customer [%d]: Waiting in the Waiting room..\n", index,0,0,"","");
-		/*customerWaitingRoomCV->Wait(customerWaitingRoomLock);*/
-		Wait(customerWaitingRoomCV, customerWaitingRoomLock);
-		tprintf("Customer [%d]: No more senators! Returning to passport office\n", index,0,0,"","");
-		/*customerOfficeLock->Acquire();*/
-		Acquire(customerOfficeLock);
+		Wait(customerWaitingRoomCV, entryLock);
 		customersInWaitingRoom--;
 		customersInOffice++;
-		/*customerOfficeLock->Release();*/
-		Release(customerOfficeLock);
-		/*customerWaitingRoomLock->Release();*/
-		Release(customerWaitingRoomLock);
+		Release(entryLock);
 		if(lineToExit > -1){
 			/*lineToExit->Acquire();*/
 			Acquire(lineToExit);
@@ -48,7 +33,7 @@ int waitAndRestart(int lineToExit, int index){
 	}else{
 		tprintf("Customer [%d]: There are no senators waiting.. carrying on\n", index,0,0,"","");
 		/*senatorWaitingRoomLock->Release();*/
-		Release(senatorWaitingRoomLock);
+		Release(entryLock);
 		return FALSE;
 	}
 
@@ -69,30 +54,15 @@ void CustomerRun() {
 
 	tprintf("Customer [%d]: Deciding whether to go to waiting room or straight into office...\n",index,0,0,"","");
 	/*senatorWaitingRoomLock->Acquire();*/
-	Acquire(senatorWaitingRoomLock);
-	/*senatorOfficeLock->Acquire();*/
-	Acquire(senatorOfficeLock);
+	Acquire(entryLock);
 	while(senatorsInOffice+senatorsInWaitingRoom > 0){ /*check for senators as we enter office*/
 		tprintf("Customer [%d]: Senator is in the office or waiting room.. have to wait...\n",index,0,0,"","");
-		/*senatorOfficeLock->Release();*/
-		Release(senatorOfficeLock);
-		/*senatorWaitingRoomLock->Release();*/
-		Release(senatorWaitingRoomLock);
-		/*customerWaitingRoomLock->Acquire();*/
-		Acquire(customerWaitingRoomLock);
 		customersInWaitingRoom++;
 		tprintf("Customer [%d]: In the waiting room, taking a nap...\n", index,0,0,"","");
 		/*customerWaitingRoomCV->Wait(customerWaitingRoomLock);*/
-		Wait(customerWaitingRoomCV, customerWaitingRoomLock);
+		Wait(customerWaitingRoomCV, entryLock);
 		tprintf("Customer [%d]: No more senators! Time to enter the office\n",index,0,0,"","");
-		customersInWaitingRoom++;
-		/*customerWaitingRoomLock->Release(); 
-		senatorWaitingRoomLock->Acquire();
-		senatorOfficeLock->Acquire();*/
-		Release(customerWaitingRoomLock);
-		Acquire(senatorWaitingRoomLock);
-		Acquire(senatorOfficeLock);
-
+		customersInWaitingRoom--;
 	}
 
 	tprintf("Customer [%d]: Entering the passport office...\n",index,0,0,"","");
@@ -101,15 +71,8 @@ void CustomerRun() {
 	cashDollars = ((Rand() % 4) * 500) + 100;	
 
 	printf("Customer [%d] has money = [$%d] ... tid = %d\n",index,cashDollars,tid,"","");
-	/*customerOfficeLock->Acquire();*/
-	Acquire(customerOfficeLock);
 	customersInOffice++;
-	/*customerOfficeLock->Release();
-	senatorOfficeLock->Release();
-	senatorWaitingRoomLock->Release();*/
-	Release(customerOfficeLock);
-	Release(senatorWaitingRoomLock);
-	Release(senatorOfficeLock);
+	Release(entryLock);
 	
 
 	/*choose line*/		
@@ -569,10 +532,10 @@ static void doCashierClerk(int* index, int* cashDollars)
 			
 			printf("Customer [%d] leaves the passport office...\n",*index,0,0,"","");
 			/*customerOfficeLock->Acquire();*/
-			Acquire(customerOfficeLock);
+			Acquire(entryLock);
 			customersInOffice--;
 			/*customerOfficeLock->Release();*/
-			Release(customerOfficeLock);
+			Release(entryLock);
 			break;				
 		}
 		/*cashClerkLocks[myClerk]->Release();*/

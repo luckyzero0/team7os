@@ -23,24 +23,15 @@ void SenatorRun() {
 
 	tprintf("Senator[%d]: Acquiring customerOfficeLock\n", index,0,0,"","");
 	/*customerOfficeLock->Acquire();*/
-	Acquire(customerOfficeLock);
+	Acquire(entryLock);
 	if (customersInOffice > 0){
 		tprintf("Senator[%d]: There are no other Customers in office, going to Senator waiting room\n", index,0,0,"","");
-		/*customerOfficeLock->Release();
-		senatorWaitingRoomLock->Acquire();*/
-		Release(customerOfficeLock);
-		Acquire(senatorWaitingRoomLock);
 		senatorsInWaitingRoom++;
 		tprintf("Senator[%d]: In the waiting room, taking a nap...\n", index,0,0,"","");
 		/*senatorWaitingRoomCV->Wait(senatorWaitingRoomLock);*/
-		Wait(senatorWaitingRoomCV, senatorWaitingRoomLock);
+		Wait(senatorWaitingRoomCV, entryLock);
 		tprintf("Senator[%d]: Waking up, going to the passport office!\n", index,0,0,"","");
-		senatorsInWaitingRoom--;
-		Release(senatorWaitingRoomLock);
-		
-	}else{
-		/*customerOfficeLock->Release();*/
-		Release(customerOfficeLock);
+		senatorsInWaitingRoom--;		
 	}
 	
 	tprintf("Senator [%d]: Entering the passport office...\n",index,0,0,"","");
@@ -49,14 +40,8 @@ void SenatorRun() {
 	cashDollars = ((Rand() % 4) * 500) + 100;	
 
 	printf("Senator [%d] has money = [$%d] ... tid = %d\n",index,cashDollars,tid,"","");
-
-	/*senatorOfficeLock->Acquire();*/
-	Acquire(senatorOfficeLock);
 	senatorsInOffice++;
-	/*senatorOfficeLock->Release();
-	senatorWaitingRoomLock->Release(); */
-	Release(senatorOfficeLock);
-	/*Ensures that senators are either in the waiting room or in the office*/
+	Release(entryLock);
 
 	/*choose line*/		
 	tprintf("Senator [%d]: Deciding between AppClerk and PictureClerk...\n", index,0,0,"","");
@@ -466,10 +451,10 @@ static void doCashierClerk(int* index, int* cashDollars)
 			
 			printf("Senator [%d] leaves the passport office...\n",*index,0,0,"","");
 			/*customerOfficeLock->Acquire();*/
-			Acquire(senatorOfficeLock);
+			Acquire(entryLock);
 			senatorsInOffice--;
 			/*customerOfficeLock->Release();*/
-			Release(senatorOfficeLock);
+			Release(entryLock);
 			break;				
 		}
 		/*cashClerkLocks[myClerk]->Release();*/
