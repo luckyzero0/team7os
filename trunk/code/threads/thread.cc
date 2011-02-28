@@ -41,6 +41,7 @@ Thread::Thread(char* threadName)
 #ifdef USER_PROGRAM
     space = NULL;
     startVPN = 0;
+	ID = 0;
 #endif
 }
 
