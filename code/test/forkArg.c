@@ -13,6 +13,8 @@ void threadWithArg1() {
 	} else {
 		printf("FAILURE!\n",0,0,0,"","");
 	}
+
+	Exit(0);
 }
 
 void threadWithArg22() {
@@ -26,6 +28,8 @@ void threadWithArg22() {
 	} else {
 		printf("FAILURE!\n",0,0,0,"","");
 	}
+
+	Exit(0);
 }
 
 void threadWithNoArg() {
@@ -34,6 +38,7 @@ void threadWithNoArg() {
 	arg = GetForkArg();
 
 	printf("threadWithArg22 has an undefined arg, and the GetForkArg gives back a %d.\n", arg, 0,0,"","");
+	Exit(0);
 }
 
 int main() {
