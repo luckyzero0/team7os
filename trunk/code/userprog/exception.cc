@@ -103,7 +103,7 @@ int copyin(unsigned int vaddr, int len, char *buf) {
 	buf[n] = '\0';
 
 	delete paddr;
-	return len;
+	return n;
 }
 
 int copyout(unsigned int vaddr, int len, char *buf) {
@@ -499,12 +499,17 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 	if ( !(buf = new char[len]) ) {
 		printf("%s","Error allocating kernel buffer for write!\n");
 		return -1;
-	} else {
+	} else {		
+		if( copyin(vaddr,len,buf) != strlen(buf) ) {
+			printf("%s","Bad string length, data not written.\n");
+			delete[] buf;
+			return -1;
+		}		
 		if ( copyin(vaddr,len,buf) == -1 ) {
 			printf("%s","Bad pointer passed to to write: data not written\n");
 			delete[] buf;
 			return -1;
-		}
+		}				
 	}
 
 	conditionsLock->Acquire();
