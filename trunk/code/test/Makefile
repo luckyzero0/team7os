@@ -126,5 +126,11 @@ exec_office: exec_office.o start.o utils.o
 	../bin/coff2noff exec_office.coff exec_office
 
 
+testConditions.o: testConditions.c
+	$(CC) $(CFLAGS) -c testConditions.c utils.c
+testConditions: testConditions.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o testConditions.o utils.o -o testConditions.coff
+	../bin/coff2noff testConditions.coff testConditions
+
 clean:
 	rm -f *.o *.coff

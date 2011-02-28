@@ -2,9 +2,9 @@
 #include "syscall.h"
 #include "utils.h"
 
-
+char* file;
 int main(){
-	char* file;
+	
 	printf("Trying to exec a non-existent file...\n",0,0,0,"","");	
 	file = "../test/BADFILENAMELOLZ";
 	Exec(file,strlen(file));
