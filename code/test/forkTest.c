@@ -1,5 +1,10 @@
-/*forkTest.c
-Test for forking a thread. If successful, x = 10*/
+/*forkTest.c*/
+/* 
+ * Tests for forking. Checks against bad construction data,
+ * and confirms that two threads can run concurrently modifying
+ * global data.
+ * If successfull, x = 10 at the end of the test.
+ */
 
 #include "syscall.h"
 #include "utils.h"
