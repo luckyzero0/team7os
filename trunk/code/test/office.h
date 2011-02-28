@@ -32,6 +32,7 @@ typedef int ClerkType;
 
 extern int TESTING;
 extern int FINISHED_FORKING;
+extern int needManager;
 
 /*enum ClerkStatus {CLERK_BUSY, CLERK_AVAILABLE, CLERK_ON_BREAK, CLERK_INVALID, CLERK_COMING_BACK};
 enum ClerkType {APPLICATION, PICTURE, PASSPORT, CASHIER};*/

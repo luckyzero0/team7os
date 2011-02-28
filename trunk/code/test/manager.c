@@ -6,23 +6,39 @@ void tryToWakeUpSenators();
 void tryToWakeUpCustomers();
 
 void tryToWakeUpCustomers(){ 
-
-	Acquire(entryLock);
+	/*senatorWaitingRoomLock->Acquire();*/
+	Acquire(senatorWaitingRoomLock);
+	/*senatorOfficeLock->Acquire();*/
+	Acquire(senatorOfficeLock);
 	if (senatorsInWaitingRoom+senatorsInOffice == 0){
-		Broadcast(customerWaitingRoomCV, entryLock);
+		/*customerWaitingRoomLock->Acquire();*/
+		Acquire(customerWaitingRoomLock);
+		/*customerWaitingRoomCV->Broadcast(customerWaitingRoomLock);*/
+		Broadcast(customerWaitingRoomCV, customerWaitingRoomLock);
+		/*customerWaitingRoomLock->Release();*/
+		Release(customerWaitingRoomLock);
 	}
-	Release(entryLock);
+	/*senatorOfficeLock->Release();
+	senatorWaitingRoomLock->Release();*/
+	Release(senatorOfficeLock);
+	Release(senatorWaitingRoomLock);
 
 }
 
 void tryToWakeUpSenators() {
 	/*senatorWaitingRoomLock->Acquire();*/
-	Acquire(entryLock);
+	Acquire(senatorWaitingRoomLock);
 	if (senatorsInWaitingRoom > 0) {
+		/*senatorWaitingRoomLock->Release();*/
+		Release(senatorWaitingRoomLock);
 		tprintf("Manager: There are senators in the waiting room! \n", 0,0,0,"","");
+		/*acquire all line CVs*/
+		/*customerOfficeLock->Acquire();*/
+		Acquire(customerOfficeLock);
 		if (customersInOffice > 0) { /*if there are customers in the office, tell them to get the hell out.*/
-			Release(entryLock);
 			tprintf("Manager: I need to tell all %d customers to GTFO\n", customersInOffice,0,0,"","");
+			/*customerOfficeLock->Release();*/
+			Release(customerOfficeLock);
 			tprintf("Manager: Acquiring appPicLineLock\n",0,0,0,"","");
 			/*appPicLineLock->Acquire();*/
 			Acquire(appPicLineLock);
@@ -79,22 +95,28 @@ void tryToWakeUpSenators() {
 
 			
 			/*customerOfficeLock->Acquire();*/
-			Acquire(entryLock);
+			Acquire(customerOfficeLock);
 			while (customersInOffice > 0) {
 				tprintf("Manager: Waiting for remaining %d customers to leave\n", customersInOffice,0,0,"","");
 				/*customerOfficeLock->Release();*/
-				Release(entryLock);
+				Release(customerOfficeLock);
 				Yield();
 				/*customerOfficeLock->Acquire();*/
-				Acquire(entryLock);
+				Acquire(customerOfficeLock);
 			}
 		}
+
+		/*customerOfficeLock->Release();*/
+		Release(customerOfficeLock);
+		
 		tprintf("Manager: Telling all %d senators to enter the office\n", senatorsInWaitingRoom,0,0,"","");
+		/*senatorWaitingRoomLock->Acquire();*/
+		Acquire(senatorWaitingRoomLock);
 		/*senatorWaitingRoomCV->Broadcast(senatorWaitingRoomLock);*/
-		Broadcast(senatorWaitingRoomCV, entryLock);
+		Broadcast(senatorWaitingRoomCV, senatorWaitingRoomLock);
 	}
 	/*senatorWaitingRoomLock->Release();*/
-	Release(entryLock);
+	Release(senatorWaitingRoomLock);
 
 }
 
@@ -114,19 +136,19 @@ void ManagerRun(){
 		  totalCashCollected = 0;
 		  /*we're done, print out everything*/
 		  for (i = 0; i < numAppClerks; i++) {
-		    printf("Total money received from ApplicationClerk = %d\n", appClerkMoney[i],0,0,"","");
+		    printf("Total money received from ApplicationClerk[%d] = %d\n",i, appClerkMoney[i],0,"","");
 		    totalCashCollected += appClerkMoney[i];
 		  }
 		  for (i = 0; i < numPicClerks; i++) {
-		    printf("Total money received from PictureClerk = %d\n", picClerkMoney[i],0,0,"","");
+		    printf("Total money received from PictureClerk[%d] = %d\n",i, picClerkMoney[i],0,"","");
 		    totalCashCollected += picClerkMoney[i];
 		  }
 		  for (i = 0; i < numPassClerks; i++) {
-		    printf("Total money received from PassportClerk = %d\n", passClerkMoney[i],0,0,"","");
+		    printf("Total money received from PassportClerk[%d] = %d\n",i, passClerkMoney[i],0,"","");
 		    totalCashCollected += passClerkMoney[i];
 		  }
 		  for (i = 0; i < numCashClerks; i++) {
-		    printf("Total money received from Cashier = %d\n", cashClerkMoney[i],0,0,"","");
+		    printf("Total money received from Cashier[%d] = %d\n",i, cashClerkMoney[i],0,"","");
 		    totalCashCollected += cashClerkMoney[i];
 		  }
 
