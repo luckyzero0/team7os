@@ -34,7 +34,7 @@
 
 using namespace std;
 
-int threadArgs[1000];
+int threadArgs[MAX_THREADS];
 
 struct LockEntry {
 	Lock* lock;
