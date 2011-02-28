@@ -71,6 +71,8 @@ int customersInWaitingRoom = 0;
 LockID customerOfficeLock;
 int customersInOffice = 0;
 
+LockID entryLock;
+
 /* ApplicationClerk and PictureClerk States */
 ClerkStatus appClerkStatuses[MAX_APP_CLERKS];
 ClerkStatus picClerkStatuses[MAX_PIC_CLERKS];
@@ -146,6 +148,8 @@ void initOfficeLocks(){
 	customerWaitingRoomCV = CreateCondition("customerWaitingRoomCV",21);
 
 	customerOfficeLock = CreateLock("customerOfficeLock",18);
+
+	entryLock = CreateLock("entryLock", 9);
 
 	appClerkUIDLock = CreateLock("",0);
 	picClerkUIDLock = CreateLock("",0);
