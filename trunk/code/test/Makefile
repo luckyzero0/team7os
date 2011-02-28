@@ -117,7 +117,13 @@ manager.o: manager.c
 	
 office: office.o clerks.o customer.o senator.o manager.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o office.o clerks.o customer.o senator.o manager.o utils.o -o office.coff
-	../bin/coff2noff office.coff office	
+	../bin/coff2noff office.coff office
+	
+exec_office.o: exec_office.c
+	$(CC) $(CFLAGS) -c exec_office.c utils.c
+exec_office: exec_office.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o exec_office.o utils.o -o exec_office.coff
+	../bin/coff2noff exec_office.coff exec_office
 
 
 clean:
