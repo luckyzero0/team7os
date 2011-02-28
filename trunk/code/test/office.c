@@ -1,3 +1,9 @@
+/* office.c */
+/*	This runs the office with the default values of 3 of each clerk,
+*	20 customers, and 3 senators.  Everything should escape the office,
+*	and the sum of cashier money should be $2300.
+*/
+
 #include "office.h"
 #include "utils.h"
 #include "syscall.h"
