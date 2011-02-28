@@ -30,8 +30,11 @@
 
 #define MAX_LOCKS 100
 #define MAX_CONDITIONS 200
+#define MAX_THREADS 1000
 
 using namespace std;
+
+int threadArgs[1000];
 
 struct LockEntry {
 	Lock* lock;
@@ -729,7 +732,7 @@ void kernel_thread(int virtualAddr)
 	machine->Run();	
 }
 
-void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
+void Fork_Syscall(unsigned int funcAddr, int arg) //func = virtualaddr of function
 {	
 	bigLock->Acquire();	
 	if(funcAddr >= currentThread->space->getCodeSize() || funcAddr < 0)
@@ -757,6 +760,7 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 	
 	//allocate space for new thread	
 	thread->ID = threadCount++;
+	threadArgs[thread->ID] = arg;
 	thread->space->AddNewThread(thread);
 
 	thread->space->RestoreState();
@@ -771,6 +775,10 @@ void Fork_Syscall(unsigned int funcAddr) //func = virtualaddr of function
 int Rand_Syscall()
 {
 	return rand();	
+}
+
+int GetForkArg_Syscall() {
+	return threadArgs[currentThread->ID];
 }
 
 void ExceptionHandler(ExceptionType which) {
@@ -871,7 +879,7 @@ void ExceptionHandler(ExceptionType which) {
 			break;
 		case SC_Fork:
 			DEBUG('a', "Fork syscall.\n");
-			Fork_Syscall(machine->ReadRegister(4));		
+			Fork_Syscall(machine->ReadRegister(4), -2);		
 			break;
 
 		case SC_Exec:
@@ -883,6 +891,16 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_Rand:
 			DEBUG('a', "Rand syscall.\n");
 			rv = Rand_Syscall();
+			break;
+
+		case SC_ForkWithArg:
+			DEBUG('a', "ForkWithArg syscall.\n");
+			Fork_Syscall(machine->ReadRegister(4), machine->ReadRegister(5));
+			break;
+
+		case SC_GetForkArg:
+			DEBUG('a', "GetForkArg syscall.\n");
+			rv = GetForkArg_Syscall();
 			break;
 		}
 

@@ -39,6 +39,8 @@
 #define SC_Wait				18
 #define SC_Broadcast		19
 #define SC_Rand				20
+#define SC_ForkWithArg		21
+#define SC_GetForkArg		22
 
 
 
@@ -166,6 +168,10 @@ void Wait(ConditionID conditionID, LockID lockID);
 void Broadcast(ConditionID conditionID, LockID lockID);
 
 int Rand();
+
+void ForkWithArg(void (*func)(), int arg);
+
+int GetForkArg();
 
 #endif /* IN_ASM */
 
