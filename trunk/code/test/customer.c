@@ -84,7 +84,7 @@ void CustomerRun() {
 		/*customerWaitingRoomCV->Wait(customerWaitingRoomLock);*/
 		Wait(customerWaitingRoomCV, customerWaitingRoomLock);
 		tprintf("Customer [%d]: No more senators! Time to enter the office\n",index,0,0,"","");
-		customersInWaitingRoom++;
+		customersInWaitingRoom--;
 		/*customerWaitingRoomLock->Release(); 
 		senatorWaitingRoomLock->Acquire();
 		senatorOfficeLock->Acquire();*/
