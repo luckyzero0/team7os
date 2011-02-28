@@ -914,7 +914,7 @@ void ExceptionHandler(ExceptionType which) {
 
 		case SC_GetThreadID:
 			DEBUG('a', "GetThreadID syscall.\n");
-			rv = GetThreadID();
+			rv = GetThreadID_Syscall();
 			break;
 		}
 
