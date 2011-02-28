@@ -229,6 +229,14 @@ GetForkArg:
 	j	$31
 	.end GetForkArg
 
+	.globl GetThreadID
+	.ent GetThreadID
+GetThreadID:
+	addiu $2,$0,SC_GetThreadID
+	syscall
+	j	$31
+	.end GetThreadID
+
 
 /* dummy function to keep gcc happy */
         .globl  __main
