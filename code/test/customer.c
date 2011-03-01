@@ -549,19 +549,27 @@ static void doCashierClerk(int* index, int* cashDollars)
 	}
 }
 
+
+/*see customerCashierTest for documentation*/
 void CustomerCashTest(){
 	int cashDollars;
 	int clerkStatus;
 	int index;
 	int tid;
-	Acquire(entryLock);
 	
 	tid = GetThreadID();
+	index = customerSenatorUID++;
 	cashDollars = 100;
+	
+	printf("Customer [%d] forked and waiting to enter passport office\n",index,0,0,"","");
+	Acquire(entryLock);	
+	
+	
 
 	printf("Customer [%d] has money = [$%d] ... tid = %d\n",index,cashDollars,tid,"","");
 	customersInOffice++;
 	Release(entryLock);
 	
 	doCashierClerk(&index, &cashDollars);
+	Exit(0);
 }
