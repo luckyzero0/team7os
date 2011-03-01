@@ -123,6 +123,18 @@ IV. IMPLEMENTATION
 			- int getPhysicalPage(); -- Checks out one physical page
 			- void releasePhysicalPage(int pageNum); -- Gives that physical page back to the system
 			
+		- Additional Testing Functions
+			- office.c
+				- OfficeTest1() -- used by customerLineTest
+				- OfficeTest2() -- used by managerTest
+				- OfficeTest3() -- used by customerCashierTest
+				- OfficeTest4() -- used by clerkBreakTest
+				- OfficeTest5() -- used by managerClerkTest
+				- OfficeTest6() -- used by senatorTest
+			- customer.c
+				- CustomerCashTest() -- used by customerCashierTest, executes only cashierClerk routine
+			- manager.c
+				- ManagerClerkTest() -- used by managerClerkTest, executes only tryWakeUpClerks routine
 
 V. TESTING
 
@@ -218,9 +230,16 @@ V. TESTING
 		
 		PART 3: Passport Simulation ---------------------------------------------------------------------------------------------
 		
-				/* office.c */
+				/* officeMain.c */
 		/*	This runs the office with the default values of 3 of each clerk,
 		*	20 customers, and 3 senators.  Everything should escape the office,
+		*	and the sum of cashier money should be $2300.
+		*/
+		
+				/* officeMainDEBUG.c */
+		/*	This runs the office with the default values of 3 of each clerk,
+		*	20 customers, and 3 senators, with TESTING flag turned on for 
+		*   enhanced output. Everything should escape the office,
 		*	and the sum of cashier money should be $2300.
 		*/
 		
@@ -229,8 +248,68 @@ V. TESTING
 		 * Execs 4 office programs to run simultaneously to 
 		 * test multiprogramming.
 		 */
+		 
+			 /*senatorTest.c*/
+		/* This test is to show that customers
+		 * behave property in the presence
+		 * of the allpowerful senators. 2 customers are
+		 * forked and 1 senator. Everyone should exit 
+		 * at the end.
+		 */
+		 
+			 /*clerkBreakTest.c*/
+		/* 
+		 * Test showing that clerks go on break when there
+		 * are no customers in their lines. The test forks
+		 * 2 of each clerk and 0 customers, so that they 
+		 * will go on break once the simulation starts.
+		 */
+		 
+		 
+			 /*customerCashiertest.c*/
+		/*
+		 *	Test to demonstrate customers entering and leaving the passport office,
+		 *  but only interactions with the cashier clerk, namely that they only leave once
+		 *  they received their passport, and that the cashclerk only interacts with them
+		 *  one at a time. Forks 3 customers to only do a routine to run the doCashClerk() 
+		 *	in customer, and sets valid = true for all of them, so they can pay the cashier
+		 * 	and leave.
+		*/	
 		
-		nrun: Runs "nachos -rs XXXX -x ../test/office" with every value of RS up to 1 to 9998
+			/*customerLinetest.c*/
+		/* Checks to make sure customers always
+		 * choose the shortest line. Manually sets the
+		 * line length of the appLine to 3. No clerks
+		 * are forked in this test, so the program exits
+		 * once all customers have gotten in line.
+		 */
+		 
+			 /*managerClerkTest.c*/
+		/* This test shows that the manager
+		 * wakes up clerks if they have people in their lines.
+		 * This is simulated by forking customers before clerks.
+		 * The forked ManagerClerkTest function sets the line lengths
+		 * to test values, but no customers are forked. The program
+		 * will exit after all clerks wake up.
+		 */
+		 
+		 
+		 	/*ManagerTest.c*/
+		/*
+		 * Test to ensure that the
+		 * Manager does not check multiple clerks
+		 * at the same time. 2 of each clerk are forked,
+		 * and their cash values set to 500 each, except
+		 * the cashier, who has 0. This is to trigger
+		 * the managers cashChecking routine, which executes
+		 * when cashier's cash == numCustomers*100. No customers
+		 * are forked, so the value must be 0.
+		 */
+		 
+		 
+		 
+		
+		nrun: Runs "nachos -rs XXXX -x ../test/officeMain" with every value of RS up to 1 to 9998
 			- We used this once we verified our simulation worked without random yielding.  Certain race conditions only occur in one or a few random
 			  seeds, so we used this to verify complete and total accuracy.  nrun will exit if a -rs value causes nachos to fail.  Also, if nrun hangs
 			  forever, we knew we had a race condition with that -rs value, so we were able to run it, read the TEST output, and debug.
