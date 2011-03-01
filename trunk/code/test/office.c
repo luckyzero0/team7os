@@ -69,10 +69,10 @@ LockID customerWaitingRoomLock;
 ConditionID customerWaitingRoomCV;
 int customersInWaitingRoom = 0;
 
-LockID customerOfficeLock;
+LockID entryLock;
 int customersInOffice = 0;
 
-LockID entryLock;
+
 
 /* ApplicationClerk and PictureClerk States */
 ClerkStatus appClerkStatuses[MAX_APP_CLERKS];
@@ -148,9 +148,7 @@ void initOfficeLocks(){
 
 	/* Customers in office and waiting room */
 	customerWaitingRoomLock = CreateLock("customerWaitingRoomLock",23);
-	customerWaitingRoomCV = CreateCondition("customerWaitingRoomCV",21);
-
-	customerOfficeLock = CreateLock("customerOfficeLock",18);
+	customerWaitingRoomCV = CreateCondition("customerWaitingRoomCV",21);	
 
 	entryLock = CreateLock("entryLock", 9);
 
@@ -626,5 +624,21 @@ void OfficeTest5(){
 	Fork(ManagerClerkTest);
 	
 
+	Exit(0);
+}
+
+/*
+ * Demonstrates proper customer behavior when senators arrive
+ * and when they leave
+ *
+ */ 
+void OfficeTest6(){	
+	numAppClerks = 1; 
+	numPicClerks = 1;
+	numPassClerks = 1;
+	numCashClerks = 1;
+	numCustomers = 2;
+	numSenators = 1;
+	Office();
 	Exit(0);
 }
