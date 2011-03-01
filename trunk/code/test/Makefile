@@ -158,6 +158,11 @@ managerTest: managerTest.o start.o utils.o office.o manager.o customer.o clerks.
 	$(LD) $(LDFLAGS) start.o managerTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o managerTest.coff
 	../bin/coff2noff managerTest.coff managerTest
 
+customerCashierTest.o: customerCashierTest.c
+	$(CC) $(CFLAGS) -c customerCashierTest.c utils.c 
+customerCashierTest: customerCashierTest.o start.o utils.o office.o manager.o customer.o clerks.o senator.o
+	$(LD) $(LDFLAGS) start.o customerCashierTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o customerCashierTest.coff
+	../bin/coff2noff customerCashierTest.coff customerCashierTest
 
 
 clean:

@@ -12,6 +12,7 @@
 
 int TESTING = FALSE;
 int FINISHED_FORKING = FALSE;
+int needManager = FALSE;
 
 int appClerkUID = 0;
 int picClerkUID = 0;
@@ -111,6 +112,7 @@ int cashFiled[MAX_CUSTOMERS];
 
 
 extern void CustomerRun();
+extern void CustomerCashTest();
 extern void AppClerkRun();
 extern void PicClerkRun();
 extern void CashClerkRun();
@@ -513,3 +515,46 @@ void OfficeTest2(){
 }
 
 
+/*
+ *	Test to demonstrate customers entering and leaving the passport office.
+*/
+void OfficeTest3(){
+	char* msg;
+	int i;
+	numAppClerks = 1; 
+	numPicClerks = 1;
+	numPassClerks = 1;
+	numCashClerks = 1;
+	numCustomers = 3;
+	numSenators = 0;
+	initOfficeLocks();
+	msg = "Number of Customers = %d\n";
+	printf(msg, numCustomers, 0, 0, "", "");
+	msg = "Number of Senators = %d\n";
+	printf(msg, numSenators, 0, 0, "", "");
+	msg = "Number of ApplicationClerks = %d\n";
+	printf(msg, numAppClerks, 0, 0, "", "");
+	msg = "Number of PictureClerks = %d\n";
+	printf(msg, numPicClerks, 0, 0, "", "");
+	msg = "Number of PassportClerks = %d\n";
+	printf(msg, numPassClerks, 0, 0, "", "");
+	msg = "Number of Cashiers = %d\n";
+	printf(msg, numCashClerks, 0, 0, "", "");
+
+	initializeClerkArrays();
+	initializeCustomerArrays();
+	
+	for (i = 0; i < numCashClerks; i++) {
+		Fork(CashClerkRun);
+	}
+
+	/* Fork the customers*/
+	for (i = 0; i < numCustomers; i++) {
+		Fork(CustomerCashTest);
+	}
+	
+	passFiled[0] = TRUE;
+	passFiled[1] = TRUE;
+	passFiled[2] = TRUE;
+	Exit(0);
+}
