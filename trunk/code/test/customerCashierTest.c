@@ -1,14 +1,16 @@
 /*customerCashiertest.c*/
-/*Checks to make sure customers make it through the office,
- * but not until the cashier approves their passport.
- */
+/*
+ *	Test to demonstrate customers entering and leaving the passport office,
+ *  but only interactions with the cashier clerk, namely that they only leave once
+ *  they received their passport, and that the cashclerk only interacts with them
+ *  one at a time.
+*/
 #include "office.h"
 #include "syscall.h"
 #include "utils.h"
 
 int main(){
-	TESTING = TRUE;
-	needManager = FALSE;
+	TESTING = TRUE;	
 	OfficeTest3();
 	Exit(0);	
 

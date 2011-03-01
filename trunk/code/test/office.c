@@ -516,14 +516,17 @@ void OfficeTest2(){
 
 
 /*
- *	Test to demonstrate customers entering and leaving the passport office.
+ *	Test to demonstrate customers entering and leaving the passport office,
+ *  but only interactions with the cashier clerk, namely that they only leave once
+ *  they received their passport, and that the cashclerk only interacts with them
+ *  one at a time.
 */
 void OfficeTest3(){
 	char* msg;
 	int i;
-	numAppClerks = 1; 
-	numPicClerks = 1;
-	numPassClerks = 1;
+	numAppClerks = 0; 
+	numPicClerks = 0;
+	numPassClerks = 0;
 	numCashClerks = 1;
 	numCustomers = 3;
 	numSenators = 0;
@@ -544,17 +547,30 @@ void OfficeTest3(){
 	initializeClerkArrays();
 	initializeCustomerArrays();
 	
-	for (i = 0; i < numCashClerks; i++) {
-		Fork(CashClerkRun);
-	}
-
-	/* Fork the customers*/
 	for (i = 0; i < numCustomers; i++) {
 		Fork(CustomerCashTest);
 	}
-	
+	for (i = 0; i < numCashClerks; i++) {
+		Fork(CashClerkRun);
+	}	
+
 	passFiled[0] = TRUE;
 	passFiled[1] = TRUE;
 	passFiled[2] = TRUE;
+	Exit(0);
+}
+
+/*
+ * Demonstrates clerks going on break when
+ * there are no customers in their lines.
+ */ 
+void OfficeTest4(){	
+	numAppClerks = 2; 
+	numPicClerks = 2;
+	numPassClerks = 2;
+	numCashClerks = 2;
+	numCustomers = 0;
+	numSenators = 0;
+	Office();
 	Exit(0);
 }
