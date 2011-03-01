@@ -176,6 +176,12 @@ managerClerkTest.o: managerClerkTest.c
 managerClerkTest: managerClerkTest.o start.o utils.o office.o manager.o customer.o clerks.o senator.o
 	$(LD) $(LDFLAGS) start.o managerClerkTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o managerClerkTest.coff
 	../bin/coff2noff managerClerkTest.coff managerClerkTest
+	
+senatorTest.o: senatorTest.c
+	$(CC) $(CFLAGS) -c senatorTest.c utils.c 
+senatorTest: senatorTest.o start.o utils.o office.o manager.o customer.o clerks.o senator.o
+	$(LD) $(LDFLAGS) start.o senatorTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o senatorTest.coff
+	../bin/coff2noff senatorTest.coff senatorTest
 
 clean:
 	rm -f *.o *.coff

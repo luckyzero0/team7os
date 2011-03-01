@@ -25,7 +25,7 @@ void SenatorRun() {
 	/*customerOfficeLock->Acquire();*/
 	Acquire(entryLock);
 	if (customersInOffice > 0){
-		tprintf("Senator[%d]: There are no other Customers in office, going to Senator waiting room\n", index,0,0,"","");
+		tprintf("Senator[%d]: There are other Customers in office, going to Senator waiting room\n", index,0,0,"","");
 		senatorsInWaitingRoom++;
 		tprintf("Senator[%d]: In the waiting room, taking a nap...\n", index,0,0,"","");
 		/*senatorWaitingRoomCV->Wait(senatorWaitingRoomLock);*/

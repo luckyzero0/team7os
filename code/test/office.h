@@ -76,10 +76,10 @@ extern LockID customerWaitingRoomLock;
 extern ConditionID customerWaitingRoomCV;
 extern int customersInWaitingRoom;
 
-extern LockID customerOfficeLock;
+extern LockID entryLock;
 extern int customersInOffice;
 
-extern LockID entryLock;
+
 
 extern LockID appClerkUIDLock;
 extern LockID picClerkUIDLock;

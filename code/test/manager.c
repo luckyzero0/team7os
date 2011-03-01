@@ -11,12 +11,14 @@ void tryToWakeUpCustomers(){
 	/*senatorOfficeLock->Acquire();*/
 	Acquire(senatorOfficeLock);
 	if (senatorsInWaitingRoom+senatorsInOffice == 0){
+		tprintf("Manager: There are no more senators in the office...\n", 0,0,0,"","");
 		/*customerWaitingRoomLock->Acquire();*/
-		Acquire(customerWaitingRoomLock);
+		Acquire(entryLock);
 		/*customerWaitingRoomCV->Broadcast(customerWaitingRoomLock);*/
-		Broadcast(customerWaitingRoomCV, customerWaitingRoomLock);
+		tprintf("Manager: Broadcasting to all customers in waiting. \n", 0,0,0,"","");
+		Broadcast(customerWaitingRoomCV, entryLock);
 		/*customerWaitingRoomLock->Release();*/
-		Release(customerWaitingRoomLock);
+		Release(entryLock);
 	}
 	/*senatorOfficeLock->Release();
 	senatorWaitingRoomLock->Release();*/
@@ -33,12 +35,12 @@ void tryToWakeUpSenators() {
 		Release(senatorWaitingRoomLock);
 		tprintf("Manager: There are senators in the waiting room! \n", 0,0,0,"","");
 		/*acquire all line CVs*/
-		/*customerOfficeLock->Acquire();*/
-		Acquire(customerOfficeLock);
+		/*entryLock->Acquire();*/
+		Acquire(entryLock);
 		if (customersInOffice > 0) { /*if there are customers in the office, tell them to get the hell out.*/
 			tprintf("Manager: I need to tell all %d customers to GTFO\n", customersInOffice,0,0,"","");
-			/*customerOfficeLock->Release();*/
-			Release(customerOfficeLock);
+			/*entryLock->Release();*/
+			Release(entryLock);
 			tprintf("Manager: Acquiring appPicLineLock\n",0,0,0,"","");
 			/*appPicLineLock->Acquire();*/
 			Acquire(appPicLineLock);
@@ -94,29 +96,32 @@ void tryToWakeUpSenators() {
 			Release(appPicLineLock);
 
 			
-			/*customerOfficeLock->Acquire();*/
-			Acquire(customerOfficeLock);
+			/*entryLock->Acquire();*/
+			Acquire(entryLock);
 			while (customersInOffice > 0) {
 				tprintf("Manager: Waiting for remaining %d customers to leave\n", customersInOffice,0,0,"","");
-				/*customerOfficeLock->Release();*/
-				Release(customerOfficeLock);
+				/*entryLock->Release();*/
+				Release(entryLock);
 				Yield();
-				/*customerOfficeLock->Acquire();*/
-				Acquire(customerOfficeLock);
+				/*entryLock->Acquire();*/
+				Acquire(entryLock);
 			}
 		}
 
-		/*customerOfficeLock->Release();*/
-		Release(customerOfficeLock);
+		
 		
 		tprintf("Manager: Telling all %d senators to enter the office\n", senatorsInWaitingRoom,0,0,"","");
 		/*senatorWaitingRoomLock->Acquire();*/
-		Acquire(senatorWaitingRoomLock);
+		/*Acquire(senatorWaitingRoomLock);*/
 		/*senatorWaitingRoomCV->Broadcast(senatorWaitingRoomLock);*/
-		Broadcast(senatorWaitingRoomCV, senatorWaitingRoomLock);
+		Broadcast(senatorWaitingRoomCV, entryLock);
+		
+		
+		/*entryLock->Release();*/
+		Release(entryLock);
 	}
 	/*senatorWaitingRoomLock->Release();*/
-	Release(senatorWaitingRoomLock);
+	/*Release(senatorWaitingRoomLock);*/
 
 }
 
