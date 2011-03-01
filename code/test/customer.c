@@ -548,3 +548,20 @@ static void doCashierClerk(int* index, int* cashDollars)
 			Yield();																				
 	}
 }
+
+void CustomerCashTest(){
+	int cashDollars;
+	int clerkStatus;
+	int index;
+	int tid;
+	Acquire(entryLock);
+	
+	tid = GetThreadID();
+	cashDollars = 100;
+
+	printf("Customer [%d] has money = [$%d] ... tid = %d\n",index,cashDollars,tid,"","");
+	customersInOffice++;
+	Release(entryLock);
+	
+	doCashierClerk(&index, &cashDollars);
+}
