@@ -14,7 +14,7 @@ int main() {
 
 	howMany = 4;
 	for (i = 0; i < howMany; i++) {
-		Exec("../test/office", 14);
+		Exec("../test/officeMain", 14);
 	}
 
 	Exit(0);
