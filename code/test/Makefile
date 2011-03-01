@@ -165,5 +165,17 @@ customerCashierTest: customerCashierTest.o start.o utils.o office.o manager.o cu
 	../bin/coff2noff customerCashierTest.coff customerCashierTest
 
 
+clerkBreakTest.o: clerkBreakTest.c
+	$(CC) $(CFLAGS) -c clerkBreakTest.c utils.c 
+clerkBreakTest: clerkBreakTest.o start.o utils.o office.o manager.o customer.o clerks.o senator.o
+	$(LD) $(LDFLAGS) start.o clerkBreakTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o clerkBreakTest.coff
+	../bin/coff2noff clerkBreakTest.coff clerkBreakTest
+
+managerClerkTest.o: managerClerkTest.c
+	$(CC) $(CFLAGS) -c managerClerkTest.c utils.c 
+managerClerkTest: managerClerkTest.o start.o utils.o office.o manager.o customer.o clerks.o senator.o
+	$(LD) $(LDFLAGS) start.o managerClerkTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o managerClerkTest.coff
+	../bin/coff2noff managerClerkTest.coff managerClerkTest
+
 clean:
 	rm -f *.o *.coff

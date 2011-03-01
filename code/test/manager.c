@@ -121,7 +121,7 @@ void tryToWakeUpSenators() {
 }
 
 void ManagerRun(){
-	int i, wakeup;
+	int i;
 	int totalCashCollected;
 	while(TRUE)
 	{
@@ -161,8 +161,15 @@ void ManagerRun(){
 		}
 
 		tprintf("Manager: Time to slavedrive my clerks. Checking the lines...\n",0,0,0,"","");
+		tryToWakeUpClerks();
+	}		
+	Exit(0);
+}
 
-		/*check AppLineLengths*/	
+
+void tryToWakeUpClerks(){
+	int i, wakeup;
+	/*check AppLineLengths*/	
 		/*appPicLineLock->Acquire();*/
 		Acquire(appPicLineLock);
 		tprintf("Manager: I spy [%d] customers in the AppLine\n", (regAppLineLength+privAppLineLength),0,0,"","");
@@ -459,7 +466,14 @@ void ManagerRun(){
 		for (i = 0; i < 50; i++) {
 			Yield();
 		}
-	}
-	Exit(0);
 }
 
+void ManagerClerkTest(){
+	/*set some edge case and normative lengths to test*/
+	regAppLineLength = 0;
+	regPicLineLength = 2; 
+	regPassLineLength = 3;
+	regCashLineLength = 5;
+	tryToWakeUpClerks();
+	Exit(0);
+}
