@@ -78,11 +78,9 @@ void AppClerkRun(){
 	index = appClerkUID++;
 	Release(appClerkUIDLock);
 
-	while (TRUE){
-		tprintf("AppClerk %d: is about the appPicLineLock\n", index,0,0,"","");
+	while (TRUE){		
 		/*appPicLineLock->Acquire();*/
-		Acquire(appPicLineLock);
-		tprintf("AppClerk %d: did acquire the appPicLineLock\n", index,0,0,"","");
+		Acquire(appPicLineLock);		
 
 		/*Checking if anyone is in line*/
 		if (privAppLineLength+regAppLineLength>0){
@@ -152,7 +150,7 @@ void AppClerkRun(){
 			/*appPicLineLock->Release();*/
 			Release(appPicLineLock);
 			/*appClerkLocks[index]->Acquire();*/
-			tprintf("ApplicationClerk [%d] acquiring his own lock\n", index,0,0,"","");
+			/*tprintf("ApplicationClerk [%d] acquiring his own lock\n", index,0,0,"","");*/
 			Acquire(appClerkLocks[index]);
 			printf("ApplicationClerk [%d] is going on break\n", index,0,0,"","");
 			appClerkStatuses[index] = CLERK_ON_BREAK;

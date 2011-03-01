@@ -112,13 +112,14 @@ int cashFiled[MAX_CUSTOMERS];
 
 
 extern void CustomerRun();
-extern void CustomerCashTest();
+extern void CustomerCashTest();/*for testing*/
 extern void AppClerkRun();
 extern void PicClerkRun();
 extern void CashClerkRun();
 extern void PassClerkRun();
 extern void SenatorRun();
 extern void ManagerRun();
+extern void ManagerClerkTest(); /*for testing*/
 
 void initializeClerkArrays();
 void initializeCustomerArrays();
@@ -572,5 +573,58 @@ void OfficeTest4(){
 	numCustomers = 0;
 	numSenators = 0;
 	Office();
+	Exit(0);
+}
+
+/*
+ * This test shows that the manager
+ * wakes up clerks if they have people 
+ * in their lines.
+*/
+void OfficeTest5(){
+	char* msg;
+	int i;
+	numAppClerks = 1; 
+	numPicClerks = 1;
+	numPassClerks = 1;
+	numCashClerks = 1;
+	numCustomers = 0;
+	numSenators = 0;
+	
+	initOfficeLocks();
+	msg = "Number of Customers = %d\n";
+	printf(msg, numCustomers, 0, 0, "", "");
+	msg = "Number of Senators = %d\n";
+	printf(msg, numSenators, 0, 0, "", "");
+	msg = "Number of ApplicationClerks = %d\n";
+	printf(msg, numAppClerks, 0, 0, "", "");
+	msg = "Number of PictureClerks = %d\n";
+	printf(msg, numPicClerks, 0, 0, "", "");
+	msg = "Number of PassportClerks = %d\n";
+	printf(msg, numPassClerks, 0, 0, "", "");
+	msg = "Number of Cashiers = %d\n";
+	printf(msg, numCashClerks, 0, 0, "", "");
+
+	initializeClerkArrays();
+	initializeCustomerArrays();
+
+	for (i = 0; i < numAppClerks; i++) {
+		Fork(AppClerkRun);
+	}	
+	for (i = 0; i < numPicClerks; i++) {
+		Fork(PicClerkRun);
+	}
+	for (i = 0; i < numPassClerks; i++) {
+		Fork(PassClerkRun);
+	}
+	for (i = 0; i < numCashClerks; i++) {
+		Fork(CashClerkRun);
+	}
+	
+	
+	
+	Fork(ManagerClerkTest);
+	
+
 	Exit(0);
 }
