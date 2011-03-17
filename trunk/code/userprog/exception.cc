@@ -790,6 +790,25 @@ int GetThreadID_Syscall() {
 	return currentThread->ID;
 }
 
+int tlbIndex = -1;
+
+void HandlePageFault() {
+	int badVAddr = machine->ReadReg(BadVAddrReg);
+	int badVPN = badVAddr / PageSize;
+
+	tlbIndex = (tlbIndex + 1) % TLBSize;
+
+	//check the dirty bit to do some write-back eviction
+
+	//add the new entry
+	(machine->tlb)[tlbIndex].virtualPage = badVPN;
+	(machine->tlb)[tlbIndex].physicalPage = currentThread->space->pageTable[badVPN].physicalPage;
+	(machine->tlb)[tlbIndex].valid = true;
+	(machine->tlb)[tlbIndex].dirty = false;
+	(machine->tlb)[tlbIndex].readOnly = false;
+	(machine->tlb)[tlbIndex].use = true;
+}
+
 void ExceptionHandler(ExceptionType which) {
 	int type = machine->ReadRegister(2); // Which syscall?
 	int rv=0; 	// the return value from a syscall
@@ -924,6 +943,8 @@ void ExceptionHandler(ExceptionType which) {
 		machine->WriteRegister(PCReg,machine->ReadRegister(NextPCReg));
 		machine->WriteRegister(NextPCReg,machine->ReadRegister(PCReg)+4);
 		return;
+	} else if ( which == PageFaultException ) {
+		HandlePageFault();
 	} else {
 		cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;
 		interrupt->Halt();
