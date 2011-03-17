@@ -409,7 +409,7 @@ void getInput(){
 					
 		//for whatever reason, nachos does not process cin.fail() checking
 		//like a normal OS.
-		for(int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
+		for(unsigned int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
 		{
 			if(!isdigit(buffer[x]) && buffer[x] != NULL)
 			{
@@ -439,7 +439,7 @@ void getInput(){
 					
 		//for whatever reason, nachos does not process cin.fail() checking
 		//like a normal OS.
-		for(int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
+		for(unsigned int x = 0; x < sizeof(buffer)/sizeof(buffer[0]); x++) 
 		{
 			if(!isdigit(buffer[x]) && buffer[x] != NULL)
 			{
