@@ -401,6 +401,7 @@ void Exit_Syscall(int status) {
 	if (numProcesses == 1 && currentThread->space->numThreads == 0) { //we are the final thread remaining 
 		interrupt->Halt();
 	} else if (currentThread->space->numThreads == 0) { //kill the process and free the address space and stuff
+		printf("Exiting process with return value: %d", status);
 		SpaceID spaceID = getSpaceID(currentThread->space);
 		delete currentThread->space;
 		processTable[spaceID] = NULL;
@@ -409,6 +410,7 @@ void Exit_Syscall(int status) {
 		currentThread->Finish();
 	} else { //we are not the last thread in a process, so just kill the thread
 		DEBUG('a', "Giving up a non-final thread in a process.\n");
+		printf("Exiting thread with return value: %d", status);
 		currentThread->space->RemoveCurrentThread();
 		bigLock->Release();
 		currentThread->Finish();
@@ -802,7 +804,7 @@ void HandlePageFault() {
 
 	//add the new entry
 	(machine->tlb)[tlbIndex].virtualPage = badVPN;
-	(machine->tlb)[tlbIndex].physicalPage = currentThread->space->pageTable[badVPN].physicalPage;
+	(machine->tlb)[tlbIndex].physicalPage = (currentThread->space->pageTable)[badVPN].physicalPage;
 	(machine->tlb)[tlbIndex].valid = true;
 	(machine->tlb)[tlbIndex].dirty = false;
 	(machine->tlb)[tlbIndex].readOnly = false;
