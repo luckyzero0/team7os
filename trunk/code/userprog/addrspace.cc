@@ -138,6 +138,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 
 	size = noffH.code.size + noffH.initData.size + noffH.uninitData.size ;
 	numPages = divRoundUp(size, PageSize) + divRoundUp(UserStackSize,PageSize);
+	DEBUG('a', "Requesting %d pages for code and initial thread.", numPages);
 	mainThreadStartVPN = divRoundUp(size,PageSize);
 	// we need to increase the size
 	// to leave room for the stack
