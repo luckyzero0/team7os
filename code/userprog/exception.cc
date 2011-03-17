@@ -502,7 +502,7 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 		printf("%s","Error allocating kernel buffer for write!\n");
 		return -1;
 	} else {		
-		if( copyin(vaddr,len,buf) != strlen(buf) ) {
+		if( copyin(vaddr,len,buf) != (signed int)strlen(buf) ) {
 			printf("%s","Bad string length, data not written.\n");
 			delete[] buf;
 			return -1;
