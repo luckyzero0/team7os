@@ -399,10 +399,10 @@ void Exit_Syscall(int status) {
 	DEBUG('a', "In exit!, with %d processes currently active.\n", numProcesses);
 
 	if (numProcesses == 1 && currentThread->space->numThreads == 0) { //we are the final thread remaining
-		printf("Exiting final process with return value: %d", status);
+		printf("Exiting final process with return value: %d.\n", status);
 		interrupt->Halt();
 	} else if (currentThread->space->numThreads == 0) { //kill the process and free the address space and stuff
-		printf("Exiting non-final process with return value: %d", status);
+		printf("Exiting non-final process with return value: %d.\n", status);
 		SpaceID spaceID = getSpaceID(currentThread->space);
 		delete currentThread->space;
 		processTable[spaceID] = NULL;
