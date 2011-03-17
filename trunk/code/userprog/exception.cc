@@ -740,7 +740,7 @@ void kernel_thread(int virtualAddr)
 void Fork_Syscall(unsigned int funcAddr, int arg) //func = virtualaddr of function
 {	
 	bigLock->Acquire();	
-	if(funcAddr >= currentThread->space->getCodeSize() || funcAddr < 0)
+	if(funcAddr >= (unsigned int)currentThread->space->getCodeSize() || funcAddr < 0)
 	{
 		printf("Cannot Fork FunctionPointer[0x%x]. Out of bounds.\n", funcAddr);
 		bigLock->Release();
@@ -793,7 +793,7 @@ int GetThreadID_Syscall() {
 int tlbIndex = -1;
 
 void HandlePageFault() {
-	int badVAddr = machine->ReadReg(BadVAddrReg);
+	int badVAddr = machine->ReadRegister(BadVAddrReg);
 	int badVPN = badVAddr / PageSize;
 
 	tlbIndex = (tlbIndex + 1) % TLBSize;
