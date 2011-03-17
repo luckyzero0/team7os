@@ -208,7 +208,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 
 AddrSpace::~AddrSpace()
 {
-	for (int i = 0; i < numPages; i++) {
+	for (unsigned int i = 0; i < numPages; i++) {
 		giveUpPhysicalPage(i);
 	}
 	delete pageTable;
@@ -232,12 +232,12 @@ bool AddrSpace::didConstructSuccessfully() {
 
 void AddrSpace::AddNewThread(Thread* newThread) {
 	numThreads++;
-	int startVPN = getStartVPN();
+	unsigned int startVPN = getStartVPN();
 	newThread->startVPN = startVPN;
 	if (startVPN >= numPages) {
 		// copy and remake our pageTable
 		TranslationEntry* newPageTable = new TranslationEntry[numPages + UserStackSize / PageSize];
-		for (int i = 0; i < numPages; i++) { //copy the old entries
+		for (unsigned int i = 0; i < numPages; i++) { //copy the old entries
 			newPageTable[i] = pageTable[i];
 		}
 		delete pageTable;
@@ -260,7 +260,7 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 		pageTable[startVPN + i].readOnly = FALSE;
 	}
 	
-	for(int i = 0; i <numPages; i++)
+	for(unsigned int i = 0; i < numPages; i++)
 	{
 		DEBUG('a',"pageTable[%d]. Physical Page = [%d]. Valid = [%d]\n",i,pageTable[i].physicalPage,pageTable[i].valid);
 	}
@@ -272,7 +272,7 @@ int AddrSpace::getStartVPN() {
 	//try to get NUM_PAGES contiguous virtual pages
 	int startVPN = numPages;
 	bool done = false;
-	for (int i = 0; i < numPages; i++) {
+	for (unsigned int i = 0; i < numPages; i++) {
 		if (!pageTable[i].valid) { //if we find some invalid Vaddr try to reuse
 			for (int j = 0; j < NUM_STACK_PAGES; j++) {
 				if (pageTable[i + j].valid) { // try to find NUM_STACK_PAGES contiguous invalid VPNs
