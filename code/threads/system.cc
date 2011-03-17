@@ -163,6 +163,13 @@ Initialize(int argc, char **argv)
     machine = new Machine(debugUserProg);	// this must come first
 #endif
 
+#ifdef USE_TLB
+	machine->tlb = new TranslationEntry[TLBSize];
+	for (int i = 0; i < TLBSize; i++) {
+		machine->tlb[i].valid = false;
+	}
+#endif
+
 #ifdef FILESYS
     synchDisk = new SynchDisk("DISK");
 #endif
