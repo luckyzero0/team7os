@@ -193,7 +193,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 #else
 		pageTable[i] = startPPN + i;
 #endif
-		pageTable[i].valid = false;
+		pageTable[i].valid = true;
 		pageTable[i].use = false;
 		pageTable[i].dirty = false;  // if the code segment was entirely on 
 		// a separate page, we could set its 
@@ -256,11 +256,6 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 
 }
 
-void AddrSpace::copyPageTableEntryToIPT(int vpn) {
-	int ppn = pageTable[vpn].physicalPage;
-	ipt[ppn] = pageTable[vpn];
-}
-
 //----------------------------------------------------------------------
 // AddrSpace::~AddrSpace
 //
@@ -315,18 +310,28 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 
 	for (int i = 0; i < UserStackSize / PageSize; i++) {
 		pageTable[startVPN + i].virtualPage = startVPN + i;
+#ifdef USE_TLB
+		int physPage = -1;
+#else
 		int physPage = getPhysicalPage();
 		if (physPage == -1) {
 			printf("Ran out of physical pages!");
 			return;
 		}
+#endif
 		pageTable[startVPN + i].physicalPage = physPage;
-		pageTable[startVPN + i].valid = TRUE;
-		pageTable[startVPN + i].use = FALSE;
-		pageTable[startVPN + i].dirty = FALSE;
-		pageTable[startVPN + i].readOnly = FALSE;
+		pageTable[startVPN + i].valid = true;
+		pageTable[startVPN + i].use = true;
+		pageTable[startVPN + i].dirty = false;
+		pageTable[startVPN + i].readOnly = false;
 
-		copyPageTableEntryToIPT(startVPN + i);
+#ifdef USE_TLB
+		pageTable[startVPN + i].spaceID = getSpaceID(currentThread->space);
+		pageTable[startVPN + i].pageType = PageTypeData;
+		pageTable[startVPN + i].pageLocation = PageLocationNotOnDisk;
+		pageTable[startVPN + i].byteOffset = -1;
+		pageTable[startVPN + i].byteSize = -1;
+#endif
 	}
 	
 	for(unsigned int i = 0; i < numPages; i++)
@@ -367,9 +372,11 @@ void AddrSpace::RemoveCurrentThread() {
 	for (int i = 0; i < UserStackSize / PageSize; i++) { //mark the physical pages as free and the virtual pages as invalid
 		int physPage = pageTable[vpnStart + i].physicalPage;
 		DEBUG('a', "Giving up physical page = %d\n", physPage);
-		giveUpPhysicalPage(physPage);
-		pageTable[vpnStart + i].physicalPage = -1;
-		pageTable[vpnStart + i].valid = FALSE;
+		if (physPage != -1) {
+			giveUpPhysicalPage(physPage);
+			pageTable[vpnStart + i].physicalPage = -1;
+		}
+		pageTable[vpnStart + i].valid = false;
 	}
 }
 //----------------------------------------------------------------------
