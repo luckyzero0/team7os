@@ -814,6 +814,8 @@ int HandleIPTMiss(int vpn) {
 	} else { // it's on the swap file, we have work to do
 		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
 	}
+
+	return ppn;
 }
 
 int tlbIndex = -1;
