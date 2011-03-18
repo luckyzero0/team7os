@@ -35,11 +35,15 @@ extern BitMap *physPageBitMap;
 extern Lock *bigLock;
 
 #define PROCESS_TABLE_SIZE 10
-extern AddrSpace *processTable[PROCESS_TABLE_SIZE];	
+extern AddrSpace *processTable[PROCESS_TABLE_SIZE];
+extern SpaceID getSpaceID(AddrSpace* space);
 
 extern int getPhysicalPage();
 extern int getContiguousPhysicalPages(int);
 extern void giveUpPhysicalPage(int);
+
+extern IPTEntry ipt[NumPhysPages];
+
 
 #ifdef USER_PROGRAM
 #include "machine.h"

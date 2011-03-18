@@ -21,6 +21,7 @@
 #include "noff.h"
 #include "table.h"
 #include "synch.h"
+#include "ipt.h"
 
 extern "C" { int bzero(char *, int); };
 
@@ -176,6 +177,8 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 		pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
 		// a separate page, we could set its 
 		// pages to be read-only
+
+		copyPageTableEntryToIPT(i);
 	}
 
 	// zero out the entire address space, to zero the unitialized data segment 
@@ -198,6 +201,17 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 
 	constructedSuccessfully = true;
 
+}
+
+void AddrSpace::copyPageTableEntryToIPT(int vpn) {
+	int ppn = pageTable[vpn].physicalPage;
+	ipt[ppn].virtualPage = vpn;
+	ipt[ppn].spaceID = getSpaceID(this);
+
+	ipt[ppn].valid = pageTable[vpn].valid;
+	ipt[ppn].use = pageTable[vpn].use;
+	ipt[ppn].dirty = pageTable[vpn].dirty;
+	ipt[ppn].readOnly = pageTable[vpn].readOnly;
 }
 
 //----------------------------------------------------------------------
@@ -259,6 +273,8 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 		pageTable[startVPN + i].use = FALSE;
 		pageTable[startVPN + i].dirty = FALSE;
 		pageTable[startVPN + i].readOnly = FALSE;
+
+		copyPageTableEntryToIPT(startVPN + i);
 	}
 	
 	for(unsigned int i = 0; i < numPages; i++)
