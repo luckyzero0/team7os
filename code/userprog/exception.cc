@@ -788,7 +788,7 @@ int GetThreadID_Syscall() {
 
 int fullMemPPN = -1;
 
-BitMap* swapFileBitMap = new BitMap(MAX_NUM_PROCESSES * 1000);
+BitMap* swapFileBitMap = new BitMap(PROCESS_TABLE_SIZE * 1000);
 int HandleFullMemory(int vpn) {
 	if (PRAND) {
 		fullMemPPN = rand() % NumPhysPages;
