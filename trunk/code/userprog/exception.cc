@@ -788,7 +788,7 @@ int GetThreadID_Syscall() {
 
 int fullMemPPN = -1;
 
-BitMap* swapFileBitMap = new BitMap(PROCESS_TABLE_SIZE * 1000);
+BitMap* swapFileBitMap = new BitMap(16000);
 int HandleFullMemory(int vpn) {
 	if (PRAND) {
 		fullMemPPN = rand() % NumPhysPages;
@@ -804,7 +804,7 @@ int HandleFullMemory(int vpn) {
 		// write back to swapfile
 		ipt[ppn].pageLocation = PageLocationSwapFile;
 
-		DEBUG('p', "In HandleFullMemory() with vpn = %d.  Flushing a dirty page to the swapfile.\n");
+		DEBUG('p', "Flushing a dirty page = %d to the swapfile.\n", ppn);
 		
 		int swapFileIndex = swapFileBitMap->Find();
 		if (swapFileIndex == -1) {

@@ -203,6 +203,11 @@ Initialize(int argc, char **argv)
 	}
 
 	swapFile = fileSystem->Open("swapfile");
+
+	char nullChar = '\0';
+	for(int i = 0; i < 16000 * PageSize; i++) {
+		swapFile->WriteAt(&nullChar, 1, i);
+	}
 #endif
 }
 
