@@ -139,6 +139,13 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 
 	size = noffH.code.size + noffH.initData.size + noffH.uninitData.size ;
 	numPages = divRoundUp(size, PageSize) + divRoundUp(UserStackSize,PageSize);
+
+	int lastCodePage = divRoundUp(noffH.code.size, PageSize) - 1;
+	int firstInitDataPage = divRoundUp(noffH.code.size + 1, PageSize) - 1;
+	int lastInitDataPage = divRoundUp(noffH.code.size + noffH.initData.size, PageSize) - 1;
+	int firstUninitDataPage = divRoundUp(noffH.code.size + noffH.initData.size + 1, PageSize) - 1;
+	int lastUninitDataPage = divRoundUp(size, PageSize) - 1;
+
 	DEBUG('c', "Requesting %d pages for code and initial thread.\n", numPages);
 	mainThreadStartVPN = divRoundUp(size,PageSize);
 	// we need to increase the size
@@ -161,24 +168,54 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 		numPages, size);
 	// first, set up the translation 
-	pageTable = new TranslationEntry[numPages];
+	pageTable = new IPTEntry[numPages];
 
-	int startPPN = getContiguousPhysicalPages(numPages);
+/*	int startPPN = getContiguousPhysicalPages(numPages);
 	if (startPPN == -1) {
 		printf("We failed to allocate %d contiguous physical pages, so the process did not create correctly!\n", numPages);
 		return;
-	}
+	}*/
 	for (i = 0; i < numPages; i++) {
 		pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-		pageTable[i].physicalPage = startPPN + i;
-		pageTable[i].valid = TRUE;
-		pageTable[i].use = FALSE;
-		pageTable[i].dirty = FALSE;
-		pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
+		pageTable[i].physicalPage = -1;
+		pageTable[i].spaceID = getSpaceID(currentThread->space);
+		pageTable[i].valid = false;
+		pageTable[i].use = false;
+		pageTable[i].dirty = false;  // if the code segment was entirely on 
 		// a separate page, we could set its 
 		// pages to be read-only
 
-		copyPageTableEntryToIPT(i);
+		// pages containing any code or init data are specified as being from the executable, with the appropriate offset and size
+	// later when pages are being replaced, anything of type Mixed or Data will be written back to the swap file, not the executable
+		if (i <= lastCodePage) {
+			pageTable[i].pageType = PageTypeCode;
+			pageTable[i].readOnly = true;
+			pageTable[i].pageLocation = PageLocationExecutable;
+			if (lastCodePage == firstInitDataPage) {
+				pageTable[i].pageType = PageTypeMixed;
+				pageTable[i].readOnly = false;
+			}
+		} else {
+			pageTable[i].pageType = PageTypeData;
+			pageTable[i].readOnly = false;
+			if (i <= lastInitDataPage) {
+				pageTable[i].pageLocation = PageLocationExecutable;
+			} else {
+				pageTable[i].pageLocation = PageLocationNotOnDisk;
+			}
+		}
+
+		if (i <= lastInitDataPage) {
+			pageTable[i].byteOffset = noffH.code.inFileAddr + i * PageSize;
+			pageTable[i].byteSize = PageSize;
+			if (lastInitDataPage == firstUninitDataPage) {
+				// need a smaller size
+				pageTable[i].byteSize = (noffH.code.size + noffH.initData.size) - i * PageSize;
+			}
+		} else {
+			pageTable[i].byteOffset = -1;
+			pageTable[i].byteSize = -1;
+		}
 	}
 
 	// zero out the entire address space, to zero the unitialized data segment 
@@ -191,6 +228,16 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 			noffH.code.virtualAddr, noffH.code.size);
 		executable->ReadAt(&(machine->mainMemory[pageTable[0].physicalPage * PageSize]),
 			noffH.code.size, noffH.code.inFileAddr);
+		for (unsigned int i = 0; i < divRoundUp(noffH.code.size); i++) {
+			int amountToRead;
+			if (i == divRoundUp(noffH.code.size) - 1) { // only read a partial page.
+
+			} else {
+				amountToRead = PageSize;
+			}
+			executable->ReadAt(&(machine->mainMemory[pageTable[i].physicalPage * PageSize]),
+				PageSize, noffH.code.inFileAddr
+		}
 	}
 	if (noffH.initData.size > 0) {
 		DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
@@ -205,13 +252,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 
 void AddrSpace::copyPageTableEntryToIPT(int vpn) {
 	int ppn = pageTable[vpn].physicalPage;
-	ipt[ppn].virtualPage = vpn;
-	ipt[ppn].spaceID = getSpaceID(this);
-
-	ipt[ppn].valid = pageTable[vpn].valid;
-	ipt[ppn].use = pageTable[vpn].use;
-	ipt[ppn].dirty = pageTable[vpn].dirty;
-	ipt[ppn].readOnly = pageTable[vpn].readOnly;
+	ipt[ppn] = pageTable[vpn];
 }
 
 //----------------------------------------------------------------------
