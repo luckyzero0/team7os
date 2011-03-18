@@ -230,6 +230,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 			pageTable[i].byteSize = PageSize;
 			if (i == lastInitDataPage == firstUninitDataPage) {
 				// need a smaller size
+				DEBUG('c', "i == lastInitDataPage == firstUninitDataPage.\n");
 				pageTable[i].byteSize = (noffH.code.size + noffH.initData.size) % PageSize;
 			}
 		} else {
