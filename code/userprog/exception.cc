@@ -794,7 +794,6 @@ int HandleIPTMiss(int vpn) {
 	for (int i = 0; i < NumPhysPages; i++) {
 		if (!ipt[i].valid) {
 			// need to do a writeback on dirty ones
-			ipt[i].valid = true;
 			ppn = i;
 			break;
 		}
@@ -805,6 +804,7 @@ int HandleIPTMiss(int vpn) {
 	}
 
 	ipt[ppn] = currentThread->space->pageTable[vpn];
+	ipt[ppn].valid = true;
 
 	if (ipt[ppn].pageLocation == PageLocationExecutable) {
 		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), ipt[ppn].byteSize, ipt[ppn].byteOffset);
