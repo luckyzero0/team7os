@@ -35,7 +35,7 @@ using namespace std;
 					// simplicity
 
 #ifdef USE_TLB
-#define NumPhysPages	32
+#define NumPhysPages	1000
 #else
 #define NumPhysPages    16348
 #endif
