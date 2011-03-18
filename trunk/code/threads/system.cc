@@ -219,7 +219,7 @@ int getPhysicalPage() {
 #endif
 }
 
-SpaceID getSpaceID(AddrSpace* space) {
+int getSpaceID(AddrSpace* space) {
 	for (int i = 0; i < PROCESS_TABLE_SIZE; i++) {
 		if (processTable[i] == space) {
 			return i;
@@ -237,6 +237,7 @@ void giveUpPhysicalPage(int physPageNum) {
 }
 
 int getContiguousPhysicalPages(int numPages) {
+#ifndef USE_TLB
 	int startPPN = -1;
 	for (int i = 0; i < NumPhysPages - numPages; i++) {
 		bool worked = true;
@@ -259,6 +260,9 @@ int getContiguousPhysicalPages(int numPages) {
 	}	
 	
 	return startPPN;
+#else
+	return -1;
+#endif
 }
 
 //----------------------------------------------------------------------
