@@ -289,6 +289,7 @@ bool AddrSpace::didConstructSuccessfully() {
 }
 
 void AddrSpace::AddNewThread(Thread* newThread) {
+	while (1);
 	numThreads++;
 	unsigned int startVPN = getStartVPN();
 	newThread->startVPN = startVPN;
