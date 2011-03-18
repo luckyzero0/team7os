@@ -821,7 +821,7 @@ int HandleFullMemory(int vpn) {
 		ipt[ppn].dirty = false;
 
 		owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
-		DEBUG('p', "Copied the ipt entry back to the owningSpace page table.");
+		DEBUG('p', "Copied the ipt entry back to the owningSpace page table.\n");
 	}
 
 	return ppn;
@@ -854,6 +854,8 @@ int HandleIPTMiss(int vpn) {
 		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
 		swapFileBitMap->Clear(ipt[ppn].byteOffset / PageSize);
 	}
+
+	DEBUG('p', "Read vpn = %d into memory.\n", vpn);
 
 	return ppn;
 }
