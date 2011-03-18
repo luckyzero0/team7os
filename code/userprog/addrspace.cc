@@ -128,6 +128,8 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	fileTable.Put(0);
 	fileTable.Put(0);
 
+	this->executable = executable;
+
 	executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
 	if ((noffH.noffMagic != NOFFMAGIC) && 
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
@@ -270,6 +272,7 @@ AddrSpace::~AddrSpace()
 		giveUpPhysicalPage(i);
 	}
 	delete pageTable;
+	delete executable;
 }
 
 int AddrSpace::getMainThreadStartVPN() {

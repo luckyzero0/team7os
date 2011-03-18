@@ -67,6 +67,8 @@ private:
 	int mainThreadStartVPN;
 	int codeSize;
 	bool constructedSuccessfully;
+
+	OpenFile* executable;
 };
 
 #endif // ADDRSPACE_H
