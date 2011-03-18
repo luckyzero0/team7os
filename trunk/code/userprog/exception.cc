@@ -858,6 +858,7 @@ int HandleIPTMiss(int vpn) {
 		bzero(&(machine->mainMemory[ppn * PageSize]), PageSize); // zero the whole page
 	} else { // it's on the swap file, we have work to do
 		DEBUG('p', "Reading from the swapfile.\n");
+		ASSERT(ipt[ppn].byteOffset % PageSize == 0);
 		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
 		swapFileBitMap->Clear(ipt[ppn].byteOffset / PageSize);
 		DEBUG('d', "Read in from the swapFile at swapFileIndex: %d.\n", ipt[ppn].byteOffset / PageSize);
