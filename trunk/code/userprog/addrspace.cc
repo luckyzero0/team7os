@@ -226,7 +226,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 		if (i <= lastInitDataPage) {
 			pageTable[i].byteOffset = noffH.code.inFileAddr + i * PageSize;
 			pageTable[i].byteSize = PageSize;
-			if (lastInitDataPage == firstUninitDataPage) {
+			if (i == lastInitDataPage == firstUninitDataPage) {
 				// need a smaller size
 				pageTable[i].byteSize = (noffH.code.size + noffH.initData.size) % PageSize;
 			}
