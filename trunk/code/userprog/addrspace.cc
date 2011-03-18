@@ -159,10 +159,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 	size = numPages * PageSize;
 	codeSize = noffH.code.size;
 
-	if(numPages > NumPhysPages) {
-		printf("Not enough physical pages in total for this AddressSpace to allocate.\n");
-		return;
-	}		// check we're not trying
+	// check we're not trying
 	// to run anything too big --
 	// at least until we have
 	// virtual memory
@@ -177,6 +174,11 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 	pageTable = new IPTEntry[numPages];
 
 #ifndef USE_TLB
+	if (numPages > NumPhysPages) {
+		printf("Not enough physical pages in total for this AddressSpace to allocate.\n");
+		return;
+	}	
+
 	int startPPN = getContiguousPhysicalPages(numPages);
 	if (startPPN == -1) {
 		printf("We failed to allocate %d contiguous physical pages, so the process did not create correctly!\n", numPages);
