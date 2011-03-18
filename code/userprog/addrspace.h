@@ -16,6 +16,7 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "table.h"
+#include "ipt.h"
 
 #define UserStackSize		1024 	// increase this as necessary!
 
@@ -50,8 +51,11 @@ public:
 
 	bool didConstructSuccessfully();
 
+#ifdef
+	IPTEntry *pageTable;
+#else
 	TranslationEntry *pageTable;	// Assume linear page table translation
-	// for now!
+#endif
 
 private:
 	int getStartVPN();
