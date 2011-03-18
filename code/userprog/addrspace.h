@@ -51,7 +51,7 @@ public:
 
 	bool didConstructSuccessfully();
 
-#ifdef
+#ifdef USE_TLB
 	IPTEntry *pageTable;
 #else
 	TranslationEntry *pageTable;	// Assume linear page table translation
