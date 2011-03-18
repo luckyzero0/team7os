@@ -1,4 +1,6 @@
 // ipt.h
+#ifndef IPT_H
+#define IPT_H
 
 #include "translate.h"
 
@@ -19,3 +21,4 @@ class IPTEntry: public class TranslationEntry {
 		int byteOffset;
 		int byteSize;
 };
+
