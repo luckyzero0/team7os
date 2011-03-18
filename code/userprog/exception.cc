@@ -889,6 +889,8 @@ void HandlePageFault() {
 	}
 	//add the new entry
 	machine->tlb[tlbIndex] = ipt[ppn];
+
+	DEBUG('p', "Finished HandlePageFault() for badVAddr = %d.\n", badVAddr);
 }
 
 void ExceptionHandler(ExceptionType which) {
