@@ -897,7 +897,11 @@ void HandlePageFault() {
 		ppn = HandleIPTMiss(badVPN);
 	}
 	//add the new entry
-	machine->tlb[tlbIndex] = ipt[ppn];
+	machine->tlb[tlbIndex].virtualPage = ipt[ppn].virtualPage;
+	machine->tlb[tlbIndex].physicalPage = ppn;
+	machine->tlb[tlbIndex].dirty = false;
+	machine->tlb[tlbIndex].readOnly = ipt[ppn].readOnly;
+	machine->tlb[tlbIndex].valid = true;
 
 	DEBUG('p', "Finished HandlePageFault() for badVAddr = %d, it now uses ppn = %d.  numThreads = %d\n", badVAddr, ppn, currentThread->space->numThreads);
 }
