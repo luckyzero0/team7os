@@ -847,18 +847,18 @@ int HandleIPTMiss(int vpn) {
 	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
 
 	if (ipt[ppn].pageLocation == PageLocationExecutable) {
-		DEBUG('p', "Reading from the executable, with byteSize = %d.\n", ipt[ppn].byteSize);
+		DEBUG('d', "Reading from the executable, with byteSize = %d.\n", ipt[ppn].byteSize);
 		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), ipt[ppn].byteSize, ipt[ppn].byteOffset);
 		ASSERT(ipt[ppn].byteSize <= PageSize);
 		if (ipt[ppn].byteSize != PageSize) {
-			DEBUG('p', "Zeroing out the remainder not read from code.\n");
+			DEBUG('d', "Zeroing out the remainder not read from code.\n");
 			// the page had some uninitialize data on it that we need to zero out.
 			bzero(&(machine->mainMemory[ppn * PageSize + ipt[ppn].byteSize]), PageSize - ipt[ppn].byteSize);
 		}
 	} else if (ipt[ppn].pageLocation == PageLocationNotOnDisk ) {
 		bzero(&(machine->mainMemory[ppn * PageSize]), PageSize); // zero the whole page
 	} else { // it's on the swap file, we have work to do
-		DEBUG('p', "Reading from the swapfile.\n");
+		DEBUG('d', "Reading from the swapfile.\n");
 		ASSERT(ipt[ppn].byteOffset % PageSize == 0);
 		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
 		swapFileBitMap->Clear(ipt[ppn].byteOffset / PageSize);
