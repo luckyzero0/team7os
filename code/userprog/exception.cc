@@ -838,12 +838,7 @@ void HandlePageFault() {
 		ppn = HandleIPTMiss(badVPN);
 	}
 	//add the new entry
-	(machine->tlb)[tlbIndex].virtualPage = badVPN;
-	(machine->tlb)[tlbIndex].physicalPage = ppn;
-	(machine->tlb)[tlbIndex].valid = true;
-	(machine->tlb)[tlbIndex].dirty = false;
-	(machine->tlb)[tlbIndex].readOnly = false;
-	(machine->tlb)[tlbIndex].use = true;
+	machine->tlb[tlbIndex] = ipt[ppn];
 }
 
 void ExceptionHandler(ExceptionType which) {
