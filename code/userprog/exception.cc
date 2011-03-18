@@ -862,7 +862,7 @@ int HandleIPTMiss(int vpn) {
 		ASSERT(ipt[ppn].byteOffset % PageSize == 0);
 		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
 		swapFileBitMap->Clear(ipt[ppn].byteOffset / PageSize);
-		DEBUG('d', "Read in from the swapFile at swapFileIndex: %d.\n", ipt[ppn].byteOffset / PageSize);
+		DEBUG('d', "Read in vpn: %d from the swapFile at swapFileIndex: %d.\n", vpn, ipt[ppn].byteOffset / PageSize);
 	}
 
 	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
