@@ -840,6 +840,7 @@ int HandleIPTMiss(int vpn) {
 	ipt[ppn] = currentThread->space->pageTable[vpn];
 	ipt[ppn].physicalPage = ppn;
 	ipt[ppn].valid = true;
+	ipt[ppn].dirty = false;
 
 	currentThread->space->pageTable[vpn] = ipt[ppn];
 
