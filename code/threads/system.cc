@@ -41,6 +41,9 @@ IPTEntry ipt[NumPhysPages];
 OpenFile* swapFile;
 #endif
 
+bool PRAND = false;
+bool PFIFO = true;
+
 #ifdef NETWORK
 PostOffice *postOffice;
 #endif

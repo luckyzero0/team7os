@@ -98,6 +98,12 @@ main(int argc, char **argv)
 	  TESTING = TRUE;
 	if (!strcmp(*argv, "-T1"))
 	  thread_test = TRUE;
+	if (!strcmp(*argv, "-P")) {
+		if(!strcmp(*(argv + 1), "RAND") {
+			PRAND = true;
+			PFIFO = false;
+		}
+	}
 #ifdef USER_PROGRAM
         if (!strcmp(*argv, "-x")) {        	// run a user program
 	    ASSERT(argc > 1);

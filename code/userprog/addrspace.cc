@@ -414,6 +414,9 @@ void AddrSpace::SaveState()
 {
 #ifdef USE_TLB
 	for (int i = 0; i < TLBSize; i++) {
+		if (machine->tlb[i].valid) {
+			ipt[machine->tlb[i].physicalPage].dirty = machine->tlb[i].dirty;
+		}
 		machine->tlb[i].valid = false;
 	}
 #endif
