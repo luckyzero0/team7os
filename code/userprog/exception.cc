@@ -798,9 +798,13 @@ int HandleFullMemory(int vpn) {
 
 	int ppn = fullMemPPN;
 
+	DEBUG('p', "In HandleFullMemory() with vpn = %d.\n");
+
 	if (ipt[ppn].dirty) {
 		// write back to swapfile
 		ipt[ppn].pageLocation = PageLocationSwapFile;
+
+		DEBUG('p', "In HandleFullMemory() with vpn = %d.  Flushing a dirty page to the swapfile.\n");
 		
 		int swapFileIndex = swapFileBitMap->Find();
 		if (swapFileIndex == -1) {
