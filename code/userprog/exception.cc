@@ -128,15 +128,6 @@ int copyout(unsigned int vaddr, int len, char *buf) {
 	return n;
 }
 
-int getSpaceID(AddrSpace* space) {
-	for (int i = 0; i < PROCESS_TABLE_SIZE; i++) {
-		if (processTable[i] == space) {
-			return i;
-		}
-	}
-	return -1;
-}
-
 /*I fed my goat vintage whiskey through a funnel while listening to this Nantes.
 
 As my tears fell and enveloped his rough hide, he sang me﻿ to sleep.
@@ -793,6 +784,10 @@ int GetThreadID_Syscall() {
 	return currentThread->ID;
 }
 
+int HandleIPTMiss() {
+
+}
+
 int tlbIndex = -1;
 
 void HandlePageFault() {
@@ -802,10 +797,21 @@ void HandlePageFault() {
 	tlbIndex = (tlbIndex + 1) % TLBSize;
 
 	//check the dirty bit to do some write-back eviction
+	int ppn = -1; //check IPT for physical page
+	for (unsigned int i = 0; i < NumPhysPages; i++) {
+		int spaceID = getSpaceID(currentThread->space);
+		if (ipt[i].valid && ipt[i].virtualPage == badVPN && ipt[i].spaceID == spaceID) { //if valid, matching process / vpn
+			ppn = i;
+			break;
+		}
+	}
 
+	if (ppn == -1) {
+		ppn = HandleIPTMiss();
+	}
 	//add the new entry
 	(machine->tlb)[tlbIndex].virtualPage = badVPN;
-	(machine->tlb)[tlbIndex].physicalPage = (currentThread->space->pageTable)[badVPN].physicalPage;
+	(machine->tlb)[tlbIndex].physicalPage = ppn;
 	(machine->tlb)[tlbIndex].valid = true;
 	(machine->tlb)[tlbIndex].dirty = false;
 	(machine->tlb)[tlbIndex].readOnly = false;

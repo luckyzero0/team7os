@@ -55,6 +55,7 @@ public:
 
 private:
 	int getStartVPN();
+	void copyPageTableEntryToIPT(int vpn);
 
 
 	unsigned int numPages;		// Number of pages in the virtual 

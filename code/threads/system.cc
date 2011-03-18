@@ -36,6 +36,8 @@ SynchDisk   *synchDisk;
 Machine *machine;	// user program memory and registers
 #endif
 
+IPTEntry ipt[NumPhysPages];
+
 #ifdef NETWORK
 PostOffice *postOffice;
 #endif
@@ -170,6 +172,19 @@ Initialize(int argc, char **argv)
 	}
 #endif
 
+	for (int i = 0; i < NumPhysPages; i++) {
+		ipt[i].physicalPage = i;
+		ipt[i].virtualPage = -1;
+		ipt[i].spaceID = -1;
+		ipt[i].pageLocation = -1;
+		ipt[i].pageType = -1;
+		ipt[i].timestamp = -1;
+		ipt[i].readOnly = false;
+		ipt[i].use = false;
+		ipt[i].valid = false;
+		ipt[i].dirty = false;
+	}
+
 #ifdef FILESYS
     synchDisk = new SynchDisk("DISK");
 #endif
@@ -184,6 +199,16 @@ Initialize(int argc, char **argv)
 }
 
 int getPhysicalPage() {
+#ifdef USE_TLB
+	for (unsigned int i = 0; i < NumPhysPages; i++) {
+		if (!ipt[i].valid) {
+			//check and writeback dirty
+			ipt[i].valid = true;
+			return i;
+		}
+	}
+	return -1;
+#else
 	for (int i = 0; i < NumPhysPages; i++) {
 		if (!physPageBitMap->Test(i)) { //if no one has set this page
 			physPageBitMap->Mark(i);
@@ -191,10 +216,24 @@ int getPhysicalPage() {
 		}
 	}
 	return -1;
+#endif
+}
+
+SpaceID getSpaceID(AddrSpace* space) {
+	for (int i = 0; i < PROCESS_TABLE_SIZE; i++) {
+		if (processTable[i] == space) {
+			return i;
+		}
+	}
+	return -1;
 }
 
 void giveUpPhysicalPage(int physPageNum) {
+#ifdef USE_TLB
+	ipt[physPageNum].valid = false;
+#else
 	physPageBitMap->Clear(physPageNum);
+#endif
 }
 
 int getContiguousPhysicalPages(int numPages) {
