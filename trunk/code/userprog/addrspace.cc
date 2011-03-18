@@ -137,6 +137,10 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 		return;
 	}
 
+	DEBUG('c', "%d %d %d %d %d %d %d %d %d\n", noffH.code.virtualAddr, noffH.code.inFileAddr, noffH.code.size,
+	      noffH.initData.virtualAddr, noffH.initData.inFileAddr, noffH.initData.size,
+	      noffH.uninitData.virtualAddr, noffH.uninitData.inFileAddr, noffH.uninitData.size);
+
 	size = noffH.code.size + noffH.initData.size + noffH.uninitData.size ;
 	numPages = divRoundUp(size, PageSize) + divRoundUp(UserStackSize,PageSize);
 
