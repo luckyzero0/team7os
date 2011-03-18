@@ -202,7 +202,9 @@ Initialize(int argc, char **argv)
 		ipt[i].dirty = false;
 	}
 
-	swapFile = fileSystem->Create("swapFile", 16000 * PageSize);
+	fileSystem->Create("swapFile", 16000 * PageSize);
+	swapFile = fileSystem->Open("swapFile");
+
 #endif
 }
 
