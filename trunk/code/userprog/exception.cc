@@ -856,7 +856,7 @@ int HandleIPTMiss(int vpn) {
 		swapFileBitMap->Clear(ipt[ppn].byteOffset / PageSize);
 	}
 
-	DEBUG('p', "Read vpn = %d into memory.\n", vpn);
+	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
 
 	return ppn;
 }
