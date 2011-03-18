@@ -843,7 +843,7 @@ int HandleIPTMiss(int vpn) {
 
 	currentThread->space->pageTable[vpn] = ipt[ppn];
 
-	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->spaceID->numThreads);
+	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
 
 	if (ipt[ppn].pageLocation == PageLocationExecutable) {
 		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), ipt[ppn].byteSize, ipt[ppn].byteOffset);
