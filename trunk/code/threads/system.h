@@ -17,6 +17,7 @@
 #include "timer.h"
 #include "bitmap.h"
 #include "synch.h"
+#include "ipt.h"
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -36,7 +37,7 @@ extern Lock *bigLock;
 
 #define PROCESS_TABLE_SIZE 10
 extern AddrSpace *processTable[PROCESS_TABLE_SIZE];
-extern SpaceID getSpaceID(AddrSpace* space);
+extern int getSpaceID(AddrSpace* space);
 
 extern int getPhysicalPage();
 extern int getContiguousPhysicalPages(int);
