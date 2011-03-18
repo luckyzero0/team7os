@@ -801,7 +801,7 @@ int HandleFullMemory(int vpn) {
 
 	DEBUG('p', "In HandleFullMemory() with vpn = %d and selected ppn to evict: %d.\n", vpn, ppn);
 
-//	if (ipt[ppn].dirty) {
+	if (ipt[ppn].dirty) {
 		// write back to swapfile
 		ipt[ppn].pageLocation = PageLocationSwapFile;
 
@@ -823,7 +823,7 @@ int HandleFullMemory(int vpn) {
 
 		owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
-//	}
+	}
 
 	return ppn;
 }
@@ -880,8 +880,9 @@ void HandlePageFault() {
 	tlbIndex = (tlbIndex + 1) % TLBSize;
 
 	//propage the dirty bit to do some write-back eviction
-	if (machine->tlb[tlbIndex].valid) {
-			ipt[machine->tlb[tlbIndex].physicalPage].dirty = machine->tlb[tlbIndex].dirty;
+	if (machine->tlb[tlbIndex].valid && machine->tlb[tlbIndex].dirty) {
+		int thePPN = machine->tlb[tlbIndex].physicalPage;
+		ipt[thePPN].dirty = true;
 	}
 
 	
