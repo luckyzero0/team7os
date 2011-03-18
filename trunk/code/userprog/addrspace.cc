@@ -235,7 +235,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 			pageTable[i].byteSize = -1;
 		}
 
-		DEBUG('c', "pageType: %d readOnly: %d pageLocation: %d byteOffset: %d byteSize: %d.\n", pageTable[i].pageType,
+		DEBUG('c', "vpn: %d pageType: %d readOnly: %d pageLocation: %d byteOffset: %d byteSize: %d.\n", i, pageTable[i].pageType,
 			pageTable[i].readOnly, pageTable[i].pageLocation, pageTable[i].byteOffset, pageTable[i].byteSize);
 #endif
 	}
