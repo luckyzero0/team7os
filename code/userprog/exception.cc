@@ -813,7 +813,7 @@ int HandleFullMemory(int vpn) {
 			exit(1);
 		}
 		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, swapFileIndex * PageSize);
-		DEBUG('d', "Wrote the dirty page = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ppn, swapFileIndex, currentThread->space->numThreads);
+		DEBUG('d', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, swapFileIndex, currentThread->space->numThreads);
 		AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
 		ipt[ppn].physicalPage = -1;
 		ipt[ppn].byteOffset = swapFileIndex * PageSize;
