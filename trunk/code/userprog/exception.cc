@@ -854,6 +854,7 @@ int HandleIPTMiss(int vpn) {
 	} else if (ipt[ppn].pageLocation == PageLocationNotOnDisk ) {
 		bzero(&(machine->mainMemory[ppn * PageSize]), PageSize); // zero the whole page
 	} else { // it's on the swap file, we have work to do
+		DEBUG('p', "Reading from the swapfile.\n");
 		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
 		swapFileBitMap->Clear(ipt[ppn].byteOffset / PageSize);
 	}
