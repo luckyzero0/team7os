@@ -32,6 +32,8 @@
 #define MAX_CONDITIONS 200
 #define MAX_THREADS 1000
 
+extern "C" { int bzero(char *, int); };
+
 using namespace std;
 
 int threadArgs[MAX_THREADS];

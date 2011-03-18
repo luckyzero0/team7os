@@ -118,7 +118,7 @@ static void
 //      constructed set to false.
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
+AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 	NoffHeader noffH;
 	unsigned int i, size;
 
@@ -128,7 +128,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	fileTable.Put(0);
 	fileTable.Put(0);
 
-	this->executable = executable;
+	executable = theExecutable;
 
 	executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
 	if ((noffH.noffMagic != NOFFMAGIC) && 
