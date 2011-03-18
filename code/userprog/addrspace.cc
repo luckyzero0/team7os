@@ -209,7 +209,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 			pageTable[i].pageType = PageTypeCode;
 			pageTable[i].readOnly = true;
 			pageTable[i].pageLocation = PageLocationExecutable;
-			if (lastCodePage == firstInitDataPage) {
+			if (i == lastCodePage == firstInitDataPage) {
 				pageTable[i].pageType = PageTypeMixed;
 				pageTable[i].readOnly = false;
 			}
