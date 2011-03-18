@@ -294,7 +294,11 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 	newThread->startVPN = startVPN;
 	if (startVPN >= numPages) {
 		// copy and remake our pageTable
+#ifdef USE_TLB
+		IPTEntry* newPageTable = new IPTEntry[numPages + UserStackSize / PageSize];
+#else
 		TranslationEntry* newPageTable = new TranslationEntry[numPages + UserStackSize / PageSize];
+#endif
 		for (unsigned int i = 0; i < numPages; i++) { //copy the old entries
 			newPageTable[i] = pageTable[i];
 		}
