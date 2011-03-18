@@ -813,16 +813,16 @@ int HandleFullMemory(int vpn) {
 			exit(1);
 		}
 		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, swapFileIndex * PageSize);
-		DEBUG('p', "Wrote the dirty page = %d to the swapfile.\n", ppn);
+		DEBUG('p', "Wrote the dirty page = %d to the swapfile. numThreads = %d\n", ppn, currentThread->space->numThreads);
 		AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
 		ipt[ppn].physicalPage = -1;
 		ipt[ppn].byteOffset = swapFileIndex * PageSize;
 		ipt[ppn].byteSize = PageSize;
 		ipt[ppn].valid = true; // setting this to invalid would mean the VPN was invalid (given up by thread), but we don't want that
-		ipt[ppn].dirty = false;
+		ipt[ppn].dirty = false; 
 
 		owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
-		DEBUG('p', "Copied the ipt entry back to the owningSpace page table.\n");
+		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
 
 	return ppn;
