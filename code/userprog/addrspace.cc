@@ -150,6 +150,8 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 	unsigned int firstInitDataPage = divRoundUp(noffH.code.size + 1, PageSize) - 1;
 	unsigned int lastInitDataPage = divRoundUp(noffH.code.size + noffH.initData.size, PageSize) - 1;
 	unsigned int firstUninitDataPage = divRoundUp(noffH.code.size + noffH.initData.size + 1, PageSize) - 1;
+
+	DEBUG('c', "lc: %d fi: %d li: %d fu: %d.\n", lastCodePage, firstInitDataPage, lastInitDataPage, firstUninitDataPage);
 	unsigned int lastUninitDataPage = divRoundUp(size, PageSize) - 1;
 
 	DEBUG('c', "Requesting %d pages for code and initial thread.\n", numPages);
