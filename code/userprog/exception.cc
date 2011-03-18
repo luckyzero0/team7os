@@ -794,7 +794,7 @@ int HandleIPTMiss(int vpn) {
 	for (int i = 0; i < NumPhysPages; i++) {
 		if (!ipt[i].valid) {
 			// need to do a writeback on dirty ones
-			ipt[ppn].valid = true;
+			ipt[i].valid = true;
 			ppn = i;
 			break;
 		}
