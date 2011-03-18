@@ -43,7 +43,10 @@ extern int getPhysicalPage();
 extern int getContiguousPhysicalPages(int);
 extern void giveUpPhysicalPage(int);
 
+#ifdef USE_TLB
 extern IPTEntry ipt[NumPhysPages];
+extern OpenFile* swapFile;
+#endif
 
 
 #ifdef USER_PROGRAM

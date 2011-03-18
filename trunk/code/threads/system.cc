@@ -36,7 +36,10 @@ SynchDisk   *synchDisk;
 Machine *machine;	// user program memory and registers
 #endif
 
+#ifdef USE_TLB
 IPTEntry ipt[NumPhysPages];
+OpenFile* swapFile;
+#endif
 
 #ifdef NETWORK
 PostOffice *postOffice;
@@ -165,12 +168,23 @@ Initialize(int argc, char **argv)
     machine = new Machine(debugUserProg);	// this must come first
 #endif
 
+#ifdef FILESYS
+    synchDisk = new SynchDisk("DISK");
+#endif
+
+#ifdef FILESYS_NEEDED
+    fileSystem = new FileSystem(format);
+#endif
+
+#ifdef NETWORK
+    postOffice = new PostOffice(netname, rely, 10);
+#endif
+
 #ifdef USE_TLB
 	machine->tlb = new TranslationEntry[TLBSize];
 	for (int i = 0; i < TLBSize; i++) {
 		machine->tlb[i].valid = false;
 	}
-#endif
 
 	for (int i = 0; i < NumPhysPages; i++) {
 		ipt[i].physicalPage = i;
@@ -185,16 +199,7 @@ Initialize(int argc, char **argv)
 		ipt[i].dirty = false;
 	}
 
-#ifdef FILESYS
-    synchDisk = new SynchDisk("DISK");
-#endif
-
-#ifdef FILESYS_NEEDED
-    fileSystem = new FileSystem(format);
-#endif
-
-#ifdef NETWORK
-    postOffice = new PostOffice(netname, rely, 10);
+	swapFile = fileSystem->Open("swapfile");
 #endif
 }
 
