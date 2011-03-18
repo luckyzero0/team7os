@@ -846,7 +846,7 @@ int HandleIPTMiss(int vpn) {
 	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
 
 	if (ipt[ppn].pageLocation == PageLocationExecutable) {
-		DEBUG('p', "Reading from the executable.\n");
+		DEBUG('p', "Reading from the executable, with byteSize = %d.\n", ipt[ppn].byteSize);
 		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), ipt[ppn].byteSize, ipt[ppn].byteOffset);
 		if (ipt[ppn].byteSize != PageSize) {
 			DEBUG('p', "Zeroing out the remainder not read from code.\n");
