@@ -16,6 +16,7 @@
  */
 
 #include "syscall.h"
+#include "utils.h"
 
 int A[1024];    /* size of physical memory; with code, we'll run out of space!*/
 
@@ -28,6 +29,7 @@ main()
     for (i = 0; i < 1024; i++)          
         A[i] = 1024 - i;
 
+	printf("Did the first initialization.\n", 0,0,0,NULL,NULL);
     /* then sort! */
     for (i = 0; i < 1023; i++)
         for (j = i; j < (1023 - i); j++)
