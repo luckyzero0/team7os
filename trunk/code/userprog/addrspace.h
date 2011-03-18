@@ -18,7 +18,7 @@
 #include "table.h"
 #include "ipt.h"
 
-#define UserStackSize		4096 	// increase this as necessary!
+#define UserStackSize		1024 	// increase this as necessary!
 
 #define MaxOpenFiles 256
 #define MaxChildSpaces 256
