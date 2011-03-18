@@ -99,7 +99,7 @@ main(int argc, char **argv)
 	if (!strcmp(*argv, "-T1"))
 	  thread_test = TRUE;
 	if (!strcmp(*argv, "-P")) {
-		if(!strcmp(*(argv + 1), "RAND") {
+		if(!strcmp(*(argv + 1), "RAND")) {
 			PRAND = true;
 			PFIFO = false;
 		}
