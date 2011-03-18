@@ -789,6 +789,8 @@ int GetThreadID_Syscall() {
 int HandleIPTMiss(int vpn) {
 	int ppn = -1;
 
+	DEBUG('p', "In HandleIPTMiss() for vpn = %d", vpn);
+
 	for (int i = 0; i < NumPhysPages; i++) {
 		if (!ipt[i].valid) {
 			// need to do a writeback on dirty ones
