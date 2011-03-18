@@ -786,12 +786,48 @@ int GetThreadID_Syscall() {
 	return currentThread->ID;
 }
 
+int fullMemPPN = -1;
+
+BitMap* swapFileBitMap = new BitMap(MAX_NUM_PROCESSES * 1000);
+int HandleFullMemory(int vpn) {
+	if (PRAND) {
+		fullMemPPN = rand() % NumPhysPages;
+	} else if (PFIFO) {
+		fullMemPPN = (fullMemPPN + 1) % NumPhysPages;
+	}
+
+	int ppn = fullMemPPN;
+
+	if (ipt[ppn].dirty) {
+		// write back to swapfile
+		ipt[ppn].pageLocation = PageLocationSwapFile;
+		
+		int swapFileIndex = swapFileBitMap->Find();
+		if (swapFileIndex == -1) {
+			printf("We ran out of space in the swap file, need to increase the bitmap.\n");
+			exit(1);
+		}
+		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, swapFileIndex * PageSize);
+		AddrSpace* owningSpace = processTable[getSpaceID(ipt[ppn].spaceID)];
+		ipt[ppn].physicalPage = -1;
+		ipt[ppn].byteOffset = swapFileIndex * PageSize;
+		ipt[ppn].byteSize = PageSize;
+		ipt[ppn].valid = true; // setting this to invalid would mean the VPN was invalid (given up by thread), but we don't want that
+		ipt[ppn].dirty = false;
+
+		owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
+	}
+
+	return ppn;
+}
+
 int HandleIPTMiss(int vpn) {
 	DEBUG('p', "In HandleIPTMiss() for vpn = %d.\n", vpn);
 
 	int ppn = getPhysicalPage();
 	if (ppn == -1) {
 		// do some crazy swapfile black magic
+		ppn = HandleFullMemory(vpn);
 	}
 
 	ipt[ppn] = currentThread->space->pageTable[vpn];
@@ -824,7 +860,12 @@ void HandlePageFault() {
 
 	tlbIndex = (tlbIndex + 1) % TLBSize;
 
-	//check the dirty bit to do some write-back eviction
+	//propage the dirty bit to do some write-back eviction
+	if (machine->tlb[tlbIndex].valid) {
+			ipt[machine->tlb[tlbIndex].physicalPage].dirty = machine->tlb[tlbIndex].dirty;
+	}
+
+	
 	int ppn = -1; //check IPT for physical page
 	for (unsigned int i = 0; i < NumPhysPages; i++) {
 		int spaceID = getSpaceID(currentThread->space);

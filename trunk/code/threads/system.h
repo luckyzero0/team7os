@@ -48,6 +48,9 @@ extern IPTEntry ipt[NumPhysPages];
 extern OpenFile* swapFile;
 #endif
 
+extern bool PRAND;
+extern bool PFIFO;
+
 
 #ifdef USER_PROGRAM
 #include "machine.h"
