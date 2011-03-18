@@ -12,7 +12,7 @@
 #define PageLocationExecutable 1
 #define PageLocationSwapFile 2
 
-class IPTEntry: public class TranslationEntry {
+class IPTEntry: public TranslationEntry {
 	public:
 		int pageType;
 		int pageLocation;
