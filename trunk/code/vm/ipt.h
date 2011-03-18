@@ -22,3 +22,4 @@ class IPTEntry: public TranslationEntry {
 		int byteSize;
 };
 
+#endif
