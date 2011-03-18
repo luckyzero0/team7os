@@ -891,7 +891,7 @@ void HandlePageFault() {
 	//add the new entry
 	machine->tlb[tlbIndex] = ipt[ppn];
 
-	DEBUG('p', "Finished HandlePageFault() for badVAddr = %d, it now uses ppn = %d.\n", badVAddr, ppn);
+	DEBUG('p', "Finished HandlePageFault() for badVAddr = %d, it now uses ppn = %d.  numThreads = %d\n", badVAddr, ppn, currentThread->space->numThreads);
 }
 
 void ExceptionHandler(ExceptionType which) {
