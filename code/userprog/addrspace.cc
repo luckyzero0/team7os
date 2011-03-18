@@ -170,20 +170,30 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	// first, set up the translation 
 	pageTable = new IPTEntry[numPages];
 
-/*	int startPPN = getContiguousPhysicalPages(numPages);
+#ifndef USE_TLB
+	int startPPN = getContiguousPhysicalPages(numPages);
 	if (startPPN == -1) {
 		printf("We failed to allocate %d contiguous physical pages, so the process did not create correctly!\n", numPages);
 		return;
-	}*/
+	}
+#endif
 	for (i = 0; i < numPages; i++) {
 		pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+
+#ifdef USE_TLB
 		pageTable[i].physicalPage = -1;
-		pageTable[i].spaceID = getSpaceID(currentThread->space);
+#else
+		pageTable[i] = startPPN + i;
+#endif
 		pageTable[i].valid = false;
 		pageTable[i].use = false;
 		pageTable[i].dirty = false;  // if the code segment was entirely on 
 		// a separate page, we could set its 
 		// pages to be read-only
+
+#ifdef USE_TLB
+		pageTable[i].spaceID = getSpaceID(currentThread->space);
+
 
 		// pages containing any code or init data are specified as being from the executable, with the appropriate offset and size
 	// later when pages are being replaced, anything of type Mixed or Data will be written back to the swap file, not the executable
@@ -216,13 +226,8 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 			pageTable[i].byteOffset = -1;
 			pageTable[i].byteSize = -1;
 		}
+#endif
 	}
-
-	// zero out the entire address space, to zero the unitialized data segment 
-	// and the stack segment
-	//   bzero(machine->mainMemory, size);
-
-	// then, copy in the code and data segments into memory
 
 #ifndef USE_TLB
 	if (noffH.code.size > 0) {
