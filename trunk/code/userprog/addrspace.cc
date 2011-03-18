@@ -140,16 +140,16 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 	}
 
 	DEBUG('c', "%d %d %d %d %d %d %d %d %d\n", noffH.code.virtualAddr, noffH.code.inFileAddr, noffH.code.size,
-	      noffH.initData.virtualAddr, noffH.initData.inFileAddr, noffH.initData.size,
-	      noffH.uninitData.virtualAddr, noffH.uninitData.inFileAddr, noffH.uninitData.size);
+		noffH.initData.virtualAddr, noffH.initData.inFileAddr, noffH.initData.size,
+		noffH.uninitData.virtualAddr, noffH.uninitData.inFileAddr, noffH.uninitData.size);
 
 	size = noffH.code.size + noffH.initData.size + noffH.uninitData.size ;
 	numPages = divRoundUp(size, PageSize) + divRoundUp(UserStackSize,PageSize);
 
-	unsigned int lastCodePage = divRoundUp(noffH.code.size, PageSize) - 1;
-	unsigned int firstInitDataPage = divRoundUp(noffH.code.size + 1, PageSize) - 1;
-	unsigned int lastInitDataPage = divRoundUp(noffH.code.size + noffH.initData.size, PageSize) - 1;
-	unsigned int firstUninitDataPage = divRoundUp(noffH.code.size + noffH.initData.size + 1, PageSize) - 1;
+	const unsigned int lastCodePage = divRoundUp(noffH.code.size, PageSize) - 1;
+	const unsigned int firstInitDataPage = divRoundUp(noffH.code.size + 1, PageSize) - 1;
+	const unsigned int lastInitDataPage = divRoundUp(noffH.code.size + noffH.initData.size, PageSize) - 1;
+	const unsigned int firstUninitDataPage = divRoundUp(noffH.code.size + noffH.initData.size + 1, PageSize) - 1;
 
 	DEBUG('c', "lc: %d fi: %d li: %d fu: %d.\n", lastCodePage, firstInitDataPage, lastInitDataPage, firstUninitDataPage);
 	unsigned int lastUninitDataPage = divRoundUp(size, PageSize) - 1;
@@ -168,7 +168,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 
 	numThreads = 0;
 
-	
+
 
 	DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 		numPages, size);
@@ -206,12 +206,12 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 
 
 		// pages containing any code or init data are specified as being from the executable, with the appropriate offset and size
-	// later when pages are being replaced, anything of type Mixed or Data will be written back to the swap file, not the executable
+		// later when pages are being replaced, anything of type Mixed or Data will be written back to the swap file, not the executable
 		if (i <= lastCodePage) {
 			pageTable[i].pageType = PageTypeCode;
 			pageTable[i].readOnly = true;
 			pageTable[i].pageLocation = PageLocationExecutable;
-			if (i == lastCodePage == firstInitDataPage) {
+			if (i == lastCodePage && i == firstInitDataPage) {
 				pageTable[i].pageType = PageTypeMixed;
 				pageTable[i].readOnly = false;
 			}
@@ -228,7 +228,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 		if (i <= lastInitDataPage) {
 			pageTable[i].byteOffset = noffH.code.inFileAddr + i * PageSize;
 			pageTable[i].byteSize = PageSize;
-			if (i == lastInitDataPage == firstUninitDataPage) {
+			if (i == lastInitDataPage && i == firstUninitDataPage) {
 				// need a smaller size
 				DEBUG('c', "i == lastInitDataPage == firstUninitDataPage.\n");
 				pageTable[i].byteSize = (noffH.code.size + noffH.initData.size) % PageSize;
@@ -340,7 +340,7 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 		pageTable[startVPN + i].byteSize = -1;
 #endif
 	}
-	
+
 	for(unsigned int i = 0; i < numPages; i++)
 	{
 		DEBUG('a',"pageTable[%d]. Physical Page = [%d]. Valid = [%d]\n",i,pageTable[i].physicalPage,pageTable[i].valid);
