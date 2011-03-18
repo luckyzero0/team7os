@@ -144,11 +144,11 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	size = noffH.code.size + noffH.initData.size + noffH.uninitData.size ;
 	numPages = divRoundUp(size, PageSize) + divRoundUp(UserStackSize,PageSize);
 
-	int lastCodePage = divRoundUp(noffH.code.size, PageSize) - 1;
-	int firstInitDataPage = divRoundUp(noffH.code.size + 1, PageSize) - 1;
-	int lastInitDataPage = divRoundUp(noffH.code.size + noffH.initData.size, PageSize) - 1;
-	int firstUninitDataPage = divRoundUp(noffH.code.size + noffH.initData.size + 1, PageSize) - 1;
-	int lastUninitDataPage = divRoundUp(size, PageSize) - 1;
+	unsigned int lastCodePage = divRoundUp(noffH.code.size, PageSize) - 1;
+	unsigned int firstInitDataPage = divRoundUp(noffH.code.size + 1, PageSize) - 1;
+	unsigned int lastInitDataPage = divRoundUp(noffH.code.size + noffH.initData.size, PageSize) - 1;
+	unsigned int firstUninitDataPage = divRoundUp(noffH.code.size + noffH.initData.size + 1, PageSize) - 1;
+	unsigned int lastUninitDataPage = divRoundUp(size, PageSize) - 1;
 
 	DEBUG('c', "Requesting %d pages for code and initial thread.\n", numPages);
 	mainThreadStartVPN = divRoundUp(size,PageSize);
