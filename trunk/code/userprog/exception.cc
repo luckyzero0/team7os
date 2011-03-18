@@ -810,10 +810,10 @@ int HandleIPTMiss(int vpn) {
 		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), ipt[ppn].byteSize, ipt[ppn].byteOffset);
 		if (ipt[ppn].byteSize != PageSize) {
 			// the page had some uninitialize data on it that we need to zero out.
-			bzero(&(machine->mainMemory[ppn * PageSize + ipt[ppn].byteSize]), PageSize - ipt[ppn].byteSize);
+		//	bzero(&(machine->mainMemory[ppn * PageSize + ipt[ppn].byteSize]), PageSize - ipt[ppn].byteSize);
 		}
 	} else if (ipt[ppn].pageLocation == PageLocationNotOnDisk ) {
-		bzero(&(machine->mainMemory[ppn * PageSize]), PageSize); // zero the whole page
+	//	bzero(&(machine->mainMemory[ppn * PageSize]), PageSize); // zero the whole page
 	} else { // it's on the swap file, we have work to do
 		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
 	}
