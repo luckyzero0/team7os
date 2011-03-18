@@ -821,6 +821,7 @@ int HandleFullMemory(int vpn) {
 		ipt[ppn].dirty = false;
 
 		owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
+		DEBUG('p', "Copied the ipt entry back to the owningSpace page table.");
 	}
 
 	return ppn;
