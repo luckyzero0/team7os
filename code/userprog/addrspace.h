@@ -57,6 +57,8 @@ public:
 	TranslationEntry *pageTable;	// Assume linear page table translation
 #endif
 
+	OpenFile* executable;
+
 private:
 	int getStartVPN();
 	void copyPageTableEntryToIPT(int vpn);
@@ -68,7 +70,7 @@ private:
 	int codeSize;
 	bool constructedSuccessfully;
 
-	OpenFile* executable;
+	
 };
 
 #endif // ADDRSPACE_H
