@@ -846,8 +846,10 @@ int HandleIPTMiss(int vpn) {
 	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
 
 	if (ipt[ppn].pageLocation == PageLocationExecutable) {
+		DEBUG('p', "Reading from the executable.\n");
 		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), ipt[ppn].byteSize, ipt[ppn].byteOffset);
 		if (ipt[ppn].byteSize != PageSize) {
+			DEBUG('p', "Zeroing out the remainder not read from code.");
 			// the page had some uninitialize data on it that we need to zero out.
 			bzero(&(machine->mainMemory[ppn * PageSize + ipt[ppn].byteSize]), PageSize - ipt[ppn].byteSize);
 		}
