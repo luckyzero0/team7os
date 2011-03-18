@@ -824,6 +824,7 @@ int tlbIndex = -1;
 
 void HandlePageFault() {
 	int badVAddr = machine->ReadRegister(BadVAddrReg);
+	DEBUG('p', "In HandlePageFault() for badVAddr = %d.\n", badVAddr);
 	int badVPN = badVAddr / PageSize;
 
 	tlbIndex = (tlbIndex + 1) % TLBSize;
