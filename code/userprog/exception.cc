@@ -784,8 +784,34 @@ int GetThreadID_Syscall() {
 	return currentThread->ID;
 }
 
-int HandleIPTMiss() {
+int HandleIPTMiss(int vpn) {
+	int ppn = -1;
 
+	for (int i = 0; i < NumPhysPages; i++) {
+		if (!ipt[i].valid) {
+			// need to do a writeback on dirty ones
+			ppn = i;
+			break;
+		}
+	}
+
+	if (ppn == -1) {
+		// do some crazy swapfile black magic
+	}
+
+	ipt[ppn] = currentThread->space->pageTable[vpn];
+
+	if (ipt[ppn].pageLocation == PageLocationExecutable) {
+		currentThread->space->executable->ReadAt(&mainMemory[ppn * PageSize], ipt[ppn].byteSize, ipt[ppn].byteOffset);
+		if (ipt[ppn].byteSize != PageSize) {
+			// the page had some uninitialize data on it that we need to zero out.
+			bzero(&mainMemory[ppn * PageSize + ipt[ppn].byteSize], PageSize - ipt[ppn].byteSize);
+		}
+	} else if (ipt[ppn].pageLocation == PageLocationNotOnDisk ) {
+		bzero(&mainMemory[ppn * PageSize], PageSize); // zero the whole page
+	} else { // it's on the swap file, we have work to do
+		swapFile->ReadAt(&mainMemory[ppn * PageSize], PageSize, ipt[ppn].byteOffset);
+	}
 }
 
 int tlbIndex = -1;
@@ -807,7 +833,7 @@ void HandlePageFault() {
 	}
 
 	if (ppn == -1) {
-		ppn = HandleIPTMiss();
+		ppn = HandleIPTMiss(badVPN);
 	}
 	//add the new entry
 	(machine->tlb)[tlbIndex].virtualPage = badVPN;
