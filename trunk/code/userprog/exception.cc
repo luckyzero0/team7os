@@ -787,24 +787,18 @@ int GetThreadID_Syscall() {
 }
 
 int HandleIPTMiss(int vpn) {
-	int ppn = -1;
-
 	DEBUG('p', "In HandleIPTMiss() for vpn = %d.\n", vpn);
 
-	for (int i = 0; i < NumPhysPages; i++) {
-		if (!ipt[i].valid) {
-			// need to do a writeback on dirty ones
-			ppn = i;
-			break;
-		}
-	}
-
+	int ppn = getPhysicalPage();
 	if (ppn == -1) {
 		// do some crazy swapfile black magic
 	}
 
 	ipt[ppn] = currentThread->space->pageTable[vpn];
+	ipt[ppn].physicalPage = ppn;
 	ipt[ppn].valid = true;
+
+	currentThread->space->pageTable[vpn] = ipt[ppn];
 
 	if (ipt[ppn].pageLocation == PageLocationExecutable) {
 		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), ipt[ppn].byteSize, ipt[ppn].byteOffset);
