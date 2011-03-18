@@ -798,7 +798,7 @@ int HandleFullMemory(int vpn) {
 
 	int ppn = fullMemPPN;
 
-	DEBUG('p', "In HandleFullMemory() with vpn = %d.\n");
+	DEBUG('p', "In HandleFullMemory() with vpn = %d.\n", vpn);
 
 	if (ipt[ppn].dirty) {
 		// write back to swapfile
