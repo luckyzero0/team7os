@@ -29,7 +29,7 @@ main()
     for (i = 0; i < 1024; i++)          
         A[i] = 1024 - i;
 
-	printf("Did the first initialization.\n", 0,0,0,NULL,NULL);
+	printf("Did the first initialization.\n", 0,0,0,"","");
     /* then sort! */
     for (i = 0; i < 1023; i++)
         for (j = i; j < (1023 - i); j++)
