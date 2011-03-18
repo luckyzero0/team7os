@@ -389,7 +389,7 @@ void Exit_Syscall(int status) {
 	bigLock->Acquire();
 	int numProcesses = getNumProcesses();
 
-	DEBUG('a', "In exit!, with %d processes currently active.\n", numProcesses);
+	DEBUG('p', "In exit!, with %d processes currently active.\n", numProcesses);
 
 	if (numProcesses == 1 && currentThread->space->numThreads == 0) { //we are the final thread remaining
 		printf("Exiting final process with return value: %d.\n", status);
@@ -403,7 +403,7 @@ void Exit_Syscall(int status) {
 		DEBUG('a', "In KILL PROCESS block of exit for SpaceID[%d].\n", spaceID);
 		currentThread->Finish();
 	} else { //we are not the last thread in a process, so just kill the thread
-		DEBUG('a', "Giving up a non-final thread in a process.\n");
+		DEBUG('p', "Giving up a non-final thread in a process.\n");
 		printf("Exiting thread with return value: %d", status);
 		currentThread->space->RemoveCurrentThread();
 		bigLock->Release();
