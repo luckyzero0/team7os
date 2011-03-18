@@ -223,21 +223,13 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 	//   bzero(machine->mainMemory, size);
 
 	// then, copy in the code and data segments into memory
+
+#ifndef USE_TLB
 	if (noffH.code.size > 0) {
 		DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
 			noffH.code.virtualAddr, noffH.code.size);
 		executable->ReadAt(&(machine->mainMemory[pageTable[0].physicalPage * PageSize]),
 			noffH.code.size, noffH.code.inFileAddr);
-		for (unsigned int i = 0; i < divRoundUp(noffH.code.size); i++) {
-			int amountToRead;
-			if (i == divRoundUp(noffH.code.size) - 1) { // only read a partial page.
-
-			} else {
-				amountToRead = PageSize;
-			}
-			executable->ReadAt(&(machine->mainMemory[pageTable[i].physicalPage * PageSize]),
-				PageSize, noffH.code.inFileAddr
-		}
 	}
 	if (noffH.initData.size > 0) {
 		DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
@@ -245,6 +237,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
 		executable->ReadAt(&(machine->mainMemory[pageTable[0].physicalPage * PageSize + noffH.code.size]),
 			noffH.initData.size, noffH.initData.inFileAddr);
 	}
+#endif
 
 	constructedSuccessfully = true;
 
