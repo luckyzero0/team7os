@@ -800,6 +800,9 @@ void RemovePageFromTLB(int ppn) {
 		if (machine->tlb[i].virtualPage == ipt[ppn].virtualPage && spaceID == ipt[ppn].spaceID
 			&& machine->tlb[i].valid) {
 			machine->tlb[i].valid = false;
+			if (machine->tlb[i].dirty) {
+				ipt[ppn].dirty = true;
+			}
 		}
 	}
 }
