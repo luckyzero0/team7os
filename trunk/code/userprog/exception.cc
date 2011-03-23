@@ -792,10 +792,12 @@ int fullMemPPN = -1;
 BitMap* swapFileBitMap = new BitMap(16000);
 
 void RemovePageFromTLB(int ppn) {
+	int spaceID = getSpaceID(currentThread->space);
 
 	for (unsigned int i = 0; i < TLB_SIZE; i++) {
 		// if the page we are evicting has the same VPN and spaceID as a page in the TLB, invalidate the TLB page
-		if (machine->tlb[i].virtualPage == ipt[ppn].virtualPage && machine->tlb[i].spaceID == ipt[ppn].spaceID
+		// spaceID for the TLB is the current spaceID, because all TLB entries correspond to only the current thread
+		if (machine->tlb[i].virtualPage == ipt[ppn].virtualPage && spaceID == ipt[ppn].spaceID
 			&& machine->tlb[i].valid) {
 			machine->tlb[i].valid = false;
 		}
