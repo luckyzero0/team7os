@@ -790,6 +790,18 @@ int GetThreadID_Syscall() {
 int fullMemPPN = -1;
 
 BitMap* swapFileBitMap = new BitMap(16000);
+
+void RemovePageFromTLB(int ppn) {
+
+	for (unsigned int i = 0; i < TLB_SIZE; i++) {
+		// if the page we are evicting has the same VPN and spaceID as a page in the TLB, invalidate the TLB page
+		if (machine->tlb[i].virtualPage == ipt[ppn].virtualPage && machine->tlb[i].spaceID == ipt[ppn].spaceID
+			&& machine->tlb[i].valid) {
+			machine->tlb[i].valid = false;
+		}
+	}
+}
+
 int HandleFullMemory(int vpn) {
 	if (PRAND) {
 		fullMemPPN = rand() % NumPhysPages;
@@ -798,6 +810,8 @@ int HandleFullMemory(int vpn) {
 	}
 
 	int ppn = fullMemPPN;
+
+	RemovePageFromTLB(ppn);
 
 	DEBUG('p', "In HandleFullMemory() with vpn = %d and selected ppn to evict: %d.\n", vpn, ppn);
 
