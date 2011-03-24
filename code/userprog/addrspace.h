@@ -55,9 +55,9 @@ public:
 	bool didConstructSuccessfully();
 
 #ifdef USE_TLB
-	IPTEntry *pageTable;
+	IPTEntry* pageTable;
 #else
-	TranslationEntry *pageTable;	// Assume linear page table translation
+	TranslationEntry* pageTable;	// Assume linear page table translation
 #endif
 
 	OpenFile* executable;
