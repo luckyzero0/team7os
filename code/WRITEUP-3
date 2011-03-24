@@ -1,0 +1,331 @@
+#WRITEUP#
+
+Writeup for Project 2, Spring2011
+02/27/2011
+
+
+Team 24:	Nick Bopp		nbopp@usc.edu
+
+			Mihir Sheth		mihirshe@usc.edu
+
+			James Cramer	jcramer@usc.edu
+
+
+---USAGE---
+To build Nachos:
+	gmake (inside the userprog directory)
+	
+To build coff2noff:
+	gmake coff2noff (inside the bin directory)
+	
+To build individual tests:
+	gmake TEST_EXECUTABLE_FILE (inside the test directory)
+
+To run simulation with user-input for desired numbers of things (and the "correct" print statements):
+	nachos -rs XXXX -x ../test/*TEST_EXECUTABLE_FILE* (inside the userprog directory)
+
+To run our big monster mega test (compiles nrun.cc, based on the utility on the class website), runs nachos with all -rs args 1-9998:
+	g++ -onrun nrun.cc (inside the userprog directory)
+	nrun
+
+
+---DOCUMENTATION---
+
+I. REQUIREMENTS
+
+	The main assignment for Project 2 was the implementation of system calls, and the execution of the Passport Office
+	as a user program executed on the simulated MIPS CPU with the Nachos OS handling system calls.
+
+II. ASSUMPTIONS
+
+	1.) Object oriented is for suckas.
+	2.) The simulation halts (ends) when there are no customers left. This is because all threads go to 
+		sleep when there are no customers, and nachos interprets this as the program terminating.
+
+III. DESIGN
+
+	Locks / Conditions:
+		Global array of LockEntry and ConditionEntries that each user program can checkout, use, and destroy.
+		Right now checked out locks / conditions are NOT automatically returned to the OS when a process is destroyed,
+			that is still the application programmer's responsibility.
+		
+		The design / implementation of the syscalls relating to locks / conditions is nearl identical to that offered
+			in the class notes.  As such, I'm not going to go into a great deal of detail here.
+			
+	Fork:
+		Our Fork very closely follows the design offered in the Student Documentation section in the class website.
+		Our only significant change was to make a thread have a globally unique ID, as well as keeping track of the virtual pages
+			it uses.  These are useful later in exit, so we can give back virtual pages to our process, and physical pages to
+			the operating system.
+			
+		We also implemented a ForkWithArg, that is exactly like fork, except it allows the user program to pass an arg
+			to the forked thread, which can be collected in the new thread by calling GetForkArg().
+			
+	Exec:
+		Again, this closely follows the design offered in the Student Documentation on the class website.  We did make
+			a fair amount of changes to the AddrSpace constructor so that virtual pages always start at 0, and physical pages
+			acquire are contiguous.  We also DO NOT zero out unitialized data section of the loaded executable, as none of our
+			user programs make the assumption that uninitialized data is set to 0 (neither do programs on any OS as far as I know).
+		
+		Once constructed, the process is added to the process table so it can be cleaned up later in Exit().  If for some reason the process
+			did not construct successfully, we immediately delete it and return a -1 SpaceID to the user program.
+			
+	Exit:
+		If we are the last thread of the last process, we halt the machine.  If we are the last thread of a process, we delete the process
+			and free its entry from the process table, handing back all its physical pages to the OS.  If we are not the final thread of a process,
+			we just give up a thread's stack space.
+	
+
+IV. IMPLEMENTATION
+
+	+ Files Modified
+		- exception.cc
+		- machine.h (Changed around number of PhysPages)
+		- thread.h/cc
+		- synch.h/cc
+		- addrspace.h/cc
+		- syscall.h
+		- system.cc
+	
+	+ Files Added
+		- test/* (All the tests in the test directory)
+		
+	+ Data Structures Added
+		AddrSpace* processTable[]; - keeps track of all open processes
+		int threadArgs[]; - holds arguments to forked threads
+		Bitmap physPageBitmap; - keeps track of which physical pages are checked out
+		Lock* bigLock; - makes sure we don't have multiple threads / processes messing with any of the new data at once
+		
+	+ Data Structures Modified
+		NONE
+			
+	+ Functions Added
+		- New syscalls
+			. Fork
+			. Exec
+			. Yield
+			. Exit
+			. Create/Destroy Lock/Condition
+			. Acquire
+			. Release
+			. Wait
+			. Signal
+			. Broadcast
+			. ForkWithArg - Calls Fork and supplies an argument to the thread
+			. GetForkArg - Called by a Thread to get its argument
+			
+		- Private Functions to AddrSpace and Thread
+			. Used to tell each thread which virtual pages it has, so it can
+				be cleaned up properly when it exists.
+			
+		- PhysicalPage Checkout
+			- int getContiguousPages(int num); -- Checks out num contiguous physical pages for a address space
+			- int getPhysicalPage(); -- Checks out one physical page
+			- void releasePhysicalPage(int pageNum); -- Gives that physical page back to the system
+			
+		- Additional Testing Functions
+			- office.c
+				- OfficeTest1() -- used by customerLineTest
+				- OfficeTest2() -- used by managerTest
+				- OfficeTest3() -- used by customerCashierTest
+				- OfficeTest4() -- used by clerkBreakTest
+				- OfficeTest5() -- used by managerClerkTest
+				- OfficeTest6() -- used by senatorTest
+			- customer.c
+				- CustomerCashTest() -- used by customerCashierTest, executes only cashierClerk routine
+			- manager.c
+				- ManagerClerkTest() -- used by managerClerkTest, executes only tryWakeUpClerks routine
+
+V. TESTING
+
+	+ How to Test
+	
+		See USAGE above.
+		
+		The .c's listed below are the tests.  For example, to build, just do "gmake forkTest".
+		
+		PARTS 1 AND 2: ----------------------------------------------------------------------
+	
+				/*forkTest.c*/
+		/* 
+		 * Tests for forking. Checks against bad construction data,
+		 * and confirms that two threads can run concurrently modifying
+		 * global data.
+		 * If successfull, x = 10 at the end of the test.
+		 */
+		 
+				 /* halt.c
+		 *	Simple program to test whether running a user program works.
+		 *	
+		 *	Just do a "syscall" that shuts down the OS.
+		 *
+		 * 	NOTE: for some reason, user programs with global data structures 
+		 *	sometimes haven't worked in the Nachos environment.  So be careful
+		 *	out there!  One option is to allocate data structures as 
+		 * 	automatics within a procedure, but if you do this, you have to
+		 *	be careful to allocate a big enough stack to hold the automatics!
+		 */
+		 
+				 /* matmult.c 
+		 *    Test program to do matrix multiplication on large arrays.
+		 *
+		 *    Intended to stress virtual memory system.
+		 *
+		 *    Ideally, we could read the matrices off of the file system,
+		 *	and store the result back to the file system!
+		 */
+		 
+				/*randTest.c*/
+		*	Produces a few random numbers.
+		*	Should always produce the exact same numbers for a given -rs value
+		*/
+		
+				/* sort.c 
+		*    Test program to sort a large number of integers.
+		*
+		*    Intention is to stress virtual memory system.
+		*
+		*    Ideally, we could read the unsorted array off of the file system,
+		*	and store the result back to the file system!
+		*/
+		
+				/*testConditions.c*/
+		/*
+		 * Tests CVs. Attempt to pass bad construction data,
+		 * as well as access CVs with bad parameters.
+		 * If successfully, bad CVs are not created, and
+		 * t2 will run before t1.
+		 * Finally, tests broadcast. If successful, all threads will
+		 * exit.
+		 */
+		 
+				 /*execTest.c*/
+		/*
+		 *	Tests the Exec function call with some bad input
+		 *	as well as a normative case.
+		 */
+		 
+				 /* exec_testLocks.c */
+		/*	This will run the test "testLocks"
+		*	in 9 processes simultaneously, then shutdown.
+		*/
+		 
+				/* forkArg.c */
+		/*	This test tries out the GetForkArg syscall to make sure that
+		*	threads receive the appropriate argument. The behavior for
+		*	GetForkArg on threads not forked with an arg is not guaranteed,
+		*	but right now the implementation always returns -2.
+		*/
+		
+				/* testLocks.c */
+		/*	Quick test program to check if lock related SYSCALLS are working.
+		* 	Performs a few tests to check bad construction data, as well as
+		* 	Passing bad lock IDs to demonstrate attempting to acquire non-owned
+		* 	locks.
+		* 	The final test demonstrates a small mutex scenario, in which the final
+		* 	result of raceCondition should should be 0, 5, or 10, depending on which
+		* 	thread runs first, but never any value in between.
+		*/
+
+		
+		PART 3: Passport Simulation ---------------------------------------------------------------------------------------------
+		
+				/* officeMain.c */
+		/*	This runs the office with the default values of 3 of each clerk,
+		*	20 customers, and 3 senators.  Everything should escape the office,
+		*	and the sum of cashier money should be $2300.
+		*/
+		
+				/* officeMainDEBUG.c */
+		/*	This runs the office with the default values of 3 of each clerk,
+		*	20 customers, and 3 senators, with TESTING flag turned on for 
+		*   enhanced output. Everything should escape the office,
+		*	and the sum of cashier money should be $2300.
+		*/
+		
+				/* exec_office.c */
+		/* 
+		 * Execs 4 office programs to run simultaneously to 
+		 * test multiprogramming.
+		 */
+		 
+			 /*senatorTest.c*/
+		/* This test is to show that customers
+		 * behave property in the presence
+		 * of the allpowerful senators. 2 customers are
+		 * forked and 1 senator. Everyone should exit 
+		 * at the end.
+		 */
+		 
+			 /*clerkBreakTest.c*/
+		/* 
+		 * Test showing that clerks go on break when there
+		 * are no customers in their lines. The test forks
+		 * 2 of each clerk and 0 customers, so that they 
+		 * will go on break once the simulation starts.
+		 */
+		 
+		 
+			 /*customerCashiertest.c*/
+		/*
+		 *	Test to demonstrate customers entering and leaving the passport office,
+		 *  but only interactions with the cashier clerk, namely that they only leave once
+		 *  they received their passport, and that the cashclerk only interacts with them
+		 *  one at a time. Forks 3 customers to only do a routine to run the doCashClerk() 
+		 *	in customer, and sets valid = true for all of them, so they can pay the cashier
+		 * 	and leave.
+		*/	
+		
+			/*customerLinetest.c*/
+		/* Checks to make sure customers always
+		 * choose the shortest line. Manually sets the
+		 * line length of the appLine to 3. No clerks
+		 * are forked in this test, so the program exits
+		 * once all customers have gotten in line.
+		 */
+		 
+			 /*managerClerkTest.c*/
+		/* This test shows that the manager
+		 * wakes up clerks if they have people in their lines.
+		 * This is simulated by forking customers before clerks.
+		 * The forked ManagerClerkTest function sets the line lengths
+		 * to test values, but no customers are forked. The program
+		 * will exit after all clerks wake up.
+		 */
+		 
+		 
+		 	/*ManagerTest.c*/
+		/*
+		 * Test to ensure that the
+		 * Manager does not check multiple clerks
+		 * at the same time. 2 of each clerk are forked,
+		 * and their cash values set to 500 each, except
+		 * the cashier, who has 0. This is to trigger
+		 * the managers cashChecking routine, which executes
+		 * when cashier's cash == numCustomers*100. No customers
+		 * are forked, so the value must be 0.
+		 */
+		 
+		 
+		 
+		
+		nrun: Runs "nachos -rs XXXX -x ../test/officeMain" with every value of RS up to 1 to 9998
+			- We used this once we verified our simulation worked without random yielding.  Certain race conditions only occur in one or a few random
+			  seeds, so we used this to verify complete and total accuracy.  nrun will exit if a -rs value causes nachos to fail.  Also, if nrun hangs
+			  forever, we knew we had a race condition with that -rs value, so we were able to run it, read the TEST output, and debug.
+
+
+VI. DISCUSSION
+
+As far as we can tell, our project has no race conditions or deadlock. We used nrun to check many random seed values, and our program never broke.
+All customers leave the office when senators arrive, and re-enter once they finish. Everyone leaves the office by the end. Customers and senators
+are never in the office at the same time.  We can also execute multiple simulations at once by execing them.
+
+
+VII. MISCELLANEOUS
+
+Please feel free to contact us if you have any questions. We'd be happy to meet to meet up and discuss any issues/what's going on in the simulation.
+Please contact us by emailing Nick Bopp at nbopp@usc.edu.
+
+
+	
