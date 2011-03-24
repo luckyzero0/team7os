@@ -21,7 +21,10 @@
 #include "noff.h"
 #include "table.h"
 #include "synch.h"
+
+#ifdef USE_TLB
 #include "ipt.h"
+#endif
 
 extern "C" { int bzero(char *, int); };
 
@@ -173,7 +176,11 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 	DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 		numPages, size);
 	// first, set up the translation 
+#ifdef USE_TLB
 	pageTable = new IPTEntry[numPages];
+#else
+	pageTable = new TranslationEntry[numPages];
+#endif
 
 #ifndef USE_TLB
 	if (numPages > NumPhysPages) {
