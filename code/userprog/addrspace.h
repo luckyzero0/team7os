@@ -16,7 +16,10 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "table.h"
+
+#ifdef USE_TLB
 #include "ipt.h"
+#endif
 
 #define UserStackSize		1024 	// increase this as necessary!
 
