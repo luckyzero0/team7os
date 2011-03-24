@@ -17,7 +17,10 @@
 #include "timer.h"
 #include "bitmap.h"
 #include "synch.h"
+
+#ifdef USE_TLB
 #include "ipt.h"
+#endif
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
