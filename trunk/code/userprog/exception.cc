@@ -787,6 +787,7 @@ int GetThreadID_Syscall() {
 	return currentThread->ID;
 }
 
+#ifdef USE_TLB
 int fullMemPPN = -1;
 
 BitMap* swapFileBitMap = new BitMap(16000);
@@ -927,6 +928,8 @@ void HandlePageFault() {
 	DEBUG('p', "Finished HandlePageFault() for badVAddr = %d, it now uses ppn = %d.  numThreads = %d\n", badVAddr, ppn, currentThread->space->numThreads);
 }
 
+#endif
+
 void ExceptionHandler(ExceptionType which) {
 	int type = machine->ReadRegister(2); // Which syscall?
 	int rv=0; 	// the return value from a syscall
@@ -1063,7 +1066,9 @@ void ExceptionHandler(ExceptionType which) {
 		return;
 	} else if ( which == PageFaultException ) {
 		stats->numPageFaults++;
+#ifdef USE_TLB
 		HandlePageFault();
+#endif
 	} else {
 		cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;
 		interrupt->Halt();
