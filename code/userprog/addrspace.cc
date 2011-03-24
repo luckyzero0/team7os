@@ -193,7 +193,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 #ifdef USE_TLB
 		pageTable[i].physicalPage = -1;
 #else
-		pageTable[i] = startPPN + i;
+		pageTable[i].physicalPage = startPPN + i;
 #endif
 		pageTable[i].valid = true;
 		pageTable[i].use = false;
