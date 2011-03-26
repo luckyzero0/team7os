@@ -870,7 +870,7 @@ int HandleFullMemory(int vpn) {
 				exit(1);
 			}
 			ipt[ppn].byteOffset = swapFileIndex * PageSize;
-			ipt[ppn].byteSize = swapFileIndex * PageSize;
+			ipt[ppn].byteSize = PageSize;
 		}
 
 		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
