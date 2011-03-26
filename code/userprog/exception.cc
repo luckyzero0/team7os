@@ -905,6 +905,10 @@ int HandleFullMemory(int vpn) {
 void HandleIPTMiss(int vpn) {
 	DEBUG('p', "In HandleIPTMiss() for vpn = %d.\n", vpn);
 
+		for (int i = 0; i < NumPhysPages; i++) {
+			printf("ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
+		}
+
 	int ppn = getPhysicalPage(); // does some internal locking to set inUse on ppn
 	if (ppn == -1) {
 		// do some crazy swapfile black magic
