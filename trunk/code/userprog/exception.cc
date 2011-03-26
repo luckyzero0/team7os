@@ -859,7 +859,7 @@ int HandleFullMemory(int vpn) {
 
 	if (owningSpace == NULL) {
 		for (int i = 0; i < NumPhysPages; i++) {
-			printf("ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
+			printf("ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
 		}
 	}
 	owningSpace->pageTableLock->Acquire();
