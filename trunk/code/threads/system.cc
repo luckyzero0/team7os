@@ -216,7 +216,6 @@ int getPhysicalPage() {
 			//check and writeback dirty
 			ipt[i].valid = true;
 			ipt[i].inUse = true;
-			processTable[ipt[i].spaceID]->processTableLock->Acquire();
 			iptLock->Release();
 			return i;
 		}
