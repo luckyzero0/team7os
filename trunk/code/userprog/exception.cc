@@ -851,9 +851,9 @@ int HandleFullMemory(int vpn) {
 		} else if (PFIFO) {
 			ppn = (++fullMemPPN) % NumPhysPages;
 		}
-	} while (ipt[ppn].isUse);
+	} while (ipt[ppn].inUse);
 
-	ipt[ppn].isUse = true;
+	ipt[ppn].inUse = true;
 	iptLock->Release();
 
 	RemovePageFromTLB(ppn);
