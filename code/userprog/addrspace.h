@@ -56,6 +56,7 @@ public:
 
 #ifdef USE_TLB
 	IPTEntry* pageTable;
+	PageTableLock* pageTableLock;
 #else
 	TranslationEntry* pageTable;	// Assume linear page table translation
 #endif
