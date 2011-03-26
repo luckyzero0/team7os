@@ -809,6 +809,7 @@ void RemovePageFromTLB(int ppn) {
 				if (machine->tlb[i].dirty) {
 					ipt[ppn].dirty = true;
 				}
+				ASSERT(!(machine->tlb[i].virtualPage == 3 && machine->tlb[i].dirty));
 		}
 	}
 	interrupt->SetLevel(oldLevel);
@@ -831,6 +832,7 @@ void UpdateTLB(int vpn, int ppn) {
 	if (machine->tlb[tlbIndex].valid && machine->tlb[tlbIndex].dirty) {
 		int oldTLBPPN = machine->tlb[tlbIndex].physicalPage;
 		ipt[oldTLBPPN].dirty = true;
+		ASSERT(!(machine->tlb[tlbIndex].virtualPage == 3 && machine->tlb[tlbIndex].dirty));
 	}
 
 	//copy from the IPT to the TLB
