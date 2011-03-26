@@ -911,13 +911,15 @@ void HandleIPTMiss(int vpn) {
 		}
 	} else if (currentThread->space->pageTable[vpn].pageLocation == PageLocationNotOnDisk ) {
 		bzero(&(machine->mainMemory[ppn * PageSize]), PageSize); // zero the whole page
-	} else { // it's on the swap file, we have work to do
+	} else if (currentThread->space->pageTable[vpn].pageLocation == PageLocationSwapFile) { // it's on the swap file, we have work to do
 		DEBUG('d', "Reading from the swapfile.\n");
 		ASSERT(currentThread->space->pageTable[vpn].byteOffset % PageSize == 0); // the byte offset should be the very beginning of a page-sized amount of bytes, since we always read/write whole pages to the swapfiel
 		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, currentThread->space->pageTable[vpn].byteOffset);
 		//	swapFileBitMap->Clear(currentThread->space->pageTable[vpn].byteOffset / PageSize); // HACK, we can't clear the swapfile because if we don't set the dirty bit, we won't write this back, and someone else may come and claim this spot
 		// we should only clear on addrSpace deletion / thread deletion
 		DEBUG('d', "Read in vpn: %d from the swapFile at swapFileIndex: %d.\n", vpn, currentThread->space->pageTable[vpn].byteOffset / PageSize);
+	} else {
+		ASSERT(false);
 	}
 
 	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
