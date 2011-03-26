@@ -406,7 +406,7 @@ void Exit_Syscall(int status) {
 	} else { //we are not the last thread in a process, so just kill the thread
 		DEBUG('p', "Giving up a non-final thread in a process.\n");
 		printf("Exiting thread with return value: %d\n", status);
-		currentThread->space->RemoveCurrentThread();
+	//	currentThread->space->RemoveCurrentThread(); // HACK
 		bigLock->Release();
 		currentThread->Finish();
 	}
