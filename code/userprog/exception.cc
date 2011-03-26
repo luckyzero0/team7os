@@ -861,14 +861,13 @@ int HandleFullMemory(int vpn) {
 		// write back to swapfile
 		DEBUG('p', "Flushing a dirty page = %d to the swapfile.\n", ppn);
 
-		ipt[ppn].pageLocation = PageLocationSwapFile;
-
-		if (ipt[ppn].byteOffset == -1) { //we don't already have a space for this page in the swapfile, get it one
+		if (ipt[ppn].pageLocation != PageLocationSwapFile) { //we don't already have a space for this page in the swapfile, get it one
 			int swapFileIndex = swapFileBitMap->Find();
 			if (swapFileIndex == -1) {
 				printf("We ran out of space in the swap file, need to increase the bitmap.\n");
 				exit(1);
 			}
+			ipt[ppn].pageLocation = PageLocationSwapFile;
 			ipt[ppn].byteOffset = swapFileIndex * PageSize;
 			ipt[ppn].byteSize = PageSize;
 		}
