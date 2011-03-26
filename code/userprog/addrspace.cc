@@ -212,7 +212,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 		// pages to be read-only
 
 #ifdef USE_TLB
-		pageTable[i].spaceID = getSpaceID(currentThread->space);
+		pageTable[i].spaceID = getSpaceID(this);
 		pageTable[i].inUse = true; // this is necessary for later when we load a page, we copy from this pageTable to the IPT, and this value should be true always in the pageTable
 
 		// pages containing any code or init data are specified as being from the executable, with the appropriate offset and size
@@ -350,7 +350,7 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 		pageTable[startVPN + i].readOnly = false;
 
 #ifdef USE_TLB
-		pageTable[startVPN + i].spaceID = getSpaceID(currentThread->space);
+		pageTable[startVPN + i].spaceID = getSpaceID(this);
 		pageTable[startVPN + i].pageType = PageTypeData;
 		pageTable[startVPN + i].pageLocation = PageLocationNotOnDisk;
 		pageTable[startVPN + i].byteOffset = -1;
