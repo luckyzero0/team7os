@@ -1097,11 +1097,11 @@ void ExceptionHandler(ExceptionType which) {
 	} else if ( which == PageFaultException ) {
 		stats->numPageFaults++;
 #ifdef USE_TLB
-	//	pageFaultTESTLock->Acquire(); // HACK
+		pageFaultTESTLock->Acquire(); // HACK
 	//	IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
 		HandlePageFault();
 	//	interrupt->SetLevel(oldLevel); // HACK
-	//	pageFaultTESTLock->Release(); // HACK
+		pageFaultTESTLock->Release(); // HACK
 #endif
 	} else {
 		cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;
