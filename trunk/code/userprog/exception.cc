@@ -178,24 +178,10 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	delete[] buf;
 
 	if ( f ) {
-		AddrSpace* addrSpace = new AddrSpace(f);
-		if (!addrSpace->didConstructSuccessfully()) {
-			printf("Error in AddrSpace constructor, aborting EXEC call.\n");
-			return -1;
-		}
-
-		//For right now we assume physical pages were handed out successfully, because we were told we have infinite space for this assignment.
-		DEBUG('e', "Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
-
-		Thread* t = new Thread("dammitmihir");
-		t->space = addrSpace;
-		t->startVPN = t->space->getMainThreadStartVPN();
-
 		SpaceID spaceID = -1;
 		//Update the process table and related data structures
 		for (int i = 0; i<PROCESS_TABLE_SIZE; i++){
 			if (processTable[i] == NULL){
-				processTable[i] = addrSpace;
 				spaceID = i;
 				break;
 			}
@@ -206,6 +192,23 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 			bigLock->Release();
 			return spaceID;
 		}
+
+		AddrSpace* addrSpace = new AddrSpace(f, spaceID);
+		if (!addrSpace->didConstructSuccessfully()) {
+			printf("Error in AddrSpace constructor, aborting EXEC call.\n");
+			return -1;
+		}
+
+		processTable[spaceID] = addrSpace;
+
+		//For right now we assume physical pages were handed out successfully, because we were told we have infinite space for this assignment.
+		DEBUG('e', "Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
+
+		Thread* t = new Thread("dammitmihir");
+		t->space = addrSpace;
+		t->startVPN = t->space->getMainThreadStartVPN();
+
+
 
 		DEBUG('e', "Made a new process at SpaceID[%d], forking the exec_thread.\n", spaceID);
 
