@@ -854,7 +854,7 @@ int HandleFullMemory(int vpn) {
 	} while (ipt[ppn].inUse);
 
 	ipt[ppn].inUse = true;
-	processTable[ipt[i].spaceID]->processTableLock->Acquire();
+	processTable[ipt[ppn].spaceID]->processTableLock->Acquire();
 	iptLock->Release();
 
 	RemovePageFromTLB(ppn);
