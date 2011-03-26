@@ -457,7 +457,7 @@ void AddrSpace::RestoreState()
 {
 #ifdef USE_TLB
 	if (lastProcID != getSpaceID(currentThread->space)) {
-		printf("Switched processes, invalidating TLB.\n");
+		printf("Switched processes from %d to %d, invalidating TLB.\n", lastProcID, getSpaceID(currentThread->space));
 		for (int i = 0; i < TLBSize; i++) {
 			if (machine->tlb[i].valid) {
 				ipt[machine->tlb[i].physicalPage].dirty = true;
