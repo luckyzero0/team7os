@@ -210,7 +210,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 
 #ifdef USE_TLB
 		pageTable[i].spaceID = getSpaceID(currentThread->space);
-
+		pageTable[i].inUse = true; // this is necessary for later when we load a page, we copy from this pageTable to the IPT, and this value should be true always in the pageTable
 
 		// pages containing any code or init data are specified as being from the executable, with the appropriate offset and size
 		// later when pages are being replaced, anything of type Mixed or Data will be written back to the swap file, not the executable
@@ -345,6 +345,7 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 		pageTable[startVPN + i].pageLocation = PageLocationNotOnDisk;
 		pageTable[startVPN + i].byteOffset = -1;
 		pageTable[startVPN + i].byteSize = -1;
+		pageTable[startVPN + i].inUse = true;
 #endif
 	}
 
