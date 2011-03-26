@@ -788,7 +788,7 @@ int GetThreadID_Syscall() {
 }
 
 #ifdef USE_TLB
-int fullMemPPN = -1;
+unsigned int fullMemPPN = 0;
 BitMap* swapFileBitMap = new BitMap(16000);
 int tlbIndex = -1;
 
