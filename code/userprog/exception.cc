@@ -854,7 +854,8 @@ int HandleFullMemory(int vpn) {
 	} while (ipt[ppn].inUse);
 
 	ipt[ppn].inUse = true;
-	processTable[ipt[ppn].spaceID]->processTableLock->Acquire();
+	AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
+	owningSpace->processTableLock->Acquire();
 	iptLock->Release();
 
 	RemovePageFromTLB(ppn);
@@ -880,7 +881,6 @@ int HandleFullMemory(int vpn) {
 		DEBUG('d', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, ipt[ppn].byteOffset / PageSize, currentThread->space->numThreads);
 
 		//update the page table to reflect that we kicked out 
-		AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
 		owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
 
 		owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1;
@@ -890,7 +890,7 @@ int HandleFullMemory(int vpn) {
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
 
-	processTable[ipt[i].spaceID]->processTableLock->Release();
+	owningSpace->processTableLock->Release();
 
 	return ppn;
 }
