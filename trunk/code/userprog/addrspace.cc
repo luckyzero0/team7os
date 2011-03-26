@@ -278,7 +278,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 AddrSpace::~AddrSpace()
 {
 	for (unsigned int i = 0; i < numPages; i++) {
-		if (pageTable[i].valid) {
+		if (pageTable[i].valid && pageTable[i].physicalPage != -1) {
 			giveUpPhysicalPage(pageTable[i].physicalPage);
 		}
 	}
