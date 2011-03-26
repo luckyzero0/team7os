@@ -849,7 +849,7 @@ int HandleFullMemory(int vpn) {
 		if (PRAND) {
 			ppn = rand() % NumPhysPages;
 		} else if (PFIFO) {
-			ppn = (++fullMem) % NumPhysPages;
+			ppn = (++fullMemPPN) % NumPhysPages;
 		}
 	} while (ipt[ppn].isUse);
 
