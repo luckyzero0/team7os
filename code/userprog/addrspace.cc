@@ -479,10 +479,11 @@ void AddrSpace::RestoreState()
 	if (lastProcID != getSpaceID(currentThread->space)) {
 //		printf("Switched processes from %d to %d, invalidating TLB.\n", lastProcID, getSpaceID(currentThread->space));
 		for (int i = 0; i < TLBSize; i++) {
-			if (machine->tlb[i].valid) {
+			if (machine->tlb[i].valid && machine->tlb[i].dirty) {
 				ipt[machine->tlb[i].physicalPage].dirty = true;
 			}
 			machine->tlb[i].valid = false;
+			ASSERT(!(machine->tlb[i].virtualPage == 3 && machine->tlb[i].dirty)); // HACK
 		}
 	}
 #else
