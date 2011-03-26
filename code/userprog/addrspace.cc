@@ -440,8 +440,14 @@ void AddrSpace::SaveState()
 #ifdef USE_TLB
 //	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 //	printf("Setting lastProcID to %d.\n", getSpaceID(currentThread->space));
-	lastProcID = getSpaceID(currentThread->space);
+//	lastProcID = getSpaceID(currentThread->space);
 //	interrupt->SetLevel(oldLevel);
+	for (int i = 0; i < TLBSize; i++) {
+			if (machine->tlb[i].valid) {
+				ipt[machine->tlb[i].physicalPage].dirty = true;
+			}
+			machine->tlb[i].valid = false;
+	}
 #endif
 }
 
@@ -456,7 +462,7 @@ void AddrSpace::SaveState()
 void AddrSpace::RestoreState() 
 {
 #ifdef USE_TLB
-	if (lastProcID != getSpaceID(currentThread->space)) {
+/*	if (lastProcID != getSpaceID(currentThread->space)) {
 		printf("Switched processes from %d to %d, invalidating TLB.\n", lastProcID, getSpaceID(currentThread->space));
 		for (int i = 0; i < TLBSize; i++) {
 			if (machine->tlb[i].valid) {
@@ -464,7 +470,7 @@ void AddrSpace::RestoreState()
 			}
 			machine->tlb[i].valid = false;
 		}
-	}
+	} */
 #else
 	machine->pageTable = pageTable;
 	machine->pageTableSize = numPages;
