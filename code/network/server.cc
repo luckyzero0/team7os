@@ -2,8 +2,15 @@
 /* The main routine for the server
  * Listens for msgs from clients
  */
+ 
+#include "copyright.h"
 
-void RunServer(){
+#include "system.h"
+#include "network.h"
+#include "post.h"
+#include "interrupt.h"
+
+void RunServer(void){
 	printf("Server online.\n");
 
 	printf("Listening for clients on the network...\n");
@@ -14,5 +21,5 @@ void RunServer(){
 		break;
 	}
 	
-	Exit(0);
+	interrupt->Halt();
 }
