@@ -280,7 +280,9 @@ AddrSpace::AddrSpace(OpenFile *theExecutable, int spaceID) : fileTable(MaxOpenFi
 
 AddrSpace::~AddrSpace()
 {
+#ifdef USE_TLB
 	iptLock->Acquire();
+#endif
 	printf("In AddrSpace destructor.\n");
 	for (unsigned int i = 0; i < numPages; i++) {
 		printf("Giving up VPN %d ", i);
@@ -288,7 +290,9 @@ AddrSpace::~AddrSpace()
 			giveUpPhysicalPage(pageTable[i].physicalPage);
 		}
 	}
+#ifdef USE_TLB
 	iptLock->Release();
+#endif
 	delete pageTable;
 	delete executable;
 }
