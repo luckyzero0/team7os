@@ -38,6 +38,7 @@ Machine *machine;	// user program memory and registers
 
 #ifdef USE_TLB
 IPTEntry ipt[NumPhysPages];
+Lock* iptLock = new Lock("iptLock");
 OpenFile* swapFile;
 #endif
 
