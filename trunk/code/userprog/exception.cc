@@ -401,7 +401,7 @@ void Exit_Syscall(int status) {
 		delete currentThread->space;
 		processTable[spaceID] = NULL;
 		bigLock->Release();
-		DEBUG('a', "In KILL PROCESS block of exit for SpaceID[%d].\n", spaceID);
+		DEBUG('p', "In KILL PROCESS block of exit for SpaceID[%d].\n", spaceID);
 		currentThread->Finish();
 	} else { //we are not the last thread in a process, so just kill the thread
 		DEBUG('p', "Giving up a non-final thread in a process.\n");
