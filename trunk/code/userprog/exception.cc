@@ -873,6 +873,8 @@ int HandleFullMemory(int vpn) {
 	DEBUG('p', "In HandleFullMemory() with vpn = %d and selected ppn to evict: %d.\n", vpn, ppn);
 
 	if (ipt[ppn].dirty) {
+
+		ASSERT(!ipt[ppn].readOnly);
 		// write back to swapfile
 		DEBUG('p', "Flushing a dirty page = %d to the swapfile.\n", ppn);
 
