@@ -898,12 +898,13 @@ int HandleFullMemory(int vpn) {
 void HandleIPTMiss(int vpn) {
 	DEBUG('p', "In HandleIPTMiss() for vpn = %d.\n", vpn);
 
-	currentThread->space->pageTableLock->Acquire();
 	int ppn = getPhysicalPage(); // does some internal locking to set inUse on ppn
 	if (ppn == -1) {
 		// do some crazy swapfile black magic
 		ppn = HandleFullMemory(vpn);
 	}
+
+	currentThread->space->pageTableLock->Acquire();
 
 	// ppn's inUse is set
 	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
@@ -930,7 +931,7 @@ void HandleIPTMiss(int vpn) {
 		ASSERT(false);
 	}
 
-	currentThread->space->pageTable
+	currentThread->space->pageTableLock->Release();
 
 	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
 
