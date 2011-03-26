@@ -32,7 +32,7 @@
 
 void
 MailTest(int farAddr)
-{
+{	
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
     char *data = "Hello there!";

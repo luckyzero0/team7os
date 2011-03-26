@@ -21,6 +21,7 @@ Timer *timer;				// the hardware timer device,
 BitMap *physPageBitMap;
 AddrSpace *processTable[PROCESS_TABLE_SIZE];	
 int threadCount;	
+bool server = false;
 
 Lock *bigLock = new Lock("bigLock");
 
@@ -140,6 +141,8 @@ Initialize(int argc, char **argv)
 	} else if (!strcmp(*argv, "-m")) {
 	    ASSERT(argc > 1);
 	    netname = atoi(*(argv + 1));
+	    if(netname == 0)
+	    	server = true;
 	    argCount = 2;
 	}
 #endif
@@ -181,6 +184,7 @@ Initialize(int argc, char **argv)
 #endif
 
 #ifdef NETWORK
+	//setup SERVAR
     postOffice = new PostOffice(netname, rely, 10);
 #endif
 
