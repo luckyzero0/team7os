@@ -1097,9 +1097,9 @@ void ExceptionHandler(ExceptionType which) {
 	} else if ( which == PageFaultException ) {
 		stats->numPageFaults++;
 #ifdef USE_TLB
-		pageFaultTESTLock->Acquire();
+	//	pageFaultTESTLock->Acquire(); // HACK
 		HandlePageFault();
-		pageFaultTESTLock->Release();
+	//	pageFaultTESTLock->Release(); // HACK
 #endif
 	} else {
 		cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;
