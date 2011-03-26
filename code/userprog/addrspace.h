@@ -62,13 +62,13 @@ public:
 #endif
 
 	OpenFile* executable;
-
+		unsigned int numPages;		// Number of pages in the virtual 
 private:
 	int getStartVPN();
 	void copyPageTableEntryToIPT(int vpn);
 
 
-	unsigned int numPages;		// Number of pages in the virtual 
+
 	// address space
 	int mainThreadStartVPN;
 	int codeSize;
