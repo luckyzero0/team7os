@@ -958,6 +958,8 @@ void HandlePageFault() {
 
 #endif
 
+Lock* pageFaultTESTLock = new Lock("pageFaultTESTLock");
+
 void ExceptionHandler(ExceptionType which) {
 	int type = machine->ReadRegister(2); // Which syscall?
 	int rv=0; 	// the return value from a syscall
@@ -1095,7 +1097,9 @@ void ExceptionHandler(ExceptionType which) {
 	} else if ( which == PageFaultException ) {
 		stats->numPageFaults++;
 #ifdef USE_TLB
+		pageFaultTESTLock->Acquire();
 		HandlePageFault();
+		pageFaultTESTLock->Release();
 #endif
 	} else {
 		cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;
