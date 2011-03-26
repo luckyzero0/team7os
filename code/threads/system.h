@@ -49,6 +49,7 @@ extern void giveUpPhysicalPage(int);
 #ifdef USE_TLB
 extern IPTEntry ipt[NumPhysPages];
 extern OpenFile* swapFile;
+extern Lock* iptLock;
 #endif
 
 extern bool PRAND;

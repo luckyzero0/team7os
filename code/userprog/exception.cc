@@ -789,8 +789,8 @@ int GetThreadID_Syscall() {
 
 #ifdef USE_TLB
 int fullMemPPN = -1;
-
 BitMap* swapFileBitMap = new BitMap(16000);
+int tlbIndex = -1;
 
 void RemovePageFromTLB(int ppn) {
 	int spaceID = getSpaceID(currentThread->space);
@@ -818,10 +818,6 @@ void UpdateIPT(int vpn, int ppn){
 
 	currentThread->space->pageTable[vpn] = ipt[ppn];
 }
-
-int tlbIndex = -1;
-
-Lock* iptLock = new Lock("iptLock");
 
 void UpdateTLB(int vpn, int ppn) {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
