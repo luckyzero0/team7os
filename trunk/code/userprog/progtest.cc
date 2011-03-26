@@ -33,7 +33,7 @@ StartProcess(char *filename)
 	return;
     }
    
-    space = new AddrSpace(executable);
+    space = new AddrSpace(executable, 0);
 	space->numThreads = 0;
 	processTable[0] = space;
 
