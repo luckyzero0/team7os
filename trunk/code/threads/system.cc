@@ -22,7 +22,6 @@ BitMap *physPageBitMap;
 AddrSpace *processTable[PROCESS_TABLE_SIZE];	
 int threadCount;	
 bool server = false;
-
 Lock *bigLock = new Lock("bigLock");
 
 #ifdef FILESYS_NEEDED
