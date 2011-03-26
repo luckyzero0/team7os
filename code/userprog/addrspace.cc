@@ -438,12 +438,14 @@ void AddrSpace::SaveState()
 {
 #ifdef USE_TLB
 //	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	iptLock->Acquire();
 	for (int i = 0; i < TLBSize; i++) {
 		if (machine->tlb[i].valid) {
 			ipt[machine->tlb[i].physicalPage].dirty = true;
 		}
 		machine->tlb[i].valid = false;
 	}
+	iptLock->Release();
 //	interrupt->SetLevel(oldLevel);
 #endif
 }
