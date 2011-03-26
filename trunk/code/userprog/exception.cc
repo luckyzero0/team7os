@@ -855,7 +855,7 @@ int HandleFullMemory(int vpn) {
 
 	ipt[ppn].inUse = true;
 	AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
-	owningSpace->processTableLock->Acquire();
+	owningSpace->pageTableLock->Acquire();
 	iptLock->Release();
 
 	RemovePageFromTLB(ppn);
@@ -890,7 +890,7 @@ int HandleFullMemory(int vpn) {
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
 
-	owningSpace->processTableLock->Release();
+	owningSpace->pageTableLock->Release();
 
 	return ppn;
 }
