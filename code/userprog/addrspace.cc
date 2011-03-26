@@ -438,7 +438,6 @@ void AddrSpace::SaveState()
 {
 #ifdef USE_TLB
 //	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	iptLock->Acquire();
 	printf("Context switch on threadID: %d.\n", currentThread->ID);
 	for (int i = 0; i < TLBSize; i++) {
 		if (machine->tlb[i].valid) {
@@ -446,7 +445,6 @@ void AddrSpace::SaveState()
 		}
 		machine->tlb[i].valid = false;
 	}
-	iptLock->Release();
 //	interrupt->SetLevel(oldLevel);
 #endif
 }
