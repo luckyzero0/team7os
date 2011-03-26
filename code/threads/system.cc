@@ -245,6 +245,7 @@ int getSpaceID(AddrSpace* space) {
 void giveUpPhysicalPage(int physPageNum) {
 #ifdef USE_TLB
 	ASSERT(ipt[physPageNum].spaceID == getSpaceID(currentThread->space));
+	printf("Giving up physical page %d.", physPageNum);
 	ipt[physPageNum].valid = false;
 #else
 	physPageBitMap->Clear(physPageNum);
