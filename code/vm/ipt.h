@@ -20,6 +20,8 @@ class IPTEntry: public TranslationEntry {
 		int timestamp;
 		int byteOffset;
 		int byteSize;
+
+		bool inUse;
 };
 
 #endif

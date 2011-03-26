@@ -147,9 +147,9 @@ void exec_thread(int dontUse){
 	bigLock->Acquire();
 	DEBUG('a', "Exec thread is executing with spaceID[%d].\n", getSpaceID(currentThread->space));
 	currentThread->space->InitRegisters();		// set the initial register values
-    currentThread->space->RestoreState();		// load page table register
+	currentThread->space->RestoreState();		// load page table register
 	bigLock->Release();
-    machine->Run();
+	machine->Run();
 }
 
 SpaceID Exec_Syscall(unsigned int vaddr, int len){
@@ -173,7 +173,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 	}
 
 	DEBUG('e', "We are trying to open the file: %s\n", buf);
-	
+
 	f = fileSystem->Open(buf);
 	delete[] buf;
 
@@ -186,11 +186,11 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 
 		//For right now we assume physical pages were handed out successfully, because we were told we have infinite space for this assignment.
 		DEBUG('e', "Current thread in EXEC has %d numPages.\n", currentThread->space->getNumPages());
-		
+
 		Thread* t = new Thread("dammitmihir");
 		t->space = addrSpace;
 		t->startVPN = t->space->getMainThreadStartVPN();
-		
+
 		SpaceID spaceID = -1;
 		//Update the process table and related data structures
 		for (int i = 0; i<PROCESS_TABLE_SIZE; i++){
@@ -200,7 +200,7 @@ SpaceID Exec_Syscall(unsigned int vaddr, int len){
 				break;
 			}
 		}
-		
+
 		if (spaceID == -1){
 			printf("%s","No space on the process table for this new process!\n");
 			bigLock->Release();
@@ -674,7 +674,7 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 }
 
 void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
-		if (conditionID < 0 || conditionID >= MAX_CONDITIONS) {
+	if (conditionID < 0 || conditionID >= MAX_CONDITIONS) {
 		printf("ConditionID[%d] is out of range!\n", conditionID);
 		return;
 	}
@@ -720,10 +720,10 @@ void kernel_thread(int virtualAddr)
 	//mod the PC to begin execution at the new thread
 	machine->WriteRegister(PCReg,virtualAddr);
 	machine->WriteRegister(NextPCReg,virtualAddr+4);	
-	
+
 	//restoreState?
 	currentThread->space->RestoreState();
-	
+
 	//mod the stack
 	int newStackReg = (currentThread->startVPN) * PageSize + UserStackSize - 16;
 	DEBUG('a', "Thread[%d] getting startVPN = %d.\n", currentThread->ID, currentThread->startVPN);
@@ -755,22 +755,22 @@ void Fork_Syscall(unsigned int funcAddr, int arg) //func = virtualaddr of functi
 		bigLock->Release();
 		return;
 	}
-			
+
 	//create the new thread
 	Thread* thread = new Thread("kernelthread");	
 	thread->space = currentThread->space; //put it in the same addrspace
-	
+
 	//allocate space for new thread	
 	thread->ID = threadCount++;
 	threadArgs[thread->ID] = arg;
 	thread->space->AddNewThread(thread);
 
 	thread->space->RestoreState();
-	
+
 	//fork the thread, somehow
 	thread->Fork(kernel_thread,funcAddr);
 	DEBUG('a', "Forked the thread.\n");
-	
+
 	bigLock->Release();
 }
 
@@ -795,17 +795,28 @@ BitMap* swapFileBitMap = new BitMap(16000);
 void RemovePageFromTLB(int ppn) {
 	int spaceID = getSpaceID(currentThread->space);
 
+	int oldLevel = interrupt->SetLevel(IntOff);
 	for (unsigned int i = 0; i < TLBSize; i++) {
 		// if the page we are evicting has the same VPN and spaceID as a page in the TLB, invalidate the TLB page
 		// spaceID for the TLB is the current spaceID, because all TLB entries correspond to only the current thread
 		if (machine->tlb[i].virtualPage == ipt[ppn].virtualPage && spaceID == ipt[ppn].spaceID
 			&& machine->tlb[i].valid) {
-			machine->tlb[i].valid = false;
-			if (machine->tlb[i].dirty) {
-				ipt[ppn].dirty = true;
-			}
+				machine->tlb[i].valid = false;
+				if (machine->tlb[i].dirty) {
+					ipt[ppn].dirty = true;
+				}
 		}
 	}
+	interrupt->SetLevel(oldLevel);
+}
+
+void UpdateIPT(int vpn, int ppn){
+	ipt[ppn] = currentThread->space->pageTable[vpn];
+	ipt[ppn].physicalPage = ppn; // becase it was possibly set to -1
+	ipt[ppn].valid = true;
+	ipt[ppn].dirty = false;
+
+	currentThread->space->pageTable[vpn] = ipt[ppn];
 }
 
 int HandleFullMemory(int vpn) {
@@ -823,32 +834,37 @@ int HandleFullMemory(int vpn) {
 
 	if (ipt[ppn].dirty) {
 		// write back to swapfile
+		DEBUG('p', "Flushing a dirty page = %d to the swapfile.\n", ppn);
+
 		ipt[ppn].pageLocation = PageLocationSwapFile;
 
-		DEBUG('p', "Flushing a dirty page = %d to the swapfile.\n", ppn);
-		
-		int swapFileIndex = swapFileBitMap->Find();
-		if (swapFileIndex == -1) {
-			printf("We ran out of space in the swap file, need to increase the bitmap.\n");
-			exit(1);
+		if (ipt[ppn].byteOffset == -1) { //we don't already have a space for this page in the swapfile, get it one
+			int swapFileIndex = swapFileBitMap->Find();
+			if (swapFileIndex == -1) {
+				printf("We ran out of space in the swap file, need to increase the bitmap.\n");
+				exit(1);
+			}
+			ipt[ppn].byteOffset = swapFileIndex * PageSize;
+			ipt[ppn].byteSize = swapFileIndex * PageSize;
 		}
-		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, swapFileIndex * PageSize);
-		DEBUG('d', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, swapFileIndex, currentThread->space->numThreads);
-		AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
-		ipt[ppn].physicalPage = -1;
-		ipt[ppn].byteOffset = swapFileIndex * PageSize;
-		ipt[ppn].byteSize = PageSize;
-		ipt[ppn].valid = true; // setting this to invalid would mean the VPN was invalid (given up by thread), but we don't want that
-		ipt[ppn].dirty = false; 
 
+		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
+		DEBUG('d', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, swapFileIndex, currentThread->space->numThreads);
+
+		//update the page table to reflect that we kicked out 
+		AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
 		owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
+
+		owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1;
+		owningSpace->pageTable[ipt[ppn].virtualPage].valid = true; // setting this to invalid would mean the VPN was invalid (given up by thread), but we don't want that
+		owningSpace->pageTable[ipt[ppn].virtualPage].dirty = false; 
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
 
 	return ppn;
 }
 
-int HandleIPTMiss(int vpn) {
+void HandleIPTMiss(int vpn) {
 	DEBUG('p', "In HandleIPTMiss() for vpn = %d.\n", vpn);
 
 	int ppn = getPhysicalPage();
@@ -857,75 +873,80 @@ int HandleIPTMiss(int vpn) {
 		ppn = HandleFullMemory(vpn);
 	}
 
-	ipt[ppn] = currentThread->space->pageTable[vpn];
-	ipt[ppn].physicalPage = ppn;
-	ipt[ppn].valid = true;
-	ipt[ppn].dirty = false;
-
-	currentThread->space->pageTable[vpn] = ipt[ppn];
-
 	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
 
-	if (ipt[ppn].pageLocation == PageLocationExecutable) {
-		DEBUG('d', "Reading from the executable, with byteSize = %d.\n", ipt[ppn].byteSize);
-		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), ipt[ppn].byteSize, ipt[ppn].byteOffset);
-		ASSERT(ipt[ppn].byteSize <= PageSize);
-		if (ipt[ppn].byteSize != PageSize) {
+	if (currentThread->space->pageTable[vpn].pageLocation == PageLocationExecutable) {
+		DEBUG('d', "Reading from the executable, with byteSize = %d.\n", currentThread->space->pageTable[vpn].byteSize);
+		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), currentThread->space->pageTable[vpn].byteSize, currentThread->space->pageTable[vpn].byteOffset);
+		ASSERT(currentThread->space->pageTable[vpn].byteSize <= PageSize);
+		if (currentThread->space->pageTable[vpn].byteSize != PageSize) {
 			DEBUG('d', "Zeroing out the remainder not read from code.\n");
 			// the page had some uninitialize data on it that we need to zero out.
-		//	bzero(&(machine->mainMemory[ppn * PageSize + ipt[ppn].byteSize]), PageSize - ipt[ppn].byteSize);
+			bzero(&(machine->mainMemory[ppn * PageSize + currentThread->space->pageTable[vpn].byteSize]), PageSize - currentThread->space->pageTable[vpn].byteSize);
 		}
-	} else if (ipt[ppn].pageLocation == PageLocationNotOnDisk ) {
+	} else if (currentThread->space->pageTable[vpn].pageLocation == PageLocationNotOnDisk ) {
 		bzero(&(machine->mainMemory[ppn * PageSize]), PageSize); // zero the whole page
 	} else { // it's on the swap file, we have work to do
 		DEBUG('d', "Reading from the swapfile.\n");
-		ASSERT(ipt[ppn].byteOffset % PageSize == 0);
-		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
-		swapFileBitMap->Clear(ipt[ppn].byteOffset / PageSize);
-		DEBUG('d', "Read in vpn: %d from the swapFile at swapFileIndex: %d.\n", vpn, ipt[ppn].byteOffset / PageSize);
+		ASSERT(currentThread->space->pageTable[vpn].byteOffset % PageSize == 0); // the byte offset should be the very beginning of a page-sized amount of bytes, since we always read/write whole pages to the swapfiel
+		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, currentThread->space->pageTable[vpn].byteOffset);
+		//	swapFileBitMap->Clear(currentThread->space->pageTable[vpn].byteOffset / PageSize); // HACK, we can't clear the swapfile because if we don't set the dirty bit, we won't write this back, and someone else may come and claim this spot
+		// we should only clear on addrSpace deletion / thread deletion
+		DEBUG('d', "Read in vpn: %d from the swapFile at swapFileIndex: %d.\n", vpn, currentThread->space->pageTable[vpn].byteOffset / PageSize);
 	}
 
 	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
 
-	return ppn;
+	UpdateIPT(vpn, ppn);
+	UpdateTLB(vpn, ppn);
 }
 
 int tlbIndex = -1;
+
+Lock* iptLock = new Lock("iptLock");
+
+void UpdateTLB(int vpn, int ppn) {
+	int oldLevel = interrupt->SetLevel(IntOff);
+	tlbIndex = (tlbIndex + 1) % TLBSize;
+
+	//propage the dirty bit to IPT if the TLB Entry we were replacing was dirty
+	if (machine->tlb[tlbIndex].valid && machine->tlb[tlbIndex].dirty) {
+		int oldTLBPPN = machine->tlb[tlbIndex].physicalPage;
+		ipt[oldTLBPPN].dirty = true;
+	}
+
+	//copy from the IPT to the TLB
+	machine->tlb[tlbIndex].virtualPage = ipt[ppn].virtualPage;
+	machine->tlb[tlbIndex].physicalPage = ppn;
+	machine->tlb[tlbIndex].dirty = false;
+	machine->tlb[tlbIndex].readOnly = ipt[ppn].readOnly;
+	machine->tlb[tlbIndex].use = false;
+	machine->tlb[tlbIndex].valid = true;
+
+	interrupt->SetLevel(oldLevel);
+}
 
 void HandlePageFault() {
 	int badVAddr = machine->ReadRegister(BadVAddrReg);
 	DEBUG('p', "In HandlePageFault() for badVAddr = %d.\n", badVAddr);
 	int badVPN = badVAddr / PageSize;
 
-	tlbIndex = (tlbIndex + 1) % TLBSize;
-
-	//propage the dirty bit to do some write-back eviction
-	if (machine->tlb[tlbIndex].valid && machine->tlb[tlbIndex].dirty) {
-		int thePPN = machine->tlb[tlbIndex].physicalPage;
-		ipt[thePPN].dirty = true;
-	}
-
-	
 	int ppn = -1; //check IPT for physical page
+	iptLock->Acquire();
 	for (unsigned int i = 0; i < NumPhysPages; i++) {
 		int spaceID = getSpaceID(currentThread->space);
-		if (ipt[i].valid && ipt[i].virtualPage == badVPN && ipt[i].spaceID == spaceID) { //if valid, matching process / vpn
-			ppn = i;
-			break;
+		if (!ipt[i].inUse && ipt[i].valid && ipt[i].virtualPage == badVPN && ipt[i].spaceID == spaceID) { //if valid, matching process / vpn
+			UpdateTLB(badVPN, i); // found the page in the IPT, just copy it to the TLB and we're done
+			iptLock->Release();
+			return;
 		}
 	}
+	iptLock->Release();
 
-	if (ppn == -1) {
-		ppn = HandleIPTMiss(badVPN);
-	}
-	//add the new entry
-	machine->tlb[tlbIndex].virtualPage = ipt[ppn].virtualPage;
-	machine->tlb[tlbIndex].physicalPage = ppn;
-	machine->tlb[tlbIndex].dirty = false;
-	machine->tlb[tlbIndex].readOnly = ipt[ppn].readOnly;
-	machine->tlb[tlbIndex].valid = true;
+	// couldn't find an empty ppn
+	HandleIPTMiss(badVPN);
 
-	DEBUG('p', "Finished HandlePageFault() for badVAddr = %d, it now uses ppn = %d.  numThreads = %d\n", badVAddr, ppn, currentThread->space->numThreads);
+//	DEBUG('p', "Finished HandlePageFault() for badVAddr = %d, it now uses ppn = %d.  numThreads = %d\n", badVAddr, ppn, currentThread->space->numThreads);
 }
 
 #endif
@@ -1036,7 +1057,7 @@ void ExceptionHandler(ExceptionType which) {
 			rv = Exec_Syscall(machine->ReadRegister(4),
 				machine->ReadRegister(5));
 			break;
-			
+
 		case SC_Rand:
 			DEBUG('a', "Rand syscall.\n");
 			rv = Rand_Syscall();

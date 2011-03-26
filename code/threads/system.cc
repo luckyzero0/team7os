@@ -184,11 +184,9 @@ Initialize(int argc, char **argv)
 #endif
 
 #ifdef USE_TLB
-	machine->tlb = new TranslationEntry[TLBSize];
-	for (int i = 0; i < TLBSize; i++) {
-		machine->tlb[i].valid = false;
-	}
+	//tlb is initialized in machine.cc
 
+	// initialize IPT
 	for (int i = 0; i < NumPhysPages; i++) {
 		ipt[i].physicalPage = i;
 		ipt[i].virtualPage = -1;
@@ -200,6 +198,7 @@ Initialize(int argc, char **argv)
 		ipt[i].use = false;
 		ipt[i].valid = false;
 		ipt[i].dirty = false;
+		ipt[i].inUse = false;
 	}
 
 	fileSystem->Create("swapFile", 16000 * PageSize);
@@ -240,6 +239,7 @@ int getSpaceID(AddrSpace* space) {
 
 void giveUpPhysicalPage(int physPageNum) {
 #ifdef USE_TLB
+	ASSERT(ipt[physPageNum].spaceID == getSpaceID(currentThread->space));
 	ipt[physPageNum].valid = false;
 #else
 	physPageBitMap->Clear(physPageNum);
