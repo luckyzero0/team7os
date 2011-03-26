@@ -834,10 +834,10 @@ void UpdateTLB(int vpn, int ppn) {
 	}
 
 	//copy from the IPT to the TLB
-	machine->tlb[tlbIndex].virtualPage = ipt[ppn].virtualPage;
+	machine->tlb[tlbIndex].virtualPage = vpn;
 	machine->tlb[tlbIndex].physicalPage = ppn;
 	machine->tlb[tlbIndex].dirty = false;
-	machine->tlb[tlbIndex].readOnly = ipt[ppn].readOnly;
+	machine->tlb[tlbIndex].readOnly = currentThread->space->pageTable[vpn].readOnly;
 	machine->tlb[tlbIndex].use = false;
 	machine->tlb[tlbIndex].valid = true;
 
