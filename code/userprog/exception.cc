@@ -845,13 +845,20 @@ void UpdateTLB(int vpn, int ppn) {
 }
 
 int HandleFullMemory(int vpn) {
-	if (PRAND) {
-		fullMemPPN = rand() % NumPhysPages;
-	} else if (PFIFO) {
-		fullMemPPN = (fullMemPPN + 1) % NumPhysPages;
-	}
+	int ppn = -1;
 
-	int ppn = fullMemPPN;
+	// lock the ipt to find an acceptable ipt entry, then set its inUse and release the iptLock
+	iptLock->Acquire();
+	do {
+		if (PRAND) {
+			ppn = rand() % NumPhysPages;
+		} else if (PFIFO) {
+			ppn = (++fullMem) % NumPhysPages;
+		}
+	} while (ipt[ppn].isUse);
+
+	ipt[ppn].isUse = true;
+	iptLock->Release();
 
 	RemovePageFromTLB(ppn);
 
@@ -881,7 +888,8 @@ int HandleFullMemory(int vpn) {
 
 		owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1;
 		owningSpace->pageTable[ipt[ppn].virtualPage].valid = true; // setting this to invalid would mean the VPN was invalid (given up by thread), but we don't want that
-		owningSpace->pageTable[ipt[ppn].virtualPage].dirty = false; 
+		owningSpace->pageTable[ipt[ppn].virtualPage].dirty = false;
+	//	owningSpace->pageTable[ipt[ppn].virtualPage].inUse = false; // when we copy from pageTable to IPT later, this should be true
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
 
@@ -891,12 +899,13 @@ int HandleFullMemory(int vpn) {
 void HandleIPTMiss(int vpn) {
 	DEBUG('p', "In HandleIPTMiss() for vpn = %d.\n", vpn);
 
-	int ppn = getPhysicalPage();
+	int ppn = getPhysicalPage(); // does some internal locking to set inUse on ppn
 	if (ppn == -1) {
 		// do some crazy swapfile black magic
 		ppn = HandleFullMemory(vpn);
 	}
 
+	// ppn's inUse is set
 	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
 
 	if (currentThread->space->pageTable[vpn].pageLocation == PageLocationExecutable) {
@@ -925,6 +934,7 @@ void HandleIPTMiss(int vpn) {
 
 	UpdateIPT(vpn, ppn);
 	UpdateTLB(vpn, ppn);
+	ipt[ppn].inUse = false;
 }
 
 void HandlePageFault() {
