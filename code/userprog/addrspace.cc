@@ -439,7 +439,7 @@ void AddrSpace::SaveState()
 {
 #ifdef USE_TLB
 //	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	printf("Context switch on threadID: %d.\n", currentThread->ID);
+//	printf("Context switch on threadID: %d.\n", currentThread->ID);
 	lastProcID = getSpaceID(currentThread->space);
 //	interrupt->SetLevel(oldLevel);
 #endif
