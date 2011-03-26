@@ -433,18 +433,14 @@ void
 //
 //	For now, nothing!
 //----------------------------------------------------------------------
+int lastProcID = -1;
 
 void AddrSpace::SaveState() 
 {
 #ifdef USE_TLB
 //	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	printf("Context switch on threadID: %d.\n", currentThread->ID);
-	for (int i = 0; i < TLBSize; i++) {
-		if (machine->tlb[i].valid) {
-			ipt[machine->tlb[i].physicalPage].dirty = true;
-		}
-		machine->tlb[i].valid = false;
-	}
+	lastProcID = getSpaceID(currentThread->space);
 //	interrupt->SetLevel(oldLevel);
 #endif
 }
@@ -459,7 +455,16 @@ void AddrSpace::SaveState()
 
 void AddrSpace::RestoreState() 
 {
-#ifndef USE_TLB
+#ifdef USE_TLB
+	if (lastProcID != getSpaceID(currentThread->space)) {
+		for (int i = 0; i < TLBSize; i++) {
+			if (machine->tlb[i].valid) {
+				ipt[machine->tlb[i].physicalPage].dirty = true;
+			}
+			machine->tlb[i].valid = false;
+		}
+	}
+#else
 	machine->pageTable = pageTable;
 	machine->pageTableSize = numPages;
 #endif
