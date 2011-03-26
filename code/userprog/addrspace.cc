@@ -126,7 +126,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 	unsigned int i, size;
 
 	constructedSuccessfully = false;
-#ifdef
+#ifdef USE_TLB
 	pageTableLock = new Lock("pageTableLock");
 #endif
 
