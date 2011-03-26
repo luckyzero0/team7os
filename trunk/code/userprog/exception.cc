@@ -1107,9 +1107,9 @@ void ExceptionHandler(ExceptionType which) {
 		stats->numPageFaults++;
 #ifdef USE_TLB
 		pageFaultTESTLock->Acquire(); // HACK
-	//	IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
+		IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
 		HandlePageFault();
-	//	interrupt->SetLevel(oldLevel); // HACK
+		interrupt->SetLevel(oldLevel); // HACK
 		pageFaultTESTLock->Release(); // HACK
 #endif
 	} else {
