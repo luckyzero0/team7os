@@ -281,6 +281,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 AddrSpace::~AddrSpace()
 {
 	iptLock->Acquire();
+	printf("In AddrSpace destructor.\n");
 	for (unsigned int i = 0; i < numPages; i++) {
 		if (pageTable[i].valid && pageTable[i].physicalPage != -1) {
 			giveUpPhysicalPage(pageTable[i].physicalPage);
