@@ -151,7 +151,7 @@ static void doAppClerk(int* index, int* cashDollars)
 		}
 
 		if (myClerk == -1) {
-			printf("Senator [%d]: Woke up with a AppClerk index of -1, halting the machine for now.", 0,0,0,"","");
+			printf("Senator [%d]: Woke up with a AppClerk index of -1, halting the machine for now.", index,0,0,"","");
 			Halt();
 		}
 	
