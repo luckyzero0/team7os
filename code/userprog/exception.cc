@@ -928,9 +928,11 @@ void HandleIPTMiss(int vpn) {
 
 	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
 
+	iptLock->Acquire();
 	UpdateIPT(vpn, ppn);
 	UpdateTLB(vpn, ppn);
 	ipt[ppn].inUse = false;
+	iptLock->Release();
 }
 
 void HandlePageFault() {
