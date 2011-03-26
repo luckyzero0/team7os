@@ -278,7 +278,9 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 AddrSpace::~AddrSpace()
 {
 	for (unsigned int i = 0; i < numPages; i++) {
-		giveUpPhysicalPage(i);
+		if (pageTable[i].valid) {
+			giveUpPhysicalPage(pageTable[i].physicalPage);
+		}
 	}
 	delete pageTable;
 	delete executable;
@@ -332,8 +334,8 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 		}
 #endif
 		pageTable[startVPN + i].physicalPage = physPage;
-		pageTable[startVPN + i].valid = true;
-		pageTable[startVPN + i].use = true;
+		pageTable[startVPN + i].valid = true;  // valid true means the VPN has something in the process associated with it, made false when the thread is given up
+		pageTable[startVPN + i].use = false; // not sure what this is for
 		pageTable[startVPN + i].dirty = false;
 		pageTable[startVPN + i].readOnly = false;
 
@@ -434,7 +436,7 @@ void
 void AddrSpace::SaveState() 
 {
 #ifdef USE_TLB
-	while(1);
+	while(1); // HACK
 	for (int i = 0; i < TLBSize; i++) {
 		if (machine->tlb[i].valid) {
 			ipt[machine->tlb[i].physicalPage].dirty = machine->tlb[i].dirty;
