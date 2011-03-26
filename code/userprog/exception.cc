@@ -795,7 +795,7 @@ BitMap* swapFileBitMap = new BitMap(16000);
 void RemovePageFromTLB(int ppn) {
 	int spaceID = getSpaceID(currentThread->space);
 
-	int oldLevel = interrupt->SetLevel(IntOff);
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	for (unsigned int i = 0; i < TLBSize; i++) {
 		// if the page we are evicting has the same VPN and spaceID as a page in the TLB, invalidate the TLB page
 		// spaceID for the TLB is the current spaceID, because all TLB entries correspond to only the current thread
@@ -817,6 +817,31 @@ void UpdateIPT(int vpn, int ppn){
 	ipt[ppn].dirty = false;
 
 	currentThread->space->pageTable[vpn] = ipt[ppn];
+}
+
+int tlbIndex = -1;
+
+Lock* iptLock = new Lock("iptLock");
+
+void UpdateTLB(int vpn, int ppn) {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	tlbIndex = (tlbIndex + 1) % TLBSize;
+
+	//propage the dirty bit to IPT if the TLB Entry we were replacing was dirty
+	if (machine->tlb[tlbIndex].valid && machine->tlb[tlbIndex].dirty) {
+		int oldTLBPPN = machine->tlb[tlbIndex].physicalPage;
+		ipt[oldTLBPPN].dirty = true;
+	}
+
+	//copy from the IPT to the TLB
+	machine->tlb[tlbIndex].virtualPage = ipt[ppn].virtualPage;
+	machine->tlb[tlbIndex].physicalPage = ppn;
+	machine->tlb[tlbIndex].dirty = false;
+	machine->tlb[tlbIndex].readOnly = ipt[ppn].readOnly;
+	machine->tlb[tlbIndex].use = false;
+	machine->tlb[tlbIndex].valid = true;
+
+	interrupt->SetLevel(oldLevel);
 }
 
 int HandleFullMemory(int vpn) {
@@ -849,7 +874,7 @@ int HandleFullMemory(int vpn) {
 		}
 
 		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
-		DEBUG('d', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, swapFileIndex, currentThread->space->numThreads);
+		DEBUG('d', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, ipt[ppn].byteOffset / PageSize, currentThread->space->numThreads);
 
 		//update the page table to reflect that we kicked out 
 		AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
@@ -899,31 +924,6 @@ void HandleIPTMiss(int vpn) {
 
 	UpdateIPT(vpn, ppn);
 	UpdateTLB(vpn, ppn);
-}
-
-int tlbIndex = -1;
-
-Lock* iptLock = new Lock("iptLock");
-
-void UpdateTLB(int vpn, int ppn) {
-	int oldLevel = interrupt->SetLevel(IntOff);
-	tlbIndex = (tlbIndex + 1) % TLBSize;
-
-	//propage the dirty bit to IPT if the TLB Entry we were replacing was dirty
-	if (machine->tlb[tlbIndex].valid && machine->tlb[tlbIndex].dirty) {
-		int oldTLBPPN = machine->tlb[tlbIndex].physicalPage;
-		ipt[oldTLBPPN].dirty = true;
-	}
-
-	//copy from the IPT to the TLB
-	machine->tlb[tlbIndex].virtualPage = ipt[ppn].virtualPage;
-	machine->tlb[tlbIndex].physicalPage = ppn;
-	machine->tlb[tlbIndex].dirty = false;
-	machine->tlb[tlbIndex].readOnly = ipt[ppn].readOnly;
-	machine->tlb[tlbIndex].use = false;
-	machine->tlb[tlbIndex].valid = true;
-
-	interrupt->SetLevel(oldLevel);
 }
 
 void HandlePageFault() {
