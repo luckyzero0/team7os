@@ -854,6 +854,7 @@ int HandleFullMemory(int vpn) {
 	} while (ipt[ppn].inUse);
 
 	ipt[ppn].inUse = true;
+	processTable[ipt[i].spaceID]->processTableLock->Acquire();
 	iptLock->Release();
 
 	RemovePageFromTLB(ppn);
@@ -889,12 +890,15 @@ int HandleFullMemory(int vpn) {
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
 
+	processTable[ipt[i].spaceID]->processTableLock->Release();
+
 	return ppn;
 }
 
 void HandleIPTMiss(int vpn) {
 	DEBUG('p', "In HandleIPTMiss() for vpn = %d.\n", vpn);
 
+	currentThread->space->pageTableLock->Acquire();
 	int ppn = getPhysicalPage(); // does some internal locking to set inUse on ppn
 	if (ppn == -1) {
 		// do some crazy swapfile black magic
@@ -925,6 +929,8 @@ void HandleIPTMiss(int vpn) {
 	} else {
 		ASSERT(false);
 	}
+
+	currentThread->space->pageTable
 
 	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
 
@@ -1099,11 +1105,11 @@ void ExceptionHandler(ExceptionType which) {
 	} else if ( which == PageFaultException ) {
 		stats->numPageFaults++;
 #ifdef USE_TLB
-	//	pageFaultTESTLock->Acquire(); // HACK
+		pageFaultTESTLock->Acquire(); // HACK
 	//	IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
 		HandlePageFault();
 	//	interrupt->SetLevel(oldLevel); // HACK
-	//	pageFaultTESTLock->Release(); // HACK
+		pageFaultTESTLock->Release(); // HACK
 #endif
 	} else {
 		cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;

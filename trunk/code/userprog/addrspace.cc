@@ -126,6 +126,9 @@ AddrSpace::AddrSpace(OpenFile *theExecutable) : fileTable(MaxOpenFiles) {
 	unsigned int i, size;
 
 	constructedSuccessfully = false;
+#ifdef
+	pageTableLock = new Lock("pageTableLock");
+#endif
 
 	// Don't allocate the input or output to disk files
 	fileTable.Put(0);
@@ -304,6 +307,9 @@ bool AddrSpace::didConstructSuccessfully() {
 
 void AddrSpace::AddNewThread(Thread* newThread) {
 	numThreads++;
+#ifdef USE_TLB
+	pageTableLock->Acquire();
+#endif
 	unsigned int startVPN = getStartVPN();
 	newThread->startVPN = startVPN;
 	if (startVPN >= numPages) {
@@ -349,6 +355,10 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 #endif
 	}
 
+#ifdef USE_TLB
+	pageTableLock->Release();
+#endif
+
 	for(unsigned int i = 0; i < numPages; i++)
 	{
 		DEBUG('a',"pageTable[%d]. Physical Page = [%d]. Valid = [%d]\n",i,pageTable[i].physicalPage,pageTable[i].valid);
@@ -382,6 +392,9 @@ int AddrSpace::getStartVPN() {
 
 void AddrSpace::RemoveCurrentThread() {
 	numThreads--;
+#ifdef USE_TLB
+	pageTableLock->Acquire();
+#endif
 	int vpnStart = currentThread->startVPN;
 	DEBUG('a', "Removing thread with startVPN = %d.\n", vpnStart);
 	for (int i = 0; i < UserStackSize / PageSize; i++) { //mark the physical pages as free and the virtual pages as invalid
@@ -393,6 +406,9 @@ void AddrSpace::RemoveCurrentThread() {
 		}
 		pageTable[vpnStart + i].valid = false;
 	}
+#ifdef USE_TLB
+	pageTableLock->Release();
+#endif
 }
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
