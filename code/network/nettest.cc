@@ -32,7 +32,10 @@
 
 void
 MailTest(int farAddr)
-{	
+
+{ 
+	printf("Starting MailTest with farAddr: [%d]\n", farAddr);
+
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
     char *data = "Hello there!";
