@@ -213,13 +213,13 @@ Initialize(int argc, char **argv)
 
 int getPhysicalPage() {
 #ifdef USE_TLB
-	iptLock->Acquire();
+//	iptLock->Acquire();
 	for (unsigned int i = 0; i < NumPhysPages; i++) {
 		if (!ipt[i].valid && !ipt[i].inUse) {
 			//check and writeback dirty
 			ipt[i].valid = true;
 			ipt[i].inUse = true;
-			iptLock->Release();
+		//	iptLock->Release();
 			return i;
 		}
 	}

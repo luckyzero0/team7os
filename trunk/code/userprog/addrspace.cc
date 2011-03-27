@@ -281,7 +281,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable, int spaceID) : fileTable(MaxOpenFi
 AddrSpace::~AddrSpace()
 {
 #ifdef USE_TLB
-	iptLock->Acquire();
+//	iptLock->Acquire();
 #endif
 	printf("In AddrSpace destructor.\n");
 	for (unsigned int i = 0; i < numPages; i++) {
@@ -291,7 +291,7 @@ AddrSpace::~AddrSpace()
 		}
 	}
 #ifdef USE_TLB
-	iptLock->Release();
+//	iptLock->Release();
 #endif
 	delete pageTable;
 	delete executable;
@@ -316,7 +316,7 @@ bool AddrSpace::didConstructSuccessfully() {
 void AddrSpace::AddNewThread(Thread* newThread) {
 	numThreads++;
 #ifdef USE_TLB
-	pageTableLock->Acquire();
+//	pageTableLock->Acquire();
 #endif
 	unsigned int startVPN = getStartVPN();
 	newThread->startVPN = startVPN;
@@ -364,7 +364,7 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 	}
 
 #ifdef USE_TLB
-	pageTableLock->Release();
+//	pageTableLock->Release();
 #endif
 
 	for(unsigned int i = 0; i < numPages; i++)
@@ -401,8 +401,8 @@ int AddrSpace::getStartVPN() {
 void AddrSpace::RemoveCurrentThread() {
 	numThreads--;
 #ifdef USE_TLB
-	pageTableLock->Acquire();
-	iptLock->Acquire();
+//	pageTableLock->Acquire();
+//	iptLock->Acquire();
 #endif
 	int vpnStart = currentThread->startVPN;
 	DEBUG('a', "Removing thread with startVPN = %d.\n", vpnStart);
@@ -416,8 +416,8 @@ void AddrSpace::RemoveCurrentThread() {
 		pageTable[vpnStart + i].valid = false;
 	}
 #ifdef USE_TLB
-	iptLock->Release();
-	pageTableLock->Release();
+//	iptLock->Release();
+//	pageTableLock->Release();
 #endif
 }
 //----------------------------------------------------------------------
@@ -482,6 +482,7 @@ void AddrSpace::SaveState()
 void AddrSpace::RestoreState() 
 {
 #ifdef USE_TLB
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (lastProcID != getSpaceID(currentThread->space)) {
 //		printf("Switched processes from %d to %d, invalidating TLB.\n", lastProcID, getSpaceID(currentThread->space));
 		for (int i = 0; i < TLBSize; i++) {
@@ -489,9 +490,9 @@ void AddrSpace::RestoreState()
 				ipt[machine->tlb[i].physicalPage].dirty = true;
 			}
 			machine->tlb[i].valid = false;
-			ASSERT(!(machine->tlb[i].virtualPage == 3 && machine->tlb[i].dirty)); // HACK
 		}
 	}
+	interrupt->SetLevel(oldLevel);
 #else
 	machine->pageTable = pageTable;
 	machine->pageTableSize = numPages;
