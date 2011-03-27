@@ -402,6 +402,7 @@ void AddrSpace::RemoveCurrentThread() {
 	numThreads--;
 #ifdef USE_TLB
 	pageTableLock->Acquire();
+	iptLock->Acquire();
 #endif
 	int vpnStart = currentThread->startVPN;
 	DEBUG('a', "Removing thread with startVPN = %d.\n", vpnStart);
@@ -415,6 +416,7 @@ void AddrSpace::RemoveCurrentThread() {
 		pageTable[vpnStart + i].valid = false;
 	}
 #ifdef USE_TLB
+	iptLock->Relase();
 	pageTableLock->Release();
 #endif
 }
