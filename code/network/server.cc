@@ -14,6 +14,14 @@
 #define MAX_CONDITIONS 200
 #define MAX_MONITORS 200
 
+PacketHeader outPktHdr, inPktHdr;
+MailHeader outMailHdr, inMailHdr;
+char *data = "Hello there!";
+char *ack = "Got it!";
+char buffer[MaxMailSize];
+bool success;
+
+
 struct LockEntry {
 	Lock* lock;
 	AddrSpace* space;
@@ -39,8 +47,38 @@ struct MonitorEntry {
 };
 MonitorEntry serverMVs[MAX_MONITORS];
 
+
+void initServerData();
+
 void RunServer(void){
 	printf("Server coming online...\n");
+	
+	initServerData();
+	    
+	printf("Server online...\n");
+	printf("Listening for clients on the network...\n");
+
+	while(true){
+		
+		postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+		printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+    	fflush(stdout);
+    	
+    	outPktHdr.to = inPktHdr.from;
+    	outMailHdr.to = inMailHdr.from;
+    	outMailHdr.length = strlen(ack) + 1;
+    	success = postOffice->Send(outPktHdr, outMailHdr, ack); 		
+    	
+    	if ( !success ) {
+      		printf("The postOffice Send failed.\n");
+      	interrupt->Halt();      	      	       	      	 
+    	}    			    	    
+	}
+	
+	interrupt->Halt();
+}
+
+void initServerData(){
 	
 	//make and/or initialize server data
 	//initialize locks
@@ -66,32 +104,4 @@ void RunServer(void){
 		serverMVs[i].needsToBeDeleted = FALSE;
 		serverMVs[i].aboutToBeWaited = 0;
 	}
-	
-    PacketHeader outPktHdr, inPktHdr;
-    MailHeader outMailHdr, inMailHdr;
-    char *data = "Hello there!";
-    char *ack = "Got it!";
-    char buffer[MaxMailSize];
-	bool success;
-	printf("Server online...\n");
-	printf("Listening for clients on the network...\n");
-
-	while(true){
-		
-		postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
-		printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
-    	fflush(stdout);
-    	
-    	outPktHdr.to = inPktHdr.from;
-    	outMailHdr.to = inMailHdr.from;
-    	outMailHdr.length = strlen(ack) + 1;
-    	success = postOffice->Send(outPktHdr, outMailHdr, ack); 		
-    	
-    	if ( !success ) {
-      		printf("The postOffice Send failed.\n");
-      	interrupt->Halt();      	      	       	      	 
-    	}    			    	    
-	}
-	
-	interrupt->Halt();
 }
