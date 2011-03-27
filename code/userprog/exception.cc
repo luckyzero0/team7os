@@ -864,7 +864,7 @@ int HandleFullMemory(int vpn) {
 
 	if (owningSpace == NULL) {
 		for (int i = 0; i < NumPhysPages; i++) {
-			printf("ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
+			printf("OWNING SPACE NULL IN HANDLE FULL MEMORY ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
 		}
 	}
 //	owningSpace->pageTableLock->Acquire();
@@ -903,6 +903,8 @@ int HandleFullMemory(int vpn) {
 	//	owningSpace->pageTable[ipt[ppn].virtualPage].inUse = false; // when we copy from pageTable to IPT later, this should be true
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
+
+	owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1;
 
 //	owningSpace->pageTableLock->Release();
 
