@@ -416,7 +416,7 @@ void AddrSpace::RemoveCurrentThread() {
 		pageTable[vpnStart + i].valid = false;
 	}
 #ifdef USE_TLB
-	iptLock->Relase();
+	iptLock->Release();
 	pageTableLock->Release();
 #endif
 }
