@@ -32,10 +32,7 @@
 
 void
 MailTest(int farAddr)
-
-{ 
-	printf("Starting MailTest with farAddr: [%d]\n", farAddr);
-
+{	
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
     char *data = "Hello there!";
@@ -59,7 +56,7 @@ MailTest(int farAddr)
     }
 
     // Wait for the first message from the other machine
-    postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+    /*postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
     printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
     fflush(stdout);
 
@@ -73,7 +70,7 @@ MailTest(int farAddr)
     if ( !success ) {
       printf("The postOffice Send failed. You must not have the other Nachos running. Terminating Nachos.\n");
       interrupt->Halt();
-    }
+    }*/
 
     // Wait for the ack from the other machine to the first message we sent.
     postOffice->Receive(1, &inPktHdr, &inMailHdr, buffer);
