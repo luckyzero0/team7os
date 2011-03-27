@@ -810,7 +810,6 @@ void RemovePageFromTLB(int ppn) {
 				if (machine->tlb[i].dirty) {
 					ipt[ppn].dirty = true;
 				}
-				ASSERT(!(machine->tlb[i].virtualPage == 3 && machine->tlb[i].dirty));
 		}
 	}
 	interrupt->SetLevel(oldLevel);
@@ -851,7 +850,7 @@ int HandleFullMemory(int vpn) {
 	int ppn = -1;
 
 	// lock the ipt to find an acceptable ipt entry, then set its inUse and release the iptLock
-	iptLock->Acquire();
+//	iptLock->Acquire();
 	do {
 		if (PRAND) {
 			ppn = rand() % NumPhysPages;
@@ -868,8 +867,8 @@ int HandleFullMemory(int vpn) {
 			printf("ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
 		}
 	}
-	owningSpace->pageTableLock->Acquire();
-	iptLock->Release();
+//	owningSpace->pageTableLock->Acquire();
+//	iptLock->Release();
 
 	RemovePageFromTLB(ppn);
 
@@ -905,7 +904,7 @@ int HandleFullMemory(int vpn) {
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
 
-	owningSpace->pageTableLock->Release();
+//	owningSpace->pageTableLock->Release();
 
 	return ppn;
 }
@@ -925,7 +924,7 @@ void HandleIPTMiss(int vpn) {
 		ppn = HandleFullMemory(vpn);
 	}
 
-	currentThread->space->pageTableLock->Acquire();
+//	currentThread->space->pageTableLock->Acquire();
 
 	// ppn's inUse is set
 	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
@@ -952,15 +951,15 @@ void HandleIPTMiss(int vpn) {
 		ASSERT(false);
 	}
 
-	currentThread->space->pageTableLock->Release();
+//	currentThread->space->pageTableLock->Release();
 
 	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
 
-	iptLock->Acquire();
+//	iptLock->Acquire();
 	UpdateIPT(vpn, ppn);
 	UpdateTLB(vpn, ppn);
 	ipt[ppn].inUse = false;
-	iptLock->Release();
+//	iptLock->Release();
 }
 
 void HandlePageFault() {
@@ -969,7 +968,7 @@ void HandlePageFault() {
 	int badVPN = badVAddr / PageSize;
 
 	int ppn = -1; //check IPT for physical page
-	iptLock->Acquire();
+//	iptLock->Acquire();
 	for (unsigned int i = 0; i < NumPhysPages; i++) {
 		int spaceID = getSpaceID(currentThread->space);
 		if (!ipt[i].inUse && ipt[i].valid && ipt[i].virtualPage == badVPN && ipt[i].spaceID == spaceID) { //if valid, matching process / vpn
@@ -978,7 +977,7 @@ void HandlePageFault() {
 			return;
 		}
 	}
-	iptLock->Release();
+//	iptLock->Release();
 
 	// couldn't find an empty ppn
 	HandleIPTMiss(badVPN);
