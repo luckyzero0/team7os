@@ -223,7 +223,7 @@ int getPhysicalPage() {
 			return i;
 		}
 	}
-	iptLock->Release();
+//	iptLock->Release();
 	return -1;
 #else
 	for (int i = 0; i < NumPhysPages; i++) {
