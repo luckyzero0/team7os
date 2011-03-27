@@ -28,13 +28,10 @@
 #include <stdio.h>
 #include <iostream>
 
-#ifdef USE_TLB
-	#include "ipt.h"
-#endif
-
 #define MAX_LOCKS 100
 #define MAX_CONDITIONS 200
 #define MAX_THREADS 1000
+#define SERVER_ID 0
 
 extern "C" { int bzero(char *, int); };
 
