@@ -53,6 +53,7 @@
 
 typedef int LockID;
 typedef int ConditionID;
+typedef int MonitorID;
 
 
 /* The system call interface.  These are the operations the Nachos
