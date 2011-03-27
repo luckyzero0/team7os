@@ -249,7 +249,7 @@ void giveUpPhysicalPage(int physPageNum) {
 #ifdef USE_TLB
 	ASSERT(ipt[physPageNum].spaceID == getSpaceID(currentThread->space));
 	printf("Giving up physical page %d.\n", physPageNum);
-	ipt[physPageNum].valid = 0;
+	ipt[physPageNum].valid = false;
 	for (int i = 0; i < NumPhysPages; i++) {
 		DEBUG('b', "ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
 	}
