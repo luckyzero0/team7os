@@ -289,7 +289,7 @@ scheduler.o: ../threads/scheduler.cc ../threads/copyright.h \
   ../threads/synchlist.h
 synch.o: ../threads/synch.cc ../threads/copyright.h ../threads/synch.h \
   ../threads/thread.h ../threads/utility.h ../threads/bool.h \
-  ../machine/sysdep.h ../threads/copyright.h \
+  ../machine/sysdep.h ../threads/copyright.h ../vm/ipt.h \
   /usr/sfw/lib/gcc/sparc-sun-solaris2.10/3.4.3/include/stdio.h \
   /usr/include/stdarg.h /usr/include/iso/stdarg_iso.h \
   /usr/include/sys/va_impl.h /usr/include/sys/va_list.h \
@@ -530,7 +530,7 @@ synchlist.o: ../threads/synchlist.cc ../threads/copyright.h \
   ../filesys/openfile.h
 system.o: ../threads/system.cc ../threads/copyright.h ../threads/system.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
-  ../threads/copyright.h \
+  ../threads/copyright.h ../vm/ipt.h \
   /usr/sfw/lib/gcc/sparc-sun-solaris2.10/3.4.3/include/stdio.h \
   /usr/include/stdarg.h /usr/include/iso/stdarg_iso.h \
   /usr/include/sys/va_impl.h /usr/include/sys/va_list.h \
