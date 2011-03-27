@@ -991,6 +991,45 @@ void HandlePageFault() {
 
 #endif
 
+#ifdef NETWORK
+LockID CreateLock_Syscall_Network(unsigned int vaddr, int len){
+}
+
+void Acquire_Syscall_Network(LockID id){
+}
+
+void Release_Syscall_Network(LockID id){
+}
+
+void DestroyLock_Syscall_Network(LockID id){
+}
+
+ConditionID CreateCondition_Syscall_Network(unsigned int vaddr, int len){
+}
+
+void Signal_Syscall_Network(ConditionID conditionID, LockID lockID){
+}
+
+void Wait_Syscall_Network(ConditionID conditionID, LockID lockID){
+}
+
+void Broadcast_Syscall_Network(ConditionID conditionID, LockID lockID){
+}
+
+void DestroyCondition_Syscall_Network(ConditionID conditionID){
+}
+
+MonitorID CreateMonitor_Syscall_Network(unsigned int vaddr, int len){
+}
+
+int GetMonitor_Syscall_Network(MonitorID monitorID){
+}
+
+void SetMonitor_Syscall_Network(MonitorID monitorID, int value){
+}
+
+#endif
+
 Lock* pageFaultTESTLock = new Lock("pageFaultTESTLock");
 
 void ExceptionHandler(ExceptionType which) {
