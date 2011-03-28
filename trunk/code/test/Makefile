@@ -51,9 +51,9 @@ sort: sort.o start.o utils.o
 	../bin/coff2noff sort.coff sort
 
 matmult.o: matmult.c
-	$(CC) $(CFLAGS) -c matmult.c
-matmult: matmult.o start.o
-	$(LD) $(LDFLAGS) start.o matmult.o -o matmult.coff
+	$(CC) $(CFLAGS) -c matmult.c utils.c
+matmult: matmult.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o matmult.o utils.o -o matmult.coff
 	../bin/coff2noff matmult.coff matmult
 
 testLocks.o: testLocks.c
