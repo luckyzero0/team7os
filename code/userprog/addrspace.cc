@@ -328,6 +328,7 @@ bool AddrSpace::didConstructSuccessfully() {
 }
 
 void AddrSpace::AddNewThread(Thread* newThread) {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	numThreads++;
 #ifdef USE_TLB
 	pageTableLock->Acquire();
@@ -385,6 +386,7 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 	{
 		DEBUG('a',"pageTable[%d]. Physical Page = [%d]. Valid = [%d]\n",i,pageTable[i].physicalPage,pageTable[i].valid);
 	}
+	interrupt->SetLevel(oldLevel);
 }
 
 int AddrSpace::getStartVPN() {
@@ -490,10 +492,10 @@ int lastProcID = -1;
 void AddrSpace::SaveState() 
 {
 #ifdef USE_TLB
-	//	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+		IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	//	printf("Setting lastProcID to %d.\n", getSpaceID(currentThread->space));
 	lastProcID = getSpaceID(currentThread->space);
-	//	interrupt->SetLevel(oldLevel);
+		interrupt->SetLevel(oldLevel);
 #endif
 }
 
