@@ -994,7 +994,7 @@ void HandlePageFault() {
 	}
 
 	if (space->pageTable[badVPN].inUse) { // another thread is already page faulting to bring this into the tlb, so just get out and wait a sec
-		DEBUG('b', "VPN inUse set, returning without doing anything.");
+		DEBUG('b', "VPN %d inUse set, returning without doing anything.\n", badVPN);
 		space->pageTableLock->Release();
 		return;
 	}
