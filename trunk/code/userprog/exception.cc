@@ -1008,6 +1008,7 @@ void HandlePageFault() {
 		int spaceID = getSpaceID(currentThread->space);
 		if (!ipt[i].inUse && ipt[i].valid && ipt[i].virtualPage == badVPN && ipt[i].spaceID == spaceID) { //if valid, matching process / vpn
 			UpdateTLB(badVPN, i); // found the page in the IPT, just copy it to the TLB and we're done
+			space->pageTable[badVPN].inUse = false;
 			iptLock->Release();
 			return;
 		}
