@@ -28,16 +28,34 @@
 #include <stdio.h>
 #include <iostream>
 
+//Networking
+#ifdef NETWORKING
+#include "network.h"
+#include "post.h"
+#include "interrupt.h"
+#endif
+//
+
 #define MAX_LOCKS 100
 #define MAX_CONDITIONS 200
 #define MAX_THREADS 1000
 #define SERVER_ID 0
 
 extern "C" { int bzero(char *, int); };
+extern "C" {
+	int bcopy(char *, char *, int);
+};
 
 using namespace std;
 
 int threadArgs[MAX_THREADS];
+
+#ifdef NETWORKING
+PacketHeader outPktHdr, inPktHdr;
+MailHeader outMailHdr, inMailHdr;
+char buffer[MaxMailSize];
+bool success;
+#endif
 
 struct LockEntry {
 	Lock* lock;
@@ -1035,7 +1053,9 @@ void HandlePageFault() {
 }
 
 #endif
-
+//===============================================================================================
+//					NETWORKING
+//===============================================================================================
 #ifdef NETWORK
 LockID CreateLock_Syscall_Network(unsigned int vaddr, int len){
 }
