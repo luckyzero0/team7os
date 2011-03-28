@@ -882,8 +882,9 @@ int HandleFullMemory(int vpn) {
 
 	RemovePageFromTLB(ppn);
 
+	printf("About to get the owning space lock to evict a page");
 	owningSpace->pageTableLock->Acquire();
-	printf("Got the owning space lock to evict a page.\n");
+	printf("Got the owning space lock from %d to evict a page.\n", getSpaceID(owningSpace));
 
 	DEBUG('b', "In HandleFullMemory() with vpn = %d and selected ppn to evict: %d.\n", vpn, ppn);
 
