@@ -886,7 +886,7 @@ int HandleFullMemory(int vpn) {
 
 		ASSERT(!ipt[ppn].readOnly);
 		// write back to swapfile
-		DEBUG('p', "Flushing a dirty page = %d to the swapfile.\n", ppn);
+		DEBUG('b', "Flushing a dirty page = %d to the swapfile.\n", ppn);
 
 		if (ipt[ppn].pageLocation != PageLocationSwapFile) { //we don't already have a space for this page in the swapfile, get it one
 			int swapFileIndex = swapFileBitMap->Find();
@@ -900,7 +900,7 @@ int HandleFullMemory(int vpn) {
 		}
 
 		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, owningSpace->pageTable[ipt[ppn].virtualPage].byteOffset);
-		DEBUG('d', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, owningSpace->pageTable[ipt[ppn].virtualPage].byteOffset / PageSize, currentThread->space->numThreads);
+		DEBUG('b', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, owningSpace->pageTable[ipt[ppn].virtualPage].byteOffset / PageSize, currentThread->space->numThreads);
 
 		//update the page table to reflect that we kicked out 
 	//	owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
