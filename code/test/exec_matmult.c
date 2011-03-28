@@ -5,7 +5,7 @@ int main() {
 	int i;
 	char* name;
 	for (i = 0; i < 9; i++) {
-		name = "../test/matmult";
+		name = "../test/sort";
 		Exec(name, strlen(name));
 	}
 }
