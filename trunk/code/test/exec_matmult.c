@@ -2,8 +2,10 @@
 #include "utils.h"
 
 int main() {
-	for (int i = 0; i < 9; i++) {
-		char* name = "../test/matmult";
+	int i;
+	char* name;
+	for (i = 0; i < 9; i++) {
+		name = "../test/matmult";
 		Exec(name, strlen(name));
 	}
 }
