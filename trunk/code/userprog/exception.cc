@@ -985,17 +985,18 @@ void HandlePageFault() {
 	int badVPN = badVAddr / PageSize;
 
 	AddrSpace* space = currentThread->space;
-	space->pageTableLock->Acquire();
 
 	if (badVPN >= space->numPages) {
 		printf("VPN does not exist for the given AddrSpace!\n");
-		space->pageTableLock->Release();
 		return;
 	}
+
+	space->pageTableLock->Acquire();
 
 	if (space->pageTable[badVPN].inUse) { // another thread is already page faulting to bring this into the tlb, so just get out and wait a sec
 		DEBUG('b', "VPN %d inUse set, returning without doing anything.\n", badVPN);
 		space->pageTableLock->Release();
+		currentThread->Yield(); // not really necessary, but might help a bit, just get out of the way so the other thread can finish
 		return;
 	}
 
