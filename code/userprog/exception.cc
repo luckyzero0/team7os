@@ -993,12 +993,12 @@ void HandlePageFault() {
 		return;
 	}
 
-	if (space->pageTable[vpn].inUse) { // another thread is already page faulting to bring this into the tlb, so just get out and wait a sec
+	if (space->pageTable[badVPN].inUse) { // another thread is already page faulting to bring this into the tlb, so just get out and wait a sec
 		space->pageTableLock->Release();
 		return;
 	}
 
-	space->pageTable[vpn].inUse = true;
+	space->pageTable[badVPN].inUse = true;
 	space->pageTableLock->Release();
 
 	int ppn = -1; //check IPT for physical page
