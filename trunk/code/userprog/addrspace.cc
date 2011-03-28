@@ -281,17 +281,31 @@ AddrSpace::AddrSpace(OpenFile *theExecutable, int spaceID) : fileTable(MaxOpenFi
 AddrSpace::~AddrSpace()
 {
 #ifdef USE_TLB
-//	iptLock->Acquire();
+	pageTableLock->Acquire();
+	iptLock->Acquire();
+
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 #endif
 	printf("In AddrSpace destructor.\n");
 	for (unsigned int i = 0; i < numPages; i++) {
 		printf("Giving up VPN %d ", i);
 		if (pageTable[i].valid && pageTable[i].physicalPage != -1) {
 			giveUpPhysicalPage(pageTable[i].physicalPage);
+#ifdef USE_TLB
+			for (int j = 0; j < TLBSize; j++) {
+				if (machine->tlb[j].physicalPage == i) {
+					machine->tlb[j].valid = false;
+				}
+			}
+#endif
 		}
+
 	}
 #ifdef USE_TLB
-//	iptLock->Release();
+	interrupt->SetLevel(oldLevel);
+
+	iptLock->Release();
+	pageTableLock->Release();
 #endif
 	delete pageTable;
 	delete executable;
@@ -316,7 +330,7 @@ bool AddrSpace::didConstructSuccessfully() {
 void AddrSpace::AddNewThread(Thread* newThread) {
 	numThreads++;
 #ifdef USE_TLB
-//	pageTableLock->Acquire();
+	pageTableLock->Acquire();
 #endif
 	unsigned int startVPN = getStartVPN();
 	newThread->startVPN = startVPN;
@@ -364,7 +378,7 @@ void AddrSpace::AddNewThread(Thread* newThread) {
 	}
 
 #ifdef USE_TLB
-//	pageTableLock->Release();
+	pageTableLock->Release();
 #endif
 
 	for(unsigned int i = 0; i < numPages; i++)
@@ -401,8 +415,10 @@ int AddrSpace::getStartVPN() {
 void AddrSpace::RemoveCurrentThread() {
 	numThreads--;
 #ifdef USE_TLB
-//	pageTableLock->Acquire();
-//	iptLock->Acquire();
+	pageTableLock->Acquire();
+	iptLock->Acquire();
+
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 #endif
 	int vpnStart = currentThread->startVPN;
 	DEBUG('a', "Removing thread with startVPN = %d.\n", vpnStart);
@@ -412,12 +428,22 @@ void AddrSpace::RemoveCurrentThread() {
 		if (physPage != -1) {
 			giveUpPhysicalPage(physPage);
 			pageTable[vpnStart + i].physicalPage = -1;
+
+#ifdef USE_TLB
+			for (int j = 0; j < TLBSize; j++) {
+				if (machine->tlb[j].physicalPage == i) {
+					machine->tlb[j].valid = false;
+				}
+			}
+#endif
 		}
 		pageTable[vpnStart + i].valid = false;
 	}
 #ifdef USE_TLB
-//	iptLock->Release();
-//	pageTableLock->Release();
+	interrupt->SetLevel(oldLevel);
+
+	iptLock->Release();
+	pageTableLock->Release();
 #endif
 }
 //----------------------------------------------------------------------
@@ -464,10 +490,10 @@ int lastProcID = -1;
 void AddrSpace::SaveState() 
 {
 #ifdef USE_TLB
-//	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-//	printf("Setting lastProcID to %d.\n", getSpaceID(currentThread->space));
+	//	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	//	printf("Setting lastProcID to %d.\n", getSpaceID(currentThread->space));
 	lastProcID = getSpaceID(currentThread->space);
-//	interrupt->SetLevel(oldLevel);
+	//	interrupt->SetLevel(oldLevel);
 #endif
 }
 
@@ -484,7 +510,7 @@ void AddrSpace::RestoreState()
 #ifdef USE_TLB
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (lastProcID != getSpaceID(currentThread->space)) {
-//		printf("Switched processes from %d to %d, invalidating TLB.\n", lastProcID, getSpaceID(currentThread->space));
+		//		printf("Switched processes from %d to %d, invalidating TLB.\n", lastProcID, getSpaceID(currentThread->space));
 		for (int i = 0; i < TLBSize; i++) {
 			if (machine->tlb[i].valid && machine->tlb[i].dirty) {
 				ipt[machine->tlb[i].physicalPage].dirty = true;
