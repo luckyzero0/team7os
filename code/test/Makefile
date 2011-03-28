@@ -124,6 +124,12 @@ exec_office.o: exec_office.c
 exec_office: exec_office.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o exec_office.o utils.o -o exec_office.coff
 	../bin/coff2noff exec_office.coff exec_office
+	
+exec_matmult.o: exec_matmult.c
+	$(CC) $(CFLAGS) -c exec_matmult.c utils.c
+exec_matmult: exec_matmult.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o exec_matmult.o utils.o -o exec_matmult.coff
+	../bin/coff2noff exec_matmult.coff exec_matmult
 
 
 testConditions.o: testConditions.c
