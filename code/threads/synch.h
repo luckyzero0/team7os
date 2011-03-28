@@ -89,6 +89,32 @@ class Lock {
     List* waitQueue;
 };
 
+#ifdef NETWORKING
+class SeverLock {
+  public:
+    ServerLock(char* debugName);  		// initialize lock to be FREE
+    ~ServerLock();				// deallocate lock
+    char* getName() { return name; }	// debugging assist
+
+    bool Acquire(); // these are the only operations on a lock
+    void Release(); // they are both *atomic*
+
+    bool IsHeldByCurrentThread();	// true if the current thread
+					// holds this lock.  Useful for
+					// checking in Release, and in
+					// Condition variable ops below.
+
+	bool IsBusy();
+
+  private:
+    char* name;				// for debugging
+    // plus some other stuff you'll need to define
+    Thread* owner;
+    LockState state;
+    List* waitQueue;
+};
+#endif
+
 // The following class defines a "condition variable".  A condition
 // variable does not have a value, but threads may be queued, waiting
 // on the variable.  These are only operations on a condition variable: 
