@@ -35,13 +35,13 @@ using namespace std;
 					// simplicity
 
 #ifdef USE_TLB
-#define NumPhysPages	4500
+#define NumPhysPages	32
 #else
 #define NumPhysPages    16348
 #endif
 
 #define MemorySize 	(NumPhysPages * PageSize)
-#define TLBSize		100		// if there is a TLB, make it small
+#define TLBSize		4		// if there is a TLB, make it small
 
 enum ExceptionType { NoException,           // Everything ok!
 		     SyscallException,      // A program executed a system call.
