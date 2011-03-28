@@ -987,7 +987,7 @@ void HandlePageFault() {
 	AddrSpace* space = currentThread->space;
 	space->pageTableLock->Acquire();
 
-	if (vpn >= space->numPages) {
+	if (badVPN >= space->numPages) {
 		printf("VPN does not exist for the given AddrSpace!\n");
 		space->pageTableLock->Release();
 		return;
