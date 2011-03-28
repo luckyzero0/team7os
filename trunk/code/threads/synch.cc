@@ -129,6 +129,8 @@ void Lock::Acquire() {
 }
 
 
+
+
 void Lock::Release() {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (this->owner != currentThread) {
@@ -166,6 +168,78 @@ bool Lock::IsBusy() {
 	interrupt->SetLevel(oldLevel);
 	return result;
 }
+
+//NETWORK--------------------------------------------------------------------------------
+#ifdef NETWORKING
+ServerLock::ServerLock(char* debugName) {
+	name = debugName;
+	owner = NULL;
+	state = FREE;
+	waitQueue = new List;
+}
+
+ServerLock::~ServerLock() {
+	delete waitQueue;
+}
+
+bool ServerLock::Acquire() { //Bool indicates whether lock has been acquired instantly or not
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	if (this->owner == currentThread) {
+		interrupt->SetLevel(oldLevel);
+		return true;
+	}
+	else if (this->state == FREE) {
+		this->state = BUSY;
+		this->owner = currentThread;
+	}
+	else {
+		this->waitQueue->Append(currentThread);
+		//currentThread->Sleep();   Server thread should NOT go to sleep, should message client
+		return false;
+	}
+	interrupt->SetLevel(oldLevel);
+	return true;
+}
+
+void ServerLock::Release() {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	if (this->owner != currentThread) {
+	  if (this->owner == NULL) {
+	    printf("Lock %s: has a NULL owner!\n", this->getName());
+	  }
+	  printf("Cannot release lock from a non-owning thread! id = %d\n", currentThread->ID);
+		interrupt->SetLevel(oldLevel);
+		return;
+	}
+	else if (!this->waitQueue->IsEmpty() ){
+		Thread* nextThread = (Thread *) this->waitQueue->Remove();
+		nextThread->setStatus(READY);
+		scheduler->ReadyToRun(nextThread);
+		this->owner = nextThread;
+	}
+	else {
+		this->state = FREE;
+		this->owner = NULL;
+	}
+	
+	interrupt->SetLevel(oldLevel);
+}
+
+bool ServerLock::IsHeldByCurrentThread() {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	bool result = (this->owner == currentThread);
+	interrupt->SetLevel(oldLevel);
+	return result;
+}
+
+bool ServerLock::IsBusy() {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	bool result = (this->state == BUSY);
+	interrupt->SetLevel(oldLevel);
+	return result;
+}
+#endif
+//////////-----------------------------------------------------------
 
 Condition::Condition(char* debugName) {
 	name = debugName;
