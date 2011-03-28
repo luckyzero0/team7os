@@ -27,7 +27,7 @@ bool success;
 
 
 struct LockEntry {
-	Lock* lock;
+	ServerLock* lock; //Changed from Lock to ServerLock
 	AddrSpace* space;
 	bool needsToBeDeleted;
 	int aboutToBeAcquired;
@@ -108,4 +108,85 @@ void initServerData(){
 		serverMVs[i].needsToBeDeleted = FALSE;
 		serverMVs[i].aboutToBeWaited = 0;
 	}
+}
+
+// Helper functions for "Server Syscalls" ==============================================
+//		Put by Mihir
+void deleteCondition(int id) {
+	delete serverCVs[id].condition;
+	serverCVs[id].condition = NULL;
+	serverCVs[id].space = NULL;
+	serverCVs[id].needsToBeDeleted = FALSE;
+	serverCVs[id].aboutToBeWaited = 0;
+}
+
+int getAvailableConditionID() {
+	int index = -1;
+	for (int i = 0; i < MAX_CONDITIONS; i++) {
+		if (serverCVs[i].condition == NULL) {
+			index = i;
+			break;
+		}
+	}
+	return index;
+}
+
+void deleteLock(int id) {
+	delete serverLocks[id].lock;
+	serverLocks[id].lock = NULL;
+	serverLocks[id].space = NULL;
+	serverLocks[id].needsToBeDeleted = FALSE;
+	serverLocks[id].aboutToBeAcquired = 0;
+}
+
+int getAvailableLockID() {
+	int index = -1;
+	for (int i = 0; i < MAX_LOCKS; i++) {
+		if (serverLocks[i].lock == NULL) {
+			index = i;
+			break;
+		}
+	}
+	return index;
+}
+
+// "Server" Syscalls. Client's syscall should send a message to server,
+// telling it to do one of these things. Feel free to get rid of "Syscall"
+// if the names are too long
+//	Put by Mihir
+
+LockID CreateLock_Syscall_Server(char* name){
+}
+
+void Acquire_Syscall_Server(LockID id){
+}
+
+void Release_Syscall_Server(LockID id){
+}
+
+void DestroyLock_Syscall_Server(LockID id){
+}
+
+ConditionID CreateCondition_Syscall_Server(char* name){
+}
+
+void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
+}
+
+void Wait_Syscall_Server(ConditionID conditionID, LockID lockID){
+}
+
+void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID){
+}
+
+void DestroyCondition_Syscall_Server(ConditionID conditionID){
+}
+
+MonitorID CreateMonitor_Syscall_Server(char* name){
+}
+
+int GetMonitor_Syscall_Server(MonitorID monitorID){
+}
+
+void SetMonitor_Syscall_Server(MonitorID monitorID, int value){
 }
