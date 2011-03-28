@@ -873,7 +873,7 @@ int HandleFullMemory(int vpn) {
 			printf("OWNING SPACE NULL IN HANDLE FULL MEMORY ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
 		}
 	}
-	
+
 	iptLock->Release();
 
 	RemovePageFromTLB(ppn);
@@ -903,7 +903,7 @@ int HandleFullMemory(int vpn) {
 		DEBUG('b', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, owningSpace->pageTable[ipt[ppn].virtualPage].byteOffset / PageSize, currentThread->space->numThreads);
 
 		//update the page table to reflect that we kicked out 
-	//	owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
+		//	owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
 
 		owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1;
 		owningSpace->pageTable[ipt[ppn].virtualPage].valid = true; // setting this to invalid would mean the VPN was invalid (given up by thread), but we don't want that
@@ -969,13 +969,13 @@ void HandleIPTMiss(int vpn) {
 
 	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
 
-//	iptLock->Acquire();
+	//	iptLock->Acquire();
 	UpdateIPT(vpn, ppn);
 	UpdateTLB(vpn, ppn);
 	ipt[ppn].inUse = false;
 	currentThread->space->pageTable[vpn].inUse = false;
-//	iptLock->Release();
-	
+	//	iptLock->Release();
+
 	currentThread->space->pageTableLock->Release();
 }
 
@@ -1203,12 +1203,18 @@ void ExceptionHandler(ExceptionType which) {
 		stats->numPageFaults++;
 #ifdef USE_TLB
 		//	pageFaultTESTLock->Acquire(); // HACK
-			IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
+		IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
 		HandlePageFault();
-			interrupt->SetLevel(oldLevel); // HACK
+		interrupt->SetLevel(oldLevel); // HACK
 		//	pageFaultTESTLock->Release(); // HACK
 #endif
 	} else {
+		for (int i = 0; i < currentThread->space->numPages; i++) {
+			printf("ueme pt[%d] ppn:%d dirty:%d readOnly:%d inUse:%d valid:%d spaceID:%d pageLocation:%d swapFileIndex:%d\n", currentThread->space->pageTable[i].virtualPage, currentThread->space->pageTable[i].physicalPage, currentThread->space->pageTable[i].dirty, currentThread->space->pageTable[i].readOnly, currentThread->space->pageTable[i].inUse, currentThread->space->pageTable[i].valid, currentThread->space->pageTable[i].spaceID, currentThread->space->pageTable[i].pageLocation, currentThread->space->pageTable[i].byteOffset / PageSize);
+		}
+		for (int i = 0; i < NumPhysPages; i++) {
+			printf"ueme ipt[%d] vpn:%d dirty:%d readOnly:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].readOnly, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
+		}
 		cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;
 		interrupt->Halt();
 	}
