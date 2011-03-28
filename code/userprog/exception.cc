@@ -402,7 +402,7 @@ void Exit_Syscall(int status) {
 	} else if (currentThread->space->numThreads == 0) { //kill the process and free the address space and stuff
 		SpaceID spaceID = getSpaceID(currentThread->space);
 		printf("Exiting non-final process %d with return value: %d.\n", spaceID, status);
-		
+
 		delete currentThread->space;
 		processTable[spaceID] = NULL;
 		bigLock->Release();
@@ -816,12 +816,19 @@ void RemovePageFromTLB(int ppn) {
 }
 
 void UpdateIPT(int vpn, int ppn){
-	ipt[ppn] = currentThread->space->pageTable[vpn];
+	ipt[ppn].virtualPage = vpn;
+	ipt[ppn].spaceID = getSpaceID(currentThread->space);
 	ipt[ppn].physicalPage = ppn; // becase it was possibly set to -1
 	ipt[ppn].valid = true;
 	ipt[ppn].dirty = false;
 
-	currentThread->space->pageTable[vpn] = ipt[ppn];
+	ipt[ppn].use = false;
+	ipt[ppn].readOnly = currentThread->space->pageTable[vpn].readOnly;
+	ipt[ppn].pageType = currentThread->space->pageTable[vpn].pageType;
+	ipt[ppn].pageLocation = currentThread->space->pageTable[vpn].pageLocation;
+	ipt[ppn].byteOffset = currentThread->space->pageTable[vpn].byteOffset;
+	ipt[ppn].byteSize = currentThread->space->pageTable[vpn].byteSize;
+	// inUse is already true
 }
 
 void UpdateTLB(int vpn, int ppn) {
@@ -832,7 +839,6 @@ void UpdateTLB(int vpn, int ppn) {
 	if (machine->tlb[tlbIndex].valid && machine->tlb[tlbIndex].dirty) {
 		int oldTLBPPN = machine->tlb[tlbIndex].physicalPage;
 		ipt[oldTLBPPN].dirty = true;
-		ASSERT(!(machine->tlb[tlbIndex].virtualPage == 3 && machine->tlb[tlbIndex].dirty));
 	}
 
 	//copy from the IPT to the TLB
@@ -850,14 +856,14 @@ int HandleFullMemory(int vpn) {
 	int ppn = -1;
 
 	// lock the ipt to find an acceptable ipt entry, then set its inUse and release the iptLock
-//	iptLock->Acquire();
+	iptLock->Acquire();
 	do {
 		if (PRAND) {
 			ppn = rand() % NumPhysPages;
 		} else if (PFIFO) {
 			ppn = (++fullMemPPN) % NumPhysPages;
 		}
-	} while (ipt[ppn].inUse);
+	} while (!ipt[ppn].valid || ipt[ppn].inUse);
 
 	ipt[ppn].inUse = true;
 	AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
@@ -867,10 +873,12 @@ int HandleFullMemory(int vpn) {
 			printf("OWNING SPACE NULL IN HANDLE FULL MEMORY ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
 		}
 	}
-//	owningSpace->pageTableLock->Acquire();
-//	iptLock->Release();
+	
+	iptLock->Release();
 
 	RemovePageFromTLB(ppn);
+
+	owningSpace->pageTableLock->Acquire();
 
 	DEBUG('p', "In HandleFullMemory() with vpn = %d and selected ppn to evict: %d.\n", vpn, ppn);
 
@@ -886,27 +894,28 @@ int HandleFullMemory(int vpn) {
 				printf("We ran out of space in the swap file, need to increase the bitmap.\n");
 				exit(1);
 			}
-			ipt[ppn].pageLocation = PageLocationSwapFile;
-			ipt[ppn].byteOffset = swapFileIndex * PageSize;
-			ipt[ppn].byteSize = PageSize;
+			owningSpace->pageTable[ipt[ppn].virtualPage].pageLocation = PageLocationSwapFile;
+			owningSpace->pageTable[ipt[ppn].virtualPage].byteOffset = swapFileIndex * PageSize;
+			owningSpace->pageTable[ipt[ppn].virtualPage].byteSize = PageSize;
 		}
 
-		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, ipt[ppn].byteOffset);
-		DEBUG('d', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, ipt[ppn].byteOffset / PageSize, currentThread->space->numThreads);
+		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, owningSpace->pageTable[ipt[ppn].virtualPage].byteOffset);
+		DEBUG('d', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, owningSpace->pageTable[ipt[ppn].virtualPage].byteOffset / PageSize, currentThread->space->numThreads);
 
 		//update the page table to reflect that we kicked out 
-		owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
+	//	owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
 
 		owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1;
 		owningSpace->pageTable[ipt[ppn].virtualPage].valid = true; // setting this to invalid would mean the VPN was invalid (given up by thread), but we don't want that
 		owningSpace->pageTable[ipt[ppn].virtualPage].dirty = false;
-	//	owningSpace->pageTable[ipt[ppn].virtualPage].inUse = false; // when we copy from pageTable to IPT later, this should be true
+		owningSpace->pageTable[ipt[ppn].virtualPage].use = false;
+		//	owningSpace->pageTable[ipt[ppn].virtualPage].inUse = false; // when we copy from pageTable to IPT later, this should be true
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
 
 	owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1;
 
-//	owningSpace->pageTableLock->Release();
+	owningSpace->pageTableLock->Release();
 
 	return ppn;
 }
@@ -914,19 +923,21 @@ int HandleFullMemory(int vpn) {
 void HandleIPTMiss(int vpn) {
 	DEBUG('p', "In HandleIPTMiss() for vpn = %d.\n", vpn);
 	for (int i = 0; i < currentThread->space->numPages; i++) {
-			DEBUG('b', "pt[%d] ppn:%d dirty:%d readOnly:%d inUse:%d valid:%d spaceID:%d pageLocation:%d swapFileIndex:%d\n", currentThread->space->pageTable[i].virtualPage, currentThread->space->pageTable[i].physicalPage, currentThread->space->pageTable[i].dirty, currentThread->space->pageTable[i].readOnly, currentThread->space->pageTable[i].inUse, currentThread->space->pageTable[i].valid, currentThread->space->pageTable[i].spaceID, currentThread->space->pageTable[i].pageLocation, currentThread->space->pageTable[i].byteOffset / PageSize);
+		DEBUG('b', "pt[%d] ppn:%d dirty:%d readOnly:%d inUse:%d valid:%d spaceID:%d pageLocation:%d swapFileIndex:%d\n", currentThread->space->pageTable[i].virtualPage, currentThread->space->pageTable[i].physicalPage, currentThread->space->pageTable[i].dirty, currentThread->space->pageTable[i].readOnly, currentThread->space->pageTable[i].inUse, currentThread->space->pageTable[i].valid, currentThread->space->pageTable[i].spaceID, currentThread->space->pageTable[i].pageLocation, currentThread->space->pageTable[i].byteOffset / PageSize);
 	}
-		for (int i = 0; i < NumPhysPages; i++) {
-			DEBUG('b', "ipt[%d] vpn:%d dirty:%d readOnly:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].readOnly, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
-		}
+	for (int i = 0; i < NumPhysPages; i++) {
+		DEBUG('b', "ipt[%d] vpn:%d dirty:%d readOnly:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].readOnly, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
+	}
 
-	int ppn = getPhysicalPage(); // does some internal locking to set inUse on ppn
+	iptLock->Acquire();
+	int ppn = getPhysicalPage(); // sets inUse to true on ipt[ppn]
+	iptLock->Release();
 	if (ppn == -1) {
-		// do some crazy swapfile black magic
+		// do some crazy swapfile black magic		
 		ppn = HandleFullMemory(vpn);
 	}
 
-//	currentThread->space->pageTableLock->Acquire();
+	currentThread->space->pageTableLock->Acquire();
 
 	// ppn's inUse is set
 	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
@@ -953,7 +964,8 @@ void HandleIPTMiss(int vpn) {
 		ASSERT(false);
 	}
 
-//	currentThread->space->pageTableLock->Release();
+	currentThread->space->pageTable[vpn].physicalPage = ppn;
+
 
 	DEBUG('p', "Read vpn = %d into memory. numThreads = %d\n", vpn, currentThread->space->numThreads);
 
@@ -961,7 +973,10 @@ void HandleIPTMiss(int vpn) {
 	UpdateIPT(vpn, ppn);
 	UpdateTLB(vpn, ppn);
 	ipt[ppn].inUse = false;
+	currentThread->space->pageTable[vpn].inUse = false;
 //	iptLock->Release();
+	
+	currentThread->space->pageTableLock->Release();
 }
 
 void HandlePageFault() {
@@ -969,22 +984,39 @@ void HandlePageFault() {
 	DEBUG('p', "In HandlePageFault() for badVAddr = %d.\n", badVAddr);
 	int badVPN = badVAddr / PageSize;
 
+	AddrSpace* space = currentThread->space;
+	space->pageTableLock->Acquire();
+
+	if (vpn >= space->numPages) {
+		printf("VPN does not exist for the given AddrSpace!\n");
+		space->pageTableLock->Release();
+		return;
+	}
+
+	if (space->pageTable[vpn].inUse) { // another thread is already page faulting to bring this into the tlb, so just get out and wait a sec
+		space->pageTableLock->Release();
+		return;
+	}
+
+	space->pageTable[vpn].inUse = true;
+	space->pageTableLock->Release();
+
 	int ppn = -1; //check IPT for physical page
-//	iptLock->Acquire();
+	iptLock->Acquire();
 	for (unsigned int i = 0; i < NumPhysPages; i++) {
 		int spaceID = getSpaceID(currentThread->space);
 		if (!ipt[i].inUse && ipt[i].valid && ipt[i].virtualPage == badVPN && ipt[i].spaceID == spaceID) { //if valid, matching process / vpn
 			UpdateTLB(badVPN, i); // found the page in the IPT, just copy it to the TLB and we're done
-		//	iptLock->Release();
+			iptLock->Release();
 			return;
 		}
 	}
-//	iptLock->Release();
+	iptLock->Release();
 
 	// couldn't find an empty ppn
 	HandleIPTMiss(badVPN);
 
-//	DEBUG('p', "Finished HandlePageFault() for badVAddr = %d, it now uses ppn = %d.  numThreads = %d\n", badVAddr, ppn, currentThread->space->numThreads);
+	//	DEBUG('p', "Finished HandlePageFault() for badVAddr = %d, it now uses ppn = %d.  numThreads = %d\n", badVAddr, ppn, currentThread->space->numThreads);
 }
 
 #endif
@@ -1167,11 +1199,11 @@ void ExceptionHandler(ExceptionType which) {
 	} else if ( which == PageFaultException ) {
 		stats->numPageFaults++;
 #ifdef USE_TLB
-	//	pageFaultTESTLock->Acquire(); // HACK
-	//	IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
+		//	pageFaultTESTLock->Acquire(); // HACK
+		//	IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
 		HandlePageFault();
-	//	interrupt->SetLevel(oldLevel); // HACK
-	//	pageFaultTESTLock->Release(); // HACK
+		//	interrupt->SetLevel(oldLevel); // HACK
+		//	pageFaultTESTLock->Release(); // HACK
 #endif
 	} else {
 		cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;
