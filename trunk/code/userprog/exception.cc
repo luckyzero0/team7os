@@ -850,7 +850,7 @@ void UpdateTLB(int vpn, int ppn) {
 	machine->tlb[tlbIndex].valid = true;
 
 	for (int i = 0; i < TLBSize; i++) {
-		printf("e spaceID:%d tlb[%d] vpn:%d ppn:%d dirty:%d valid:%d.\n", getSpaceID(currentThread->space), i, machine->tlb[i].virtualPage, machine->tlb[i].physicalPage, machine->tlb[i].dirty, machine->tlb[i].valid);
+		DEBUG('z', "e spaceID:%d tlb[%d] vpn:%d ppn:%d dirty:%d valid:%d.\n", getSpaceID(currentThread->space), i, machine->tlb[i].virtualPage, machine->tlb[i].physicalPage, machine->tlb[i].dirty, machine->tlb[i].valid);
 	}
 
 	interrupt->SetLevel(oldLevel);
@@ -882,9 +882,9 @@ int HandleFullMemory(int vpn) {
 
 	RemovePageFromTLB(ppn);
 
-	printf("About to get the owning space lock to evict a page");
+	DEBUG('z', "About to get the owning space lock to evict a page.\n");
 	owningSpace->pageTableLock->Acquire();
-	printf("Got the owning space lock from %d to evict a page.\n", getSpaceID(owningSpace));
+	DEBUG('z', "Got the owning space lock from %d to evict a page.\n", getSpaceID(owningSpace));
 
 	DEBUG('b', "In HandleFullMemory() with vpn = %d and selected ppn to evict: %d.\n", vpn, ppn);
 
@@ -991,7 +991,7 @@ void HandlePageFault() {
 	int badVPN = badVAddr / PageSize;
 
 	for (int i = 0; i < TLBSize; i++) {
-		printf("b spaceID:%d tlb[%d] vpn:%d ppn:%d dirty:%d valid:%d.\n", getSpaceID(currentThread->space), i, machine->tlb[i].virtualPage, machine->tlb[i].physicalPage, machine->tlb[i].dirty, machine->tlb[i].valid);
+		DEBUG('z', "b spaceID:%d tlb[%d] vpn:%d ppn:%d dirty:%d valid:%d.\n", getSpaceID(currentThread->space), i, machine->tlb[i].virtualPage, machine->tlb[i].physicalPage, machine->tlb[i].dirty, machine->tlb[i].valid);
 	}
 
 	AddrSpace* space = currentThread->space;
@@ -1002,7 +1002,7 @@ void HandlePageFault() {
 	}
 
 	space->pageTableLock->Acquire();
-	printf("Grabbed page table lock.\n");
+	DEBUG('z', "Grabbed page table lock.\n");
 
 	if (space->pageTable[badVPN].inUse) { // another thread is already page faulting to bring this into the tlb, so just get out and wait a sec
 		printf("VPN %d inUse set, returning without doing anything.\n", badVPN);
@@ -1016,7 +1016,7 @@ void HandlePageFault() {
 
 	int ppn = -1; //check IPT for physical page
 	iptLock->Acquire();
-	printf("Grabbed iptLock.\n");
+	DEBUG('z', "Grabbed iptLock.\n");
 	for (unsigned int i = 0; i < NumPhysPages; i++) {
 		int spaceID = getSpaceID(currentThread->space);
 		if (!ipt[i].inUse && ipt[i].valid && ipt[i].virtualPage == badVPN && ipt[i].spaceID == spaceID) { //if valid, matching process / vpn
