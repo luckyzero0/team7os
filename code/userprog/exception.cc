@@ -1014,7 +1014,7 @@ void HandlePageFault() {
 
 	int ppn = -1; //check IPT for physical page
 	iptLock->Acquire();
-	printf("Grabbed page table lock.\n");
+	printf("Grabbed iptLock.\n");
 	for (unsigned int i = 0; i < NumPhysPages; i++) {
 		int spaceID = getSpaceID(currentThread->space);
 		if (!ipt[i].inUse && ipt[i].valid && ipt[i].virtualPage == badVPN && ipt[i].spaceID == spaceID) { //if valid, matching process / vpn
