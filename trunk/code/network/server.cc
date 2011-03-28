@@ -14,6 +14,10 @@
 #define MAX_CONDITIONS 200
 #define MAX_MONITORS 200
 
+extern "C" {
+	int bcopy(char *, char *, int);
+};
+
 PacketHeader outPktHdr, inPktHdr;
 MailHeader outMailHdr, inMailHdr;
 char *data = "Hello there!";
