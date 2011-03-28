@@ -880,7 +880,7 @@ int HandleFullMemory(int vpn) {
 
 	owningSpace->pageTableLock->Acquire();
 
-	DEBUG('p', "In HandleFullMemory() with vpn = %d and selected ppn to evict: %d.\n", vpn, ppn);
+	DEBUG('b', "In HandleFullMemory() with vpn = %d and selected ppn to evict: %d.\n", vpn, ppn);
 
 	if (ipt[ppn].dirty) {
 
@@ -921,7 +921,7 @@ int HandleFullMemory(int vpn) {
 }
 
 void HandleIPTMiss(int vpn) {
-	DEBUG('p', "In HandleIPTMiss() for vpn = %d.\n", vpn);
+	DEBUG('b', "In HandleIPTMiss() for vpn = %d.\n", vpn);
 	for (int i = 0; i < currentThread->space->numPages; i++) {
 		DEBUG('b', "pt[%d] ppn:%d dirty:%d readOnly:%d inUse:%d valid:%d spaceID:%d pageLocation:%d swapFileIndex:%d\n", currentThread->space->pageTable[i].virtualPage, currentThread->space->pageTable[i].physicalPage, currentThread->space->pageTable[i].dirty, currentThread->space->pageTable[i].readOnly, currentThread->space->pageTable[i].inUse, currentThread->space->pageTable[i].valid, currentThread->space->pageTable[i].spaceID, currentThread->space->pageTable[i].pageLocation, currentThread->space->pageTable[i].byteOffset / PageSize);
 	}
