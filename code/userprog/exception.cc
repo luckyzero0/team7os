@@ -849,6 +849,10 @@ void UpdateTLB(int vpn, int ppn) {
 	machine->tlb[tlbIndex].use = false;
 	machine->tlb[tlbIndex].valid = true;
 
+	for (int i = 0; i < TLBSize; i++) {
+		printf("e spaceID:%d tlb[%d] vpn:%d ppn:%d dirty:%d valid:%d.\n", getSpaceID(currentThread->space), i, machine->tlb[i].virtualPage, machine->tlb[i].physicalPage, machine->tlb[i].dirty, machine->tlb[i].valid);
+	}
+
 	interrupt->SetLevel(oldLevel);
 }
 
@@ -983,6 +987,10 @@ void HandlePageFault() {
 	int badVAddr = machine->ReadRegister(BadVAddrReg);
 	DEBUG('p', "In HandlePageFault() for badVAddr = %d.\n", badVAddr);
 	int badVPN = badVAddr / PageSize;
+
+	for (int i = 0; i < TLBSize; i++) {
+		printf("b spaceID:%d tlb[%d] vpn:%d ppn:%d dirty:%d valid:%d.\n", getSpaceID(currentThread->space), i, machine->tlb[i].virtualPage, machine->tlb[i].physicalPage, machine->tlb[i].dirty, machine->tlb[i].valid);
+	}
 
 	AddrSpace* space = currentThread->space;
 
@@ -1204,9 +1212,7 @@ void ExceptionHandler(ExceptionType which) {
 #ifdef USE_TLB
 		//	pageFaultTESTLock->Acquire(); // HACK
 		IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
-		for (int i = 0; i < TLBSize; i++) {
-			printf("spaceID:%d tlb[%d] vpn:%d ppn:%d dirty:%d valid:%d.\n", getSpaceID(currentThread->space), i, machine->tlb[i].virtualPage, machine->tlb[i].physicalPage, machine->tlb[i].dirty, machine->tlb[i].valid);
-		}
+		
 		HandlePageFault();
 		interrupt->SetLevel(oldLevel); // HACK
 		//	pageFaultTESTLock->Release(); // HACK
