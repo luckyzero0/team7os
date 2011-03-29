@@ -88,8 +88,8 @@ class Lock {
     LockState state;
     List* waitQueue;
 };
-
-#ifdef NETWORKING
+/*
+#ifdef NETWORK
 class SeverLock {
   public:
     ServerLock(char* debugName);  		// initialize lock to be FREE
@@ -114,6 +114,7 @@ class SeverLock {
     List* waitQueue;
 };
 #endif
+*/
 
 // The following class defines a "condition variable".  A condition
 // variable does not have a value, but threads may be queued, waiting
