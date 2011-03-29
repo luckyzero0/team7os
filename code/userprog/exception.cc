@@ -468,10 +468,8 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 #ifdef NETWORK
 	char msg[MaxMailSize] = {""};
 	printf("%s\n",msg);
-	char number[2];
 	printf("%d\n",SC_CreateLock);
-	sprintf(number,"%d",SC_CreateLock);
-	sprintf(msg,"%d,%s,*",number,buf);
+	sprintf(msg,"%d,%s,*",SC_CreateLock,buf);
 	printf("%s\n",msg);
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
