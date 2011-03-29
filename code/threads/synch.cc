@@ -169,8 +169,8 @@ bool Lock::IsBusy() {
 	return result;
 }
 
-//NETWORK--------------------------------------------------------------------------------
-#ifdef NETWORKING
+/*NETWORK--------------------------------------------------------------------------------
+#ifdef NETWORK
 ServerLock::ServerLock(char* debugName) {
 	name = debugName;
 	owner = NULL;
@@ -240,7 +240,7 @@ bool ServerLock::IsBusy() {
 	return result;
 }
 #endif
-//////////-----------------------------------------------------------
+//////////-----------------------------------------------------------*/
 
 Condition::Condition(char* debugName) {
 	name = debugName;
