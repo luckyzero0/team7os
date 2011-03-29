@@ -183,6 +183,7 @@ ServerLock::~ServerLock() {
 }
 
 bool ServerLock::Acquire() { //Bool indicates whether lock has been acquired instantly or not
+	//All threads need to be changed to client IDs. No thread handeling on server side
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (this->owner == currentThread) {
 		interrupt->SetLevel(oldLevel);
@@ -213,7 +214,7 @@ void ServerLock::Release() {
 	}
 	else if (!this->waitQueue->IsEmpty() ){
 		Thread* nextThread = (Thread *) this->waitQueue->Remove();
-		nextThread->setStatus(READY);
+		nextThread->setStatus(READY); 
 		scheduler->ReadyToRun(nextThread);
 		this->owner = nextThread;
 	}
