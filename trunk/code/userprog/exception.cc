@@ -602,7 +602,7 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	ConditionID conditionID = atoi(buffer);
-	return ConditionID;
+	return conditionID;
 #else
 	conditionsLock->Acquire();
 	int index = getAvailableConditionID();
