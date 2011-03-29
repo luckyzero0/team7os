@@ -189,11 +189,11 @@ senatorTest: senatorTest.o start.o utils.o office.o manager.o customer.o clerks.
 	$(LD) $(LDFLAGS) start.o senatorTest.o utils.o office.o manager.o customer.o clerks.o senator.o -o senatorTest.coff
 	../bin/coff2noff senatorTest.coff senatorTest
 
-nettestCreateLock.o: nettestCreateLock.c
-	$(CC) $(CFLAGS) -c nettestCreateLock.c utils.c
-nettestCreateLock: nettestCreateLock.o start.o utils.o
-	$(LD) $(LDFLAGS) start.o nettestCreateLock.o utils.o -o nettestCreateLock.coff
-	../bin/coff2noff nettestCreateLock.coff nettestCreateLock
+NTLockCVs.o: NTLockCVs.c
+	$(CC) $(CFLAGS) -c NTLockCVs.c utils.c
+NTLockCVs: NTLockCVs.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o NTLockCVs.o utils.o -o NTLockCVs.coff
+	../bin/coff2noff NTLockCVs.coff NTLockCVs
 
 clean:
 	rm -f *.o *.coff

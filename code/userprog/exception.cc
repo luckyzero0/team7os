@@ -466,11 +466,8 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 
 	//at this point buf is the valid name
 #ifdef NETWORK
-	char msg[MaxMailSize] = {""};
-	printf("%s\n",msg);
-	printf("%d\n",SC_CreateLock);
-	sprintf(msg,"%d,%s,*",SC_CreateLock,buf);
-	printf("%s\n",msg);
+	char msg[MaxMailSize] = {""};	
+	sprintf(msg,"%d,%s,%d,*",SC_CreateLock,buf,currentThread->ID);	
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
 	outMailHdr.from = 0;
@@ -518,7 +515,7 @@ void DestroyLock_Syscall(LockID id) {
 	}
 #ifdef NETWORK
 	char msg[MaxMailSize] = {""};
-	sprintf(msg,"%d,%d*",SC_DestroyLock,id);
+	sprintf(msg,"%d,%d,%d,*",SC_DestroyLock,id,currentThread->ID);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -580,7 +577,7 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 	}
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%s,*",SC_CreateCondition,buf);
+	sprintf(msg,"%d,%s,%d,*",SC_CreateCondition,buf,currentThread->ID);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -628,7 +625,7 @@ void DestroyCondition_Syscall(ConditionID id) {
 	}
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,*",SC_DestroyCondition,id);
+	sprintf(msg,"%d,%d,%d,*",SC_DestroyCondition,id,currentThread->ID);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -665,7 +662,7 @@ void Acquire_Syscall(LockID id) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,*",SC_Acquire,id);
+	sprintf(msg,"%d,%d,%d,*",SC_Acquire,id,currentThread->ID);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -704,7 +701,7 @@ void Release_Syscall(LockID id) {
 	}
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,*",SC_Release,id);
+	sprintf(msg,"%d,%d,%d,*",SC_Release,id,currentThread->ID);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -750,7 +747,7 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 	}
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d*",SC_Signal,conditionID, lockID);
+	sprintf(msg,"%d,%d,%d,%d*",SC_Signal,conditionID, lockID,currentThread->ID);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -807,7 +804,7 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d*",SC_Wait,conditionID, lockID);
+	sprintf(msg,"%d,%d,%d,%d,*",SC_Wait,conditionID, lockID,currentThread->ID);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -869,7 +866,7 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d*",SC_Broadcast,conditionID, lockID);
+	sprintf(msg,"%d,%d,%d,%d,*",SC_Broadcast,conditionID, lockID,currentThread->ID);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
