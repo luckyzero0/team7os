@@ -517,10 +517,8 @@ void DestroyLock_Syscall(LockID id) {
 		return;
 	}
 #ifdef NETWORK
-	char msg[MaxMailSize];
-	char number[2];
-	sprintf(number,"%d",SC_DestroyLock);
-	sprintf(msg,"%d,%d*",number,id);
+	char msg[MaxMailSize] = {""};
+	sprintf(msg,"%d,%d*",SC_DestroyLock,id);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -582,9 +580,7 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 	}
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	char number[2];
-	sprintf(number,"%d",SC_CreateCondition);
-	sprintf(msg,"%d,%s,*",number,buf);
+	sprintf(msg,"%d,%s,*",SC_CreateCondition,buf);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -632,9 +628,7 @@ void DestroyCondition_Syscall(ConditionID id) {
 	}
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	char number[2];
-	sprintf(number,"%d",SC_DestroyCondition);
-	sprintf(msg,"%d,%d,*",number,id);
+	sprintf(msg,"%d,%d,*",SC_DestroyCondition,id);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
