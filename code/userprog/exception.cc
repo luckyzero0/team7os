@@ -466,8 +466,8 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 
 	//at this point buf is the valid name
 #ifdef NETWORK
-	char msg[MaxMailSize];
-	msg = "";
+	char msg[MaxMailSize] = {""};
+	
 	char number[2];
 	sprintf(number,"%d",SC_CreateLock);
 	sprintf(msg,"%d,%s,*",number,buf);
