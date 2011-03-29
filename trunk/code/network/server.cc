@@ -19,13 +19,6 @@ extern "C" {
 	int bcopy(char *, char *, int);
 };
 
-PacketHeader outPktHdr, inPktHdr;
-MailHeader outMailHdr, inMailHdr;
-char *data = "Hello there!";
-char *ack = "Got it!";
-char buffer[MaxMailSize];
-bool success;
-
 
 struct LockEntry {
 	Lock* lock; //Changed from Lock to ServerLock
@@ -58,16 +51,32 @@ void initServerData();
 void RunServer(void){
 	printf("Server coming online...\n");
 	
+	char *data = "Hello there!";
+	char *ack = "Got it!";
+	char buffer[MaxMailSize];
+	bool success;
+	PacketHeader outPktHdr, inPktHdr;
+	MailHeader outMailHdr, inMailHdr;
 	initServerData();
 	    
 	printf("Server online...\n");
 	printf("Listening for clients on the network...\n");
 
-	while(true){
+	while(true){		
+		
 		
 		postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
 		printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
     	fflush(stdout);
+    	
+    	//parse that shit
+    	int fnCall = 0;
+    	switch(fnCall){
+	    	
+	    	case SC_CreateLock:
+	    		//ack = itoa(CreateLock_Server_Syscall("namefrombuffer"));    		
+	    	break;
+    	}
     	
     	outPktHdr.to = inPktHdr.from;
     	outMailHdr.to = inMailHdr.from;
@@ -114,7 +123,7 @@ void initServerData(){
 
 // Helper functions for "Server Syscalls" ==============================================
 //		Put by Mihir
-void deleteCondition(int id) {
+void deleteServerCondition(int id) {
 	delete serverCVs[id].condition;
 	serverCVs[id].condition = NULL;
 	serverCVs[id].space = NULL;
@@ -122,7 +131,7 @@ void deleteCondition(int id) {
 	serverCVs[id].aboutToBeWaited = 0;
 }
 
-int getAvailableConditionID() {
+int getAvailableServerConditionID() {
 	int index = -1;
 	for (int i = 0; i < MAX_CONDITIONS; i++) {
 		if (serverCVs[i].condition == NULL) {
@@ -133,7 +142,7 @@ int getAvailableConditionID() {
 	return index;
 }
 
-void deleteLock(int id) {
+void deleteServerLock(int id) {
 	delete serverLocks[id].lock;
 	serverLocks[id].lock = NULL;
 	serverLocks[id].space = NULL;
@@ -141,7 +150,7 @@ void deleteLock(int id) {
 	serverLocks[id].aboutToBeAcquired = 0;
 }
 
-int getAvailableLockID() {
+int getAvailableServerLockID() {
 	int index = -1;
 	for (int i = 0; i < MAX_LOCKS; i++) {
 		if (serverLocks[i].lock == NULL) {
@@ -158,6 +167,17 @@ int getAvailableLockID() {
 //	Put by Mihir
 
 LockID CreateLock_Syscall_Server(char* name){
+		//locksLock->Acquire();
+		int index = getAvailableServerLockID();
+		if (index == -1) {
+			printf("No locks available!\n");
+		} else {
+			serverLocks[index].lock = new Lock(name);
+			serverLocks[index].space = currentThread->space;
+		}
+		//locksLock->Release();
+		DEBUG('a', "Returning lock index: %d\n", index); //DEBUG
+		return index;
 }
 
 void Acquire_Syscall_Server(LockID id){
@@ -170,6 +190,7 @@ void DestroyLock_Syscall_Server(LockID id){
 }
 
 ConditionID CreateCondition_Syscall_Server(char* name){
+	return 0;
 }
 
 void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
@@ -185,9 +206,11 @@ void DestroyCondition_Syscall_Server(ConditionID conditionID){
 }
 
 MonitorID CreateMonitor_Syscall_Server(char* name){
+	return 0;
 }
 
 int GetMonitor_Syscall_Server(MonitorID monitorID){
+	return 0;
 }
 
 void SetMonitor_Syscall_Server(MonitorID monitorID, int value){
