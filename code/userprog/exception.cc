@@ -466,40 +466,40 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 
 	//at this point buf is the valid name
 #ifdef NETWORK
-		char msg[MaxMailSize];
-		char number[3];
-		sprintf(number,"%d",SC_CreateLock);
-		sprintf(msg,"%d,%s,*",number,buf);
-		
-		outPktHdr.to = 0;
-		outMailHdr.to = 0;
-		outMailHdr.from = 0;
-		outMailMdr.length = strlen(msg) + 1;
-		bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
-		if ( !success ) {
-			printf("The postOffice Send failed.\n");
-			interrupt->Halt();      	      	       	      	 
-		} 
-		postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
-		printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
-		fflush(stdout);
-		LockID lockID = atoi(buffer);
-		return lockID;
+	char msg[MaxMailSize];
+	char number[3];
+	sprintf(number,"%d",SC_CreateLock);
+	sprintf(msg,"%d,%s,*",number,buf);
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+	LockID lockID = atoi(buffer);
+	return lockID;
 
 #else
-		locksLock->Acquire();
-		int index = getAvailableLockID();
-		if (index == -1) {
-			printf("No locks available!\n");
-		} else {
-			locks[index].lock = new Lock(buf);
-			locks[index].space = currentThread->space;
-		}
-		locksLock->Release();
-		DEBUG('a', "Returning lock index: %d\n", index); //DEBUG
-		return index;
-#endif
+	locksLock->Acquire();
+	int index = getAvailableLockID();
+	if (index == -1) {
+		printf("No locks available!\n");
+	} else {
+		locks[index].lock = new Lock(buf);
+		locks[index].space = currentThread->space;
 	}
+	locksLock->Release();
+	DEBUG('a', "Returning lock index: %d\n", index); //DEBUG
+	return index;
+#endif
+
 
 }
 
