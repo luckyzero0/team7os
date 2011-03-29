@@ -60,15 +60,12 @@ void Wait_Syscall_Server(ConditionID conditionID, LockID lockID);
 void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID);
 
 
-
+char *ack = "";
 int fnCall = 0;
 string args[4];
 
 void RunServer(void){
-	printf("Server coming online...\n");
-	
-	char *data = "Hello there!";
-	char *ack = "Got it!";
+	printf("Server coming online...\n");	
 	char buffer[MaxMailSize];
 	bool success;
 	PacketHeader outPktHdr, inPktHdr;
@@ -92,33 +89,43 @@ void RunServer(void){
     	switch(fnCall){
 	    	
 	    	case SC_CreateLock:
-	    		printf("Creating a new ServerLock.\n");	    			    		    		
+	    		printf("Request from Client[%d]. Creating a new ServerLock.\n", inPktHdr.from);	    			    		    		
 	    		sprintf(ack,"%d",CreateLock_Syscall_Server(const_cast<char *>(args[1].c_str())));    		
 	    	break;
 	    	
-	    	case SC_Acquire:	    		
+	    	case SC_Acquire:
+	    		printf("Request from Client[%d]. Acquiring ServerLock[%d]\n",inPktHdr.from, atoi(args[1].c_str()));
+	    		Acquire_Syscall_Server(atoi(args[1].c_str()));	    		
 	    	break;
 	    	
-	    	case SC_Release:	    	
+	    	case SC_Release:	  
+	    		printf("Request from Client[%d]. Releasing ServerLock[%d]\n",inPktHdr.from, atoi(args[1].c_str()));
+	    		Release_Syscall_Server(atoi(args[1].c_str()));	    	
 	    	break;
 	    	
 	    	case SC_DestroyLock:
-	    		printf("Destroying ServerLock[%d]\n",atoi(args[1].c_str()));
+	    		printf("Request from Client[%d]. Destroying ServerLock[%d]\n",inPktHdr.from, atoi(args[1].c_str()));
 	    		DestroyLock_Syscall_Server(atoi(args[1].c_str())); 	
 	    	break;
 	    	
 	    	case SC_CreateCondition:
-	    		printf("Creating a new ServerCV.\n");
+	    		printf("Request from Client[%d]. Creating a new ServerCV.\n", inPktHdr.from);
 	    		sprintf(ack,"%d",CreateCondition_Syscall_Server(const_cast<char *>(args[1].c_str())));	    	
 	    	break;
 	    	
-	    	case SC_Signal:	    	
+	    	case SC_Signal:	   
+	    		printf("Request from Client[%d]. Signaling ServerCV[%d] with ServerLock[%d]\n",inPktHdr.from, atoi(args[1].c_str()),atoi(args[2].c_str()));
+	    		Signal_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));	 
 	    	break;
 	    	
-	    	case SC_Wait:	    	
+	    	case SC_Wait:	    
+	    		printf("Request from Client[%d]. Waiting on ServerCV[%d] with ServerLock[%d]\n",inPktHdr.from, atoi(args[1].c_str()),atoi(args[2].c_str()));
+	    		Wait_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));	
 	    	break;
 	    	
-	    	case SC_Broadcast:	    	
+	    	case SC_Broadcast:	  
+	    		printf("Request from Client[%d]. Broadcasting ServerCV[%d] with ServerLock[%d]\n",inPktHdr.from, atoi(args[1].c_str()),atoi(args[2].c_str()));
+	    		Broadcast_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));  	
 	    	break;
 	    	
 	    	case SC_DestroyCondition:
@@ -133,6 +140,8 @@ void RunServer(void){
     	outMailHdr.length = strlen(ack) + 1;
 		outMailHdr.from = 0;
     	success = postOffice->Send(outPktHdr, outMailHdr, ack); 		
+    	ack = "";
+    	fflush(stdout);
     	
     	if ( !success ) {
       		printf("The postOffice Send failed.\n");
@@ -228,8 +237,7 @@ int getAvailableServerConditionID() {
 	return index;
 }
 
-void deleteServerLock(int id) {
-	
+void deleteServerLock(int id) {	
 	delete serverLocks[id].lock;
 	serverLocks[id].lock = NULL;
 	serverLocks[id].space = NULL;
@@ -263,7 +271,7 @@ LockID CreateLock_Syscall_Server(char* name){
 			serverLocks[index].space = currentThread->space;
 		}
 		//locksLock->Release();
-		DEBUG('a', "Returning lock index: %d\n", index); //DEBUG
+		printf("Returning lock index: %d\n", index); //DEBUG		
 		return index;
 }
 
@@ -272,6 +280,7 @@ void Acquire_Syscall_Server(LockID id){
 	if (serverLocks[id].space != currentThread->space) {
 		printf("LockID[%d] cannot be acquired from a non-owning process!\n", id);
 		//locksLock->Release();
+		ack = "Acquire failed.";
 		return;
 	} 
 
@@ -280,6 +289,7 @@ void Acquire_Syscall_Server(LockID id){
 	serverLocks[id].lock->Acquire();
 	serverLocks[id].aboutToBeAcquired--;
 	DEBUG('a', "Lock [%d] has been acquired.\n", id); //DEBUG
+	ack = "Success.";
 }
 
 void Release_Syscall_Server(LockID id){
@@ -301,11 +311,10 @@ void Release_Syscall_Server(LockID id){
 }
 
 void DestroyLock_Syscall_Server(LockID id){
-	//locksLock->Acquire();
-	printf("INZE DESTRUCTION!\n");
+	//locksLock->Acquire();	
 	if (serverLocks[id].space != currentThread->space) {
 		printf("LockID[%d] cannot be destroyed from a non-owning process!\n", id);
-	} else {
+	} else {	
 		if (serverLocks[id].lock->IsBusy() || serverLocks[id].aboutToBeAcquired > 0) {
 			serverLocks[id].needsToBeDeleted = TRUE;
 			DEBUG('a', "Lock[%d] will be deleted when possible.\n",id); //DEBUG
