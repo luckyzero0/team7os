@@ -467,7 +467,8 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 	//at this point buf is the valid name
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	char number[3];
+	msg = "";
+	char number[2];
 	sprintf(number,"%d",SC_CreateLock);
 	sprintf(msg,"%d,%s,*",number,buf);
 
@@ -516,7 +517,26 @@ void DestroyLock_Syscall(LockID id) {
 		printf("LockID[%d] is out of range!\n", id);
 		return;
 	}
+#ifdef NETWORK
+	char msg[MaxMailSize];
+	char number[2];
+	sprintf(number,"%d",SC_DestroyLock);
+	sprintf(msg,"%d,%d*",number,id);
 
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+	
+#else
 	locksLock->Acquire();
 	if (locks[id].space != currentThread->space) {
 		printf("LockID[%d] cannot be destroyed from a non-owning process!\n", id);
@@ -530,6 +550,7 @@ void DestroyLock_Syscall(LockID id) {
 		}
 	}
 	locksLock->Release();
+#endif
 }
 
 int getAvailableConditionID() {
@@ -560,7 +581,29 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 			return -1;
 		}				
 	}
+#ifdef NETWORK
+	char msg[MaxMailSize];
+	char number[2];
+	sprintf(number,"%d",SC_CreateCondition);
+	sprintf(msg,"%d,%s,*",number,buf);
 
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+
+
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+	ConditionID conditionID = atoi(buffer);
+	return ConditionID;
+#else
 	conditionsLock->Acquire();
 	int index = getAvailableConditionID();
 	if (index == -1) {
@@ -572,6 +615,7 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 	conditionsLock->Release();
 
 	return index;
+#endif
 }
 
 void deleteCondition(int id) {
@@ -587,7 +631,25 @@ void DestroyCondition_Syscall(ConditionID id) {
 		printf("ConditionID[%d] is out of range!\n", id);
 		return;
 	}
+#ifdef NETWORK
+	char msg[MaxMailSize];
+	char number[2];
+	sprintf(number,"%d",SC_DestroyCondition);
+	sprintf(msg,"%d,%d,*",number,id);
 
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+#else
 	conditionsLock->Acquire();
 	if (conditions[id].space != currentThread->space) {
 		printf("ConditionID[%d] cannot be destroyed from a non-owning process!\n", id);
@@ -599,6 +661,7 @@ void DestroyCondition_Syscall(ConditionID id) {
 		}
 	}
 	conditionsLock->Release();
+#endif
 }
 
 void Acquire_Syscall(LockID id) {
