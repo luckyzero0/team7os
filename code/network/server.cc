@@ -9,6 +9,7 @@
 #include "network.h"
 #include "post.h"
 #include "interrupt.h"
+#include "syscall.h"
 
 #define MAX_LOCKS 100 
 #define MAX_CONDITIONS 200
@@ -27,7 +28,7 @@ bool success;
 
 
 struct LockEntry {
-	ServerLock* lock; //Changed from Lock to ServerLock
+	Lock* lock; //Changed from Lock to ServerLock
 	AddrSpace* space;
 	bool needsToBeDeleted;
 	int aboutToBeAcquired;
@@ -71,6 +72,7 @@ void RunServer(void){
     	outPktHdr.to = inPktHdr.from;
     	outMailHdr.to = inMailHdr.from;
     	outMailHdr.length = strlen(ack) + 1;
+		outMailHdr.from = 0;
     	success = postOffice->Send(outPktHdr, outMailHdr, ack); 		
     	
     	if ( !success ) {
