@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string.h>
+#include <stdio.h>
 
 //Networking
 #ifdef NETWORK
@@ -467,10 +468,9 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 #ifdef NETWORK
 		char msg[MaxMailSize];
 		char number[3];
-		str_cat(msg, itoa(SC_CreateLock, number, 10));
-		str_cat(msg, ",");
-		str_cat(msg, buf);
-		str_cat(msg, "*");
+		sprintf(number,"%d",SC_CreateLock);
+		sprintf(msg,"%d,%s,*",number,buf);
+		
 		outPktHdr.to = 0;
 		outMailHdr.to = 0;
 		outMailHdr.from = 0;
