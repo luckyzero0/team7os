@@ -49,6 +49,7 @@ int main()
 }
 
 void t1(){	
+	printf("Thread1 forked and acquiring lock.\n",0,0,0,"","");
 	Acquire(lockID);	
 	printf("Thread1 forked and has the lock.\n",0,0,0,"","");	
 	printf("Thread1 executing.\n",0,0,0,"","");
@@ -63,6 +64,7 @@ void t1(){
 }
 
 void t2(){
+	printf("Thread2 forked and acquiring lock.\n",0,0,0,"","");
 	Acquire(lockID);	
 	printf("Thread2 forked and has the lock.\n",0,0,0,"","");	
 	printf("Thread2 executing.\n",0,0,0,"","");
