@@ -34,8 +34,6 @@
 #include "network.h"
 #include "post.h"
 #include "interrupt.h"
-#define NETWORKING_ON 1
-#define NETWORKING_OFF 0
 #endif
 //
 
@@ -452,7 +450,7 @@ int getAvailableLockID() {
 	return index;
 }
 
-LockID CreateLock_Syscall(unsigned int vaddr, int len, int networking) {	
+LockID CreateLock_Syscall(unsigned int vaddr, int len) {	
 	char* buf;
 	if ( !(buf = new char[len]) ) {
 		printf("%s","Error allocating kernel buffer for write!\n");
@@ -466,7 +464,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len, int networking) {
 	}
 
 	//at this point buf is the valid name
-	if (networking == NETWORKING_ON){
+#ifdef NETWORKING
 		char msg[MaxMailSize];
 		char number[3];
 		str_cat(msg, itoa(SC_CreateLock, number, 10));
@@ -488,7 +486,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len, int networking) {
 		LockID lockID = atoi(buffer);
 		return lockID;
 
-	}else{
+#else
 		locksLock->Acquire();
 		int index = getAvailableLockID();
 		if (index == -1) {
@@ -500,6 +498,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len, int networking) {
 		locksLock->Release();
 		DEBUG('a', "Returning lock index: %d\n", index); //DEBUG
 		return index;
+#endif
 	}
 
 }
@@ -1086,7 +1085,7 @@ void HandlePageFault() {
 //===============================================================================================
 //					NETWORKING
 //===============================================================================================
-#ifdef NETWORK
+#ifdef NETWORKING
 
 MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 }
@@ -1151,7 +1150,7 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_CreateLock:
 			DEBUG('a', "CreateLock syscall.\n");
 			rv = CreateLock_Syscall(machine->ReadRegister(4),
-				machine->ReadRegister(5), machine->ReadRegister(6));
+				machine->ReadRegister(5));
 			break;
 
 		case SC_DestroyLock:
