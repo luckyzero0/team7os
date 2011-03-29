@@ -469,6 +469,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 	char msg[MaxMailSize] = {""};
 	printf("%s\n",msg);
 	char number[2];
+	printf("%d\n",SC_CreateLock);
 	sprintf(number,"%d",SC_CreateLock);
 	sprintf(msg,"%d,%s,*",number,buf);
 	printf("%s\n",msg);
