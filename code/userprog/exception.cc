@@ -30,7 +30,7 @@
 #include <string.h>
 
 //Networking
-#ifdef NETWORKING
+#ifdef NETWORK
 #include "network.h"
 #include "post.h"
 #include "interrupt.h"
@@ -52,7 +52,7 @@ using namespace std;
 
 int threadArgs[MAX_THREADS];
 
-#ifdef NETWORKING
+#ifdef NETWORK
 PacketHeader outPktHdr, inPktHdr;
 MailHeader outMailHdr, inMailHdr;
 char buffer[MaxMailSize];
@@ -464,7 +464,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 	}
 
 	//at this point buf is the valid name
-#ifdef NETWORKING
+#ifdef NETWORK
 		char msg[MaxMailSize];
 		char number[3];
 		str_cat(msg, itoa(SC_CreateLock, number, 10));
@@ -1085,7 +1085,7 @@ void HandlePageFault() {
 //===============================================================================================
 //					NETWORKING
 //===============================================================================================
-#ifdef NETWORKING
+#ifdef NETWORK
 
 MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 }
