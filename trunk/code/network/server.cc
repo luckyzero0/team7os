@@ -50,7 +50,7 @@ void initServerData();
 LockID CreateLock_Syscall_Server(char* name);
 void parsePacket(char*);
 int fnCall = 0;
-char* args[4];
+string args[4];
 
 void RunServer(void){
 	printf("Server coming online...\n");
@@ -74,13 +74,14 @@ void RunServer(void){
     	fflush(stdout);
     	
     	//parse that shit
-    	parsePacket(buffer);    
-    	fnCall = atoi(args[0]);
+    	parsePacket(buffer);            	
+    	fnCall = atoi(string(args[0]).c_str());
     	printf("FnCall = [%d]\n",fnCall);
     	switch(fnCall){
 	    	
-	    	case SC_CreateLock:	    			    		    		
-	    		sprintf(ack,"%d",CreateLock_Syscall_Server(args[1]));    		
+	    	case SC_CreateLock:
+	    		printf("Creating a new ServerLock.\n");	    			    		    		
+	    		sprintf(ack,"%d",CreateLock_Syscall_Server(const_cast<char *>(args[1].c_str())));    		
 	    	break;
 	    	
 	    	case SC_Acquire:
@@ -138,7 +139,7 @@ void parsePacket(char* buffer){
 	int i = 0;
 	int j = 0;
 	int readback = 0;
-	char temp[100] = {'\0'};
+	char temp[100];
 	
 	printf("Parsing packet.\n");
 	while(buffer[i] != '*') //we chose * as our terminating character
@@ -159,7 +160,7 @@ void parsePacket(char* buffer){
 			temp[j] = '\0';
 			j=0;			
 			args[arg] = temp;			
-			printf("Args[%d] = [%s]\n", arg, args[arg]);
+			printf("Args[%d] = [%s]\n", arg, args[arg].c_str());
 			arg++;
 		}
 		readback++;
