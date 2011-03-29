@@ -28,7 +28,7 @@ int
 			A[i][j] = i;
 			B[i][j] = j;
 			C[i][j] = 0;
-			printf("Did something.\n",0,0,0,"","");
+		/*	printf("Did something.\n",0,0,0,"","");*/
 		}
 	}
 	printf("Did the initialization.\n", 0,0,0,"","");
