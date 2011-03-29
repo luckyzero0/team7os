@@ -27,12 +27,15 @@
 #include "synch.h"
 #include <stdio.h>
 #include <iostream>
+#include <string.h>
 
 //Networking
 #ifdef NETWORKING
 #include "network.h"
 #include "post.h"
 #include "interrupt.h"
+#define NETWORKING_ON 1
+#define NETWORKING_OFF 0
 #endif
 //
 
@@ -437,6 +440,7 @@ void Exit_Syscall(int status) {
 
 }
 
+
 int getAvailableLockID() {
 	int index = -1;
 	for (int i = 0; i < MAX_LOCKS; i++) {
@@ -448,7 +452,7 @@ int getAvailableLockID() {
 	return index;
 }
 
-LockID CreateLock_Syscall(unsigned int vaddr, int len) {
+LockID CreateLock_Syscall(unsigned int vaddr, int len, int networking) {	
 	char* buf;
 	if ( !(buf = new char[len]) ) {
 		printf("%s","Error allocating kernel buffer for write!\n");
@@ -462,17 +466,42 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 	}
 
 	//at this point buf is the valid name
-	locksLock->Acquire();
-	int index = getAvailableLockID();
-	if (index == -1) {
-		printf("No locks available!\n");
-	} else {
-		locks[index].lock = new Lock(buf);
-		locks[index].space = currentThread->space;
+	if (networking == NETWORKING_ON){
+		char msg[MaxMailSize];
+		char number[3];
+		str_cat(msg, itoa(SC_CreateLock, number, 10));
+		str_cat(msg, ",");
+		str_cat(msg, buf);
+		str_cat(msg, "*");
+		outPktHdr.to = 0;
+		outMailHdr.to = 0;
+		outMailHdr.from = 0;
+		outMailMdr.length = strlen(msg) + 1;
+		bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+		if ( !success ) {
+			printf("The postOffice Send failed.\n");
+			interrupt->Halt();      	      	       	      	 
+		} 
+		postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+		printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+		fflush(stdout);
+		LockID lockID = atoi(buffer);
+		return lockID;
+
+	}else{
+		locksLock->Acquire();
+		int index = getAvailableLockID();
+		if (index == -1) {
+			printf("No locks available!\n");
+		} else {
+			locks[index].lock = new Lock(buf);
+			locks[index].space = currentThread->space;
+		}
+		locksLock->Release();
+		DEBUG('a', "Returning lock index: %d\n", index); //DEBUG
+		return index;
 	}
-	locksLock->Release();
-	DEBUG('a', "Returning lock index: %d\n", index); //DEBUG
-	return index;
+
 }
 
 void deleteLock(int id) {
@@ -1058,40 +1087,14 @@ void HandlePageFault() {
 //					NETWORKING
 //===============================================================================================
 #ifdef NETWORK
-LockID CreateLock_Syscall_Network(unsigned int vaddr, int len){
+
+MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 }
 
-void Acquire_Syscall_Network(LockID id){
+int GetMonitor_Syscall(MonitorID monitorID){
 }
 
-void Release_Syscall_Network(LockID id){
-}
-
-void DestroyLock_Syscall_Network(LockID id){
-}
-
-ConditionID CreateCondition_Syscall_Network(unsigned int vaddr, int len){
-}
-
-void Signal_Syscall_Network(ConditionID conditionID, LockID lockID){
-}
-
-void Wait_Syscall_Network(ConditionID conditionID, LockID lockID){
-}
-
-void Broadcast_Syscall_Network(ConditionID conditionID, LockID lockID){
-}
-
-void DestroyCondition_Syscall_Network(ConditionID conditionID){
-}
-
-MonitorID CreateMonitor_Syscall_Network(unsigned int vaddr, int len){
-}
-
-int GetMonitor_Syscall_Network(MonitorID monitorID){
-}
-
-void SetMonitor_Syscall_Network(MonitorID monitorID, int value){
+void SetMonitor_Syscall(MonitorID monitorID, int value){
 }
 
 #endif
@@ -1134,7 +1137,7 @@ void ExceptionHandler(ExceptionType which) {
 			DEBUG('a', "Close syscall.\n");
 			Close_Syscall(machine->ReadRegister(4));
 			break;
-			////// START OUT ADDITIONS
+			////// START OUR ADDITIONS
 		case SC_Yield:
 			DEBUG('a', "Yield syscall.\n");
 			currentThread->Yield();
@@ -1148,7 +1151,7 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_CreateLock:
 			DEBUG('a', "CreateLock syscall.\n");
 			rv = CreateLock_Syscall(machine->ReadRegister(4),
-				machine->ReadRegister(5));
+				machine->ReadRegister(5), machine->ReadRegister(6));
 			break;
 
 		case SC_DestroyLock:
@@ -1237,7 +1240,7 @@ void ExceptionHandler(ExceptionType which) {
 #ifdef USE_TLB
 		//	pageFaultTESTLock->Acquire(); // HACK
 		//IntStatus oldLevel = interrupt->SetLevel(IntOff); // HACK
-		
+
 		HandlePageFault();
 		//interrupt->SetLevel(oldLevel); // HACK
 		//	pageFaultTESTLock->Release(); // HACK
