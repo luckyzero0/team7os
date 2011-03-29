@@ -47,6 +47,10 @@ MonitorEntry serverMVs[MAX_MONITORS];
 
 
 void initServerData();
+LockID CreateLock_Syscall_Server(char* name);
+void parsePacket(char*);
+int fnCall = 0;
+char* args[4];
 
 void RunServer(void){
 	printf("Server coming online...\n");
@@ -70,12 +74,47 @@ void RunServer(void){
     	fflush(stdout);
     	
     	//parse that shit
-    	int fnCall = 0;
+    	parsePacket(buffer);    
+    	fnCall = atoi(args[0]);
+    	printf("FnCall = [%d]\n",fnCall);
     	switch(fnCall){
 	    	
-	    	case SC_CreateLock:
-	    		//ack = itoa(CreateLock_Server_Syscall("namefrombuffer"));    		
+	    	case SC_CreateLock:	    			    		    		
+	    		sprintf(ack,"%d",CreateLock_Syscall_Server(args[1]));    		
 	    	break;
+	    	
+	    	case SC_Acquire:
+	    		
+	    	break;
+	    	
+	    	case SC_Release:
+	    	
+	    	break;
+	    	
+	    	case SC_DestroyLock:
+	    	
+	    	break;
+	    	
+	    	case SC_CreateCondition:
+	    	
+	    	break;
+	    	
+	    	case SC_Signal:
+	    	
+	    	break;
+	    	
+	    	case SC_Wait:
+	    	
+	    	break;
+	    	
+	    	case SC_Broadcast:
+	    	
+	    	break;
+	    	
+	    	case SC_DestroyCondition:
+	    	
+	    	break;
+	    		
     	}
     	
     	outPktHdr.to = inPktHdr.from;
@@ -91,6 +130,42 @@ void RunServer(void){
 	}
 	
 	interrupt->Halt();
+}
+
+//parses the char[] from the packet
+void parsePacket(char* buffer){
+	int arg = 0;
+	int i = 0;
+	int j = 0;
+	int readback = 0;
+	char temp[100] = {'\0'};
+	
+	printf("Parsing packet.\n");
+	while(buffer[i] != '*') //we chose * as our terminating character
+	{
+		//printf("Packet[%d] = [%c]\n",i,buffer[i]);		
+		if(buffer[i] == ',')
+		{
+			//printf("Found new argument. Parsing.\n");
+			i -= readback;
+			readback = -1;
+			while(buffer[i] != ',')
+			{
+				//printf("ParsedArg[%d] = [%c]\n", i, buffer[i]);
+				temp[j] = buffer[i];
+				j++;
+				i++;
+			}
+			temp[j] = '\0';
+			j=0;			
+			args[arg] = temp;			
+			printf("Args[%d] = [%s]\n", arg, args[arg]);
+			arg++;
+		}
+		readback++;
+		i++;
+	}
+	
 }
 
 void initServerData(){
