@@ -693,8 +693,9 @@ void Acquire_Syscall(LockID id) {
 	locks[id].lock->Acquire();
 	locks[id].aboutToBeAcquired--;
 	DEBUG('a', "Lock [%d] has been acquired.\n", id); //DEBUG
+#endif
 }
-#ifdef
+
 
 void Release_Syscall(LockID id) {
 	if (id < 0 || id >= MAX_LOCKS) {
