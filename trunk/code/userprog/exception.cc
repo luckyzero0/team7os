@@ -663,6 +663,24 @@ void Acquire_Syscall(LockID id) {
 		return;
 	}
 
+#ifdef NETWORK
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d,*",SC_Acquire,id);
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+#else
+
 	locksLock->Acquire();
 	if (locks[id].space != currentThread->space) {
 		printf("LockID[%d] cannot be acquired from a non-owning process!\n", id);
@@ -676,12 +694,30 @@ void Acquire_Syscall(LockID id) {
 	locks[id].aboutToBeAcquired--;
 	DEBUG('a', "Lock [%d] has been acquired.\n", id); //DEBUG
 }
+#ifdef
 
 void Release_Syscall(LockID id) {
 	if (id < 0 || id >= MAX_LOCKS) {
 		printf("LockID[%d] is out of range!\n", id);
 		return;
 	}
+#ifdef NETWORK
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d,*",SC_Release,id);
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+#else
 
 	locksLock->Acquire();
 	if (locks[id].space != currentThread->space) {
@@ -698,6 +734,7 @@ void Release_Syscall(LockID id) {
 	locksLock->Release();
 
 	DEBUG('a', "Releasing lock[%d].\n",id); //DEBUG
+#endif
 }
 
 void Signal_Syscall(ConditionID conditionID, LockID lockID) {
@@ -710,6 +747,23 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("LockID[%d] is out of range!\n", lockID);
 		return;
 	}
+#ifdef NETWORK
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d,%d*",SC_Signal,conditionID, lockID);
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+#else
 
 	conditionsLock->Acquire();
 	locksLock->Acquire();
@@ -736,6 +790,7 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 	}
 	locksLock->Release();
 	conditionsLock->Release();
+#endif
 }
 
 void Wait_Syscall(ConditionID conditionID, LockID lockID) {
@@ -748,6 +803,24 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("LockID[%d] is out of range!\n", lockID);
 		return;
 	}
+
+#ifdef NETWORK
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d,%d*",SC_Wait,conditionID, lockID);
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+#else
 
 	conditionsLock->Acquire();
 	locksLock->Acquire();
@@ -779,6 +852,7 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 			deleteCondition(conditionID);
 	}
 	conditionsLock->Release();
+#endif
 }
 
 void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
@@ -791,6 +865,24 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("LockID[%d] is out of range!\n", lockID);
 		return;
 	}
+
+#ifdef NETWORK
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d,%d*",SC_Broadcast,conditionID, lockID);
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+#else
 
 	conditionsLock->Acquire();
 	locksLock->Acquire();
@@ -818,6 +910,7 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 
 	locksLock->Release();
 	conditionsLock->Release();
+#endif
 }
 
 
