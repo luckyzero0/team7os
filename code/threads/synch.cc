@@ -170,12 +170,14 @@ bool Lock::IsBusy() {
 	return result;
 }
 
-//NETWORK--------------------------------------------------------------------------------
+//========================================================================
+//					NETWORKING - IMPLEMENTING SERVERLOCK FUNCTIONS
+//========================================================================
 #ifdef NETWORK
 ServerLock::ServerLock(char* debugName) {
 	name = debugName;
-	client = -1;
-	thread = -1;
+	client = -1; //default to -1 = invalid
+	thread = -1; //default to -1 = invalid
 	state = FREE;
 	waitQueue = new List;
 }
@@ -187,7 +189,7 @@ ServerLock::~ServerLock() {
 bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether lock has been acquired instantly or not
 
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	if (this->client == clientID && this->thread == threadID) {		
+	if (this->client == clientID && this->thread == threadID) {	//check IDs instead of actual threads	
 		interrupt->SetLevel(oldLevel);
 		return true;
 	}
@@ -198,8 +200,8 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
 	}
 	else {	
 		ClientThreadPair* ctp = new ClientThreadPair(clientID,threadID);
-		this->waitQueue->Append(ctp);
-		//currentThread->Sleep();   Server thread should NOT go to sleep, should message client
+		this->waitQueue->Append(ctp); //instead of appending currentThread, append the CTP of currentThread
+		//currentThread->Sleep();   Server thread should NOT go to sleep, just dont message client
 		return false;
 	}
 	interrupt->SetLevel(oldLevel);
@@ -207,10 +209,10 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
 }
 
 void ServerLock::Release(int clientID) {
-	PacketHeader lockOutPktHdr;
+	PacketHeader lockOutPktHdr; 
 	MailHeader lockOutMailHdr;
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	if (this->client != clientID) {
+	if (this->client != clientID) { //check IDs instead of actual threads	
 	  if (this->client == -1) {
 	    printf("ServerLock %s: has a NULL owner!\n", this->getName());
 	  }
@@ -220,18 +222,18 @@ void ServerLock::Release(int clientID) {
 	}
 	else if (!this->waitQueue->IsEmpty() ){	
 		ClientThreadPair* ctp = (ClientThreadPair*) waitQueue->Remove(); 
-		lockOutPktHdr.to = ctp->clientID;		
-    	lockOutMailHdr.to = ctp->threadID;    	
+		lockOutPktHdr.to = ctp->clientID;	//get clientID from CTP, and set that as the client to message
+    	lockOutMailHdr.to = ctp->threadID;   //get threadID from CTP, and set that as the destination mailbox
     	svrMsg = "ServerLock was released. Transferring ownership.";    	
     	lockOutMailHdr.length = strlen(svrMsg) + 1;    	
 		lockOutMailHdr.from = 0;
-    	printf("ServerLock was released. Transferring ownership to Client[%d]->Thread[%d].\n",lockOutPktHdr.to,lockOutMailHdr.to);    		
-    	this->client = lockOutPktHdr.to;
-    	this->thread = lockOutMailHdr.to;
+    	DEBUG('a',"ServerLock was released. Transferring ownership to Client[%d]->Thread[%d].\n",lockOutPktHdr.to,lockOutMailHdr.to);    		
+    	this->client = lockOutPktHdr.to; //transfering ownership to waiting thread
+    	this->thread = lockOutMailHdr.to; //transfering ownership to waiting thread
     	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);    	
 	}
 	else {	
-		printf("The lock is free now.\n");
+		//printf("The lock is free now.\n");
 		this->state = FREE;
 		this->client = -1;		
 	}	
@@ -240,7 +242,7 @@ void ServerLock::Release(int clientID) {
 
 bool ServerLock::IsHeldByCurrentThread(int clientID, int threadID) {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	bool result = (this->client == clientID && this->thread == threadID);
+	bool result = (this->client == clientID && this->thread == threadID); //Check IDs instead of threads
 	interrupt->SetLevel(oldLevel);
 	return result;
 }
@@ -328,7 +330,7 @@ bool Condition::HasThreadsWaiting() {
 }
 
 //======================================================================
-//				NETWORK - SERVERCONDITIONS
+//				NETWORK - ServerCondition function implementations
 //======================================================================
 #ifdef NETWORK
 
@@ -361,9 +363,9 @@ void ServerCondition::Wait(ServerLock* conditionServerLock) {
 	// Add client ID to CV wait queue
 	//currentThread->setStatus(BLOCKED);
 	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->client,conditionServerLock->thread);
-	this->waitQueue->Append(ctp);
-	conditionServerLock->Release(conditionServerLock->client);
-	//currentThread->Sleep();
+	this->waitQueue->Append(ctp); //Add client and thread info to wait queue
+	conditionServerLock->Release(conditionServerLock->client); //Release the lock
+	//currentThread->Sleep();  //Do not go to sleep, instead just don't message the client back
 	interrupt->SetLevel(oldLevel);
 }
 
@@ -382,7 +384,7 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 	}
 	
 	ClientThreadPair* ctp = (ClientThreadPair*) this->waitQueue->Remove();
-	conditionServerLock->Acquire(ctp->clientID, ctp->threadID);
+	conditionServerLock->Acquire(ctp->clientID, ctp->threadID); //Try to acquire the lock using the IDs from the next CTP in the waiting queue
 	/*signalledThread->setStatus(READY);
 	scheduler->ReadyToRun(signalledThread);*/
 	
