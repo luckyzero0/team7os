@@ -20,7 +20,7 @@ int main(){
 	
 	printf("Creating a new CV on the network...\n",0,0,0,"","");
 	cvID = CreateCondition("CV",2);
-	printf("CVID = [%d]\n",mvID,0,0,"","");
+	printf("CVID = [%d]\n",cvID,0,0,"","");
 	
 	printf("Creating a new MV on the network...\n",0,0,0,"","");
 	mvID = CreateMonitor("MV",2);
