@@ -1152,7 +1152,7 @@ void UpdateTLB(int vpn, int ppn) {
 
 int HandleFullMemory(int vpn) {
 	int ppn = -1;
-	numFullMemory++;
+	numMemoryFull++;
 
 	// lock the ipt to find an acceptable ipt entry, then set its inUse and release the iptLock
 	iptLock->Acquire();
@@ -1231,7 +1231,7 @@ void HandleIPTMiss(int vpn) {
 		DEBUG('b', "ipt[%d] vpn:%d dirty:%d readOnly:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].readOnly, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
 	}
 
-	numIPTMiss++;
+	numIPTMisses++;
 	iptLock->Acquire();
 	int ppn = getPhysicalPage(); // sets inUse to true on ipt[ppn]
 	iptLock->Release();
