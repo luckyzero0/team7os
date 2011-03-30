@@ -485,7 +485,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 		interrupt->Halt();      	      	       	      	 
 	} 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	LockID lockID = atoi(buffer);
 	return lockID;
@@ -539,7 +539,7 @@ void DestroyLock_Syscall(LockID id) {
 		interrupt->Halt();      	      	       	      	 
 	} 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from); 
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from); 
 	fflush(stdout);
 	
 #else
@@ -607,7 +607,7 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 
 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	ConditionID conditionID = atoi(buffer);
 	return conditionID;
@@ -657,7 +657,7 @@ void DestroyCondition_Syscall(ConditionID id) {
 		interrupt->Halt();      	      	       	      	 
 	} 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 	conditionsLock->Acquire();
@@ -697,7 +697,7 @@ void Acquire_Syscall(LockID id) {
 		interrupt->Halt();      	      	       	      	 
 	} 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -740,7 +740,7 @@ void Release_Syscall(LockID id) {
 		interrupt->Halt();      	      	       	      	 
 	} 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -790,7 +790,7 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 		interrupt->Halt();      	      	       	      	 
 	} 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -849,7 +849,7 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 		interrupt->Halt();      	      	       	      	 
 	} 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -913,7 +913,7 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 		interrupt->Halt();      	      	       	      	 
 	} 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -987,7 +987,7 @@ MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 
 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	MonitorID id = atoi(buffer);
 	return id;
@@ -1016,7 +1016,7 @@ int GetMonitor_Syscall(MonitorID monitorID){
 
 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	int value = atoi(buffer);
 	return value;
@@ -1045,7 +1045,7 @@ void SetMonitor_Syscall(MonitorID monitorID, int value){
 
 
 	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
-	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 
 }

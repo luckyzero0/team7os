@@ -41,7 +41,7 @@ int main(){
 	
 	printf("Releasing LockID[%d].\n",lockID,0,0,"","");
 	Release(lockID);
-	printf("LockID[%d] released.\n",lockID,0,0,"","");
+	printf("LockID[%d] released",lockID,0,0,"","");
 	
 	printf("Destroying LockID[%d]...\n",lockID,0,0,"","");
 	DestroyLock(lockID);		
