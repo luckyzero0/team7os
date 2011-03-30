@@ -90,6 +90,10 @@ class Lock {
     List* waitQueue;
 };
 
+//If Networking is enabled, locks ONLY exist on the server. These locks are different than normal locks, 
+// in that the thread does not go to sleep if an Acquire is called on a lock which currently has a different owner.
+//	Also, checks of ownership are done by checking both the ClientID and the ThreadID, instead of the threadpointers.
+
 #ifdef NETWORK
 class ServerLock {
   public:
@@ -106,8 +110,8 @@ class ServerLock {
 					// Condition variable ops below.
 
 	bool IsBusy();
-	int client;
-    int thread;
+	int client; //clientID
+    int thread; //threadID
 
   private:
     char* name;				// for debugging
@@ -119,7 +123,10 @@ class ServerLock {
 };
 #endif
 
-
+//If networking is enabled, threadpointers are not pushed onto the WaitingQueue, 
+//	but rather ClientThreadPairs, which simply store the clientID and the threadID.
+// When a CTP is removed from the waiting queue, we simply message the correct client 
+//	at the correct postbox (threadID)
 #ifdef NETWORK
 struct ClientThreadPair{
 	ClientThreadPair(int cID, int tID){
@@ -187,7 +194,9 @@ class Condition {
     List* waitQueue;
 };
 
-
+// Since ServerLocks differ in functionality to normal Locks,
+//	ServerConditions also have to differ. ServerCondition functions use ServerLocks
+//	instead of Locks. 
 #ifdef NETWORK
 	class ServerCondition {
 	  public:
