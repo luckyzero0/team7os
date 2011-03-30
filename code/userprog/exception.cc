@@ -1171,6 +1171,7 @@ int HandleFullMemory(int vpn) {
 		for (int i = 0; i < NumPhysPages; i++) {
 			printf("OWNING SPACE NULL IN HANDLE FULL MEMORY ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
 		}
+		return ppn;
 	}
 
 	iptLock->Release();
