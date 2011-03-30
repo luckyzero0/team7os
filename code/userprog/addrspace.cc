@@ -281,11 +281,11 @@ AddrSpace::AddrSpace(OpenFile *theExecutable, int spaceID) : fileTable(MaxOpenFi
 AddrSpace::~AddrSpace()
 {
 #ifdef USE_TLB
-	/*
+	
 	pageTableLock->Acquire();
 	iptLock->Acquire();
 
-	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+//	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 #endif
 	printf("In AddrSpace destructor.\n");
 	for (unsigned int i = 0; i < numPages; i++) {
@@ -293,21 +293,21 @@ AddrSpace::~AddrSpace()
 		if (pageTable[i].valid && pageTable[i].physicalPage != -1) {
 			giveUpPhysicalPage(pageTable[i].physicalPage);
 #ifdef USE_TLB
-			for (int j = 0; j < TLBSize; j++) {
+	/*		for (int j = 0; j < TLBSize; j++) {
 				if (machine->tlb[j].physicalPage == i) {
 					machine->tlb[j].valid = false;
 				}
-			}
+			}*/
 #endif
 		}
 
 	}
 #ifdef USE_TLB
-	interrupt->SetLevel(oldLevel);
+//	interrupt->SetLevel(oldLevel);
 
 	iptLock->Release();
 	pageTableLock->Release();
-	*/
+	
 #endif
 	delete pageTable;
 	delete executable;
