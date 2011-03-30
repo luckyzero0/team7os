@@ -747,7 +747,7 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 	}
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d*",SC_Signal,conditionID, lockID,currentThread->ID);
+	sprintf(msg,"%d,%d,%d,%d,*",SC_Signal,conditionID, lockID,currentThread->ID);
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
