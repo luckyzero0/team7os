@@ -1345,7 +1345,7 @@ void HandlePageFault() {
 	DEBUG('z', "Grabbed page table lock.\n");
 
 	if (space->pageTable[badVPN].inUse) { // another thread is already page faulting to bring this into the tlb, so just get out and wait a sec
-		printf("VPN %d inUse set, returning without doing anything.\n", badVPN);
+		printf("VPN %d inUse set, returning from PageFault in tid:%d without doing anything.\n", badVPN, currentThread->ID);
 		space->pageTableLock->Release();
 		currentThread->Yield(); // not really necessary, but might help a bit, just get out of the way so the other thread can finish
 		return;
