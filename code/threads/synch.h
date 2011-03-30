@@ -65,6 +65,7 @@ class Semaphore {
 
 enum LockState {FREE, BUSY};
 
+#ifndef NETWORK
 class Lock {
   public:
     Lock(char* debugName);  		// initialize lock to be FREE
@@ -88,12 +89,11 @@ class Lock {
     LockState state;
     List* waitQueue;
 };
-
-#ifdef NETWORK
-class ServerLock {
+#else
+class Lock {
   public:
-    ServerLock(char* debugName);  		// initialize lock to be FREE
-    ~ServerLock();				// deallocate lock
+    Lock(char* debugName);  		// initialize lock to be FREE
+    ~Lock();				// deallocate lock
     char* getName() { return name; }	// debugging assist
 
     bool Acquire(int, int); // these are the only operations on a lock
