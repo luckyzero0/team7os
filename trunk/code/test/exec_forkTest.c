@@ -8,4 +8,5 @@ int main() {
 		name = "../test/forkTest";
 		Exec(name, strlen(name));
 	}
+	Exit(0);
 }
