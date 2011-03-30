@@ -43,7 +43,6 @@
 #define SC_GetForkArg		22
 #define SC_GetThreadID		23
 #define SC_CreateMonitor    24
-#define SC_DestroyMonitor   25
 #define SC_SetMonitor       26
 #define SC_GetMonitor       27
 
