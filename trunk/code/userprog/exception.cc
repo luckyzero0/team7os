@@ -1434,17 +1434,17 @@ void ExceptionHandler(ExceptionType which) {
 			DEBUG('a', "CreateMonitor syscall.\n");
 			CreateMonitor_Syscall(machine->ReadRegister(4),
 				machine->ReadRegister(5));							
-			break;
-
-		case SC_SetMonitor:
-			DEBUG('a', "SetMonitor syscall.\n");
-			SetMonitor_Syscall(machine->ReadRegister(4),
-				machine->ReadRegister(5));							
-			break;
+			break;		
 
 		case SC_GetMonitor:
 			DEBUG('a', "GetMonitor syscall.\n");
 			GetMonitor_Syscall(machine->ReadRegister(4));							
+			break;
+			
+		case SC_SetMonitor:
+			DEBUG('a', "SetMonitor syscall.\n");
+			SetMonitor_Syscall(machine->ReadRegister(4),
+				machine->ReadRegister(5));							
 			break;
 #endif
 		case SC_Fork:
