@@ -61,6 +61,12 @@ testLocks.o: testLocks.c
 testLocks: testLocks.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o testLocks.o utils.o -o testLocks.coff
 	../bin/coff2noff testLocks.coff testLocks
+	
+forkSort.o: forkSort.c
+	$(CC) $(CFLAGS) -c forkSort.c utils.c
+forkSort: forkSort.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o forkSort.o utils.o -o forkSort.coff
+	../bin/coff2noff forkSort.coff forkSort
 
 exec_testLocks.o: exec_testLocks.c
 	$(CC) $(CFLAGS) -c exec_testLocks.c utils.c
