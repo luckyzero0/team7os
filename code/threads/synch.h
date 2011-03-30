@@ -98,7 +98,7 @@ class ServerLock {
     char* getName() { return name; }	// debugging assist
 
     bool Acquire(int clientID, int threadID); // these are the only operations on a lock
-    void Release(int clientID, int threadID); // they are both *atomic*
+    void Release(int clientID); // they are both *atomic*
 
     bool IsHeldByCurrentThread(int, int);	// true if the current thread
 					// holds this lock.  Useful for
@@ -106,12 +106,13 @@ class ServerLock {
 					// Condition variable ops below.
 
 	bool IsBusy();
+	int client;
+    int thread;
 
   private:
     char* name;				// for debugging
     // plus some other stuff you'll need to define
-    int client;
-    int thread;
+    
     char* svrMsg;
     LockState state;
     List* waitQueue;
@@ -186,7 +187,7 @@ class Condition {
     List* waitQueue;
 };
 
-/*
+
 #ifdef NETWORK
 	class ServerCondition {
 	  public:
@@ -212,5 +213,5 @@ class Condition {
 		List* waitQueue;
 };
 #endif
-*/
+
 #endif // SYNCH_H
