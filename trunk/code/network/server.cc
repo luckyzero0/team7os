@@ -24,7 +24,7 @@ extern "C" {
 
 struct LockEntry {
 	ServerLock* lock; //Changed from Lock to ServerLock
-	int clientID;
+	int clientID; //keep track of client and thread instead of addrSpace
 	int threadID;
 	bool needsToBeDeleted;
 	int aboutToBeAcquired;	
@@ -32,7 +32,7 @@ struct LockEntry {
 LockEntry serverLocks[MAX_LOCKS];
 
 struct ConditionEntry {
-	ServerCondition* condition;
+	ServerCondition* condition; //same as above
 	int clientID;
 	int threadID;
 	bool needsToBeDeleted;
@@ -40,7 +40,7 @@ struct ConditionEntry {
 };
 ConditionEntry serverCVs[MAX_CONDITIONS];
 
-typedef int Monitor;
+typedef int Monitor; //monitors are just ints.
 struct MonitorEntry {
 	Monitor monitor;
 	int clientID;
@@ -76,28 +76,30 @@ MailHeader serverOutMailHdr, serverInMailHdr;
 int fnCall = 0;
 int numLocks = 0;
 string args[4];
-int sender;
-int threadBox;
-bool xferLock = FALSE;
-List* waitList;
+int sender; //the clientID of received msg
+int threadBox; //the ThreadID making the syscall within the client. ThreadID = MailBox#
 char serverBuffer[MaxMailSize];
-bool requestCompleted;
-Lock* RequestLock = new Lock("requestLock");
+bool requestCompleted; //determines whether a message is sent back immediately
 
 
 void RunServer(void){
-	printf("Server coming online...\n");	
-	
-
-	waitList = new List();
-	initServerData();
-	    
-	printf("Server online...\n");	
-	
-	handleIncomingRequests();	
-	
-	
+	printf("Server coming online...\n");		
+	initServerData();	    
+	printf("Server online...\n");		
+	handleIncomingRequests();			
 }
+
+/* Main loop for handling incoming requests
+ * We receive a packet/request to mailbox 0,
+ * and parse the packet to determine the 
+ * request:
+ * A packet sent from exception.cc will contain
+ * 	1.) syscall enum
+ *	2.) parameters required to complete the syscall
+ * the packet is parsed and then stored and then processed.
+ * If the request completes, a msg is sent back to the client.
+ * Otherwise, we listen for the next request.
+ */
 
 void handleIncomingRequests(){
 	printf("Listening for clients on the network...\n");
@@ -105,23 +107,23 @@ void handleIncomingRequests(){
 	while(true){						
 		postOffice->Receive(0, &serverInPktHdr, &serverInMailHdr, serverBuffer);
 		printf("Got \"%s\" from %d, box %d\n",serverBuffer,serverInPktHdr.from,serverInMailHdr.from);
-		sender = serverInPktHdr.from;
+		sender = serverInPktHdr.from; //store this to be used outside of the main loop
 	    fflush(stdout);    	    	
 	    parsePacket(serverBuffer);            		    
     	
-    	fnCall = atoi(args[0].c_str());
+    	fnCall = atoi(args[0].c_str()); //the Syscall_Enum is the first argument parsed
     	printf("FnCall = [%d]\n",fnCall);
     	switch(fnCall){
 	    	
 	    	case SC_CreateLock:
 	    		printf("Request from Client[%d], ThreadID[%s]. Creating a new ServerLock.\n", serverInPktHdr.from, args[2].c_str());	    			    		    		
-	    		sprintf(ack,"%d",CreateLock_Syscall_Server(const_cast<char *>(args[1].c_str())));    	
-	    		threadBox = atoi(args[2].c_str());
+	    		sprintf(ack,"%d",CreateLock_Syscall_Server(const_cast<char *>(args[1].c_str()))); //create response to client from return value    	
+	    		threadBox = atoi(args[2].c_str()); //ensure that we send our reply to the proper client mailbox/threadID
 	    	break;
 	    	
 	    	case SC_Acquire:
 	    		printf("Request from Client[%d], ThreadID[%s]. Acquiring ServerLock[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));
-	    		Acquire_Syscall_Server(atoi(args[1].c_str()));	    
+	    		Acquire_Syscall_Server(atoi(args[1].c_str())); //value of ack is set inside the function, as it does not return a value
 	    		threadBox = atoi(args[2].c_str());		
 	    	break;
 	    	
@@ -186,11 +188,16 @@ void handleIncomingRequests(){
 	    	break;
 	    		
     	}
-    	if(!requestCompleted)	    	   
+    	/* If a request could not be completed, as in the case of
+    	 * attempting to acquire a busy lock, we do not message the
+    	 * client back right away, as this would allow them to bypass
+    	 * the waitqueue of the lock.
+    	 */
+    	if(!requestCompleted)   
     		continue;    	
     	
     	
-    	
+    	//prepare the messsage and send it out.
     	serverOutPktHdr.to = sender;
     	serverOutMailHdr.to = threadBox;
     	serverOutMailHdr.length = strlen(ack) + 1;
@@ -200,14 +207,14 @@ void handleIncomingRequests(){
     	   	    
 	    	
     	
+    	//clear everything out for the next message
     	ack = "";
     	for(int x = 0; x < 4; x++)
     		args[x] = "";
-    	fflush(stdout);
-    	//requestLock->Release(); 
+    	fflush(stdout);    	
     	if ( !serverSuccess ) {
       		printf("The postOffice Send failed.\n");
-      	interrupt->Halt();      	      	       	      	 
+      		break;	      	 
     	}    			    	   
     	
 	}
@@ -216,7 +223,7 @@ void handleIncomingRequests(){
 }
 
 
-//parses the char[] from the packet
+//parses the char* from the packet
 void parsePacket(char* serverBuffer){
 	int arg = 0;
 	int i = 0;
@@ -302,7 +309,8 @@ int getAvailableServerConditionID() {
 	}
 	return index;
 }
-
+// Except this one. I had to write this one. ========================================
+//             -J
 int getAvailableServerMonitorID() {
 	int index = -1;
 	for (int i = 0; i < MAX_MONITORS; i++) {
@@ -335,12 +343,14 @@ int getAvailableServerLockID() {
 }
 
 // "Server" Syscalls. Client's syscall should send a message to server,
-// telling it to do one of these things. Feel free to get rid of "Syscall"
-// if the names are too long
-//	Put by Mihir
-
+// telling it to do one of these things.
+// Once the server receives the message and interprets the request,
+// it will call the appropriate syscall which has the same basic
+// functionality as those in exception.cc, except that we check
+// client/threadID instead of address space.
+//======================================================================
 LockID CreateLock_Syscall_Server(char* name){		
-		//locksLock->Acquire();
+		//locksLock->Acquire(); //the server is a single thread, so these locks aren't needed
 		int index = getAvailableServerLockID();
 		if (index == -1) {
 			printf("No locks available!\n");
@@ -361,7 +371,7 @@ void Acquire_Syscall_Server(LockID id){
 	if (serverLocks[id].clientID != serverInPktHdr.from) {
 		printf("LockID[%d] cannot be acquired from a non-owning client!\n", id);
 		//locksLock->Release();
-		ack = "Acquire failed.";
+		ack = "Acquire failed."; //msg created to send to client. View these with DEBUG -a 
 		requestCompleted = true;
 		return;
 	} 
@@ -370,19 +380,6 @@ void Acquire_Syscall_Server(LockID id){
 		requestCompleted = true;
 		return;
 	}
-	/*if(serverLocks[id].lock->IsBusy())
-	{
-		printf("LockID[%d] is busy, unable to complete request. Queuing client.\n",id);
-		WaitListEntry* wl = new WaitListEntry;		
-		wl->threadID = atoi(args[2].c_str());				
-		wl->clientID = sender;
-		wl->msg = serverBuffer;
-		printf("WaitListEntry[%d][%d]\n",wl->clientID,wl->threadID);
-		waitList->Append(wl);
-		printf("Appended to waitqueue.\n");		
-		requestCompleted = false;
-		return;
-	}*/
 	
 	serverLocks[id].aboutToBeAcquired++;
 	//serverLocksLock->Release();
@@ -391,6 +388,10 @@ void Acquire_Syscall_Server(LockID id){
 	else
 		requestCompleted = true;
 		
+	//server lock Acquire takes the clientID and threadID. This has to do with
+	//how lock ownership is transferred on the server, as the server cannot
+	//acquire the lock itself, as trying to acquire a busy lock would cause
+	//the server to lock up. 	
 	serverLocks[id].lock->Acquire(serverLocks[id].clientID, atoi(args[2].c_str()));
 	serverLocks[id].aboutToBeAcquired--;
 	DEBUG('a', "Lock [%d] has been acquired.\n", id); //DEBUG
@@ -412,7 +413,9 @@ void Release_Syscall_Server(LockID id){
 		return;
 	}
 
-
+	//serverLocks take clientID in Release for the same reasons as
+	//above (the way we handle transferring lock ownership requires
+	// it).
 	serverLocks[id].lock->Release(serverLocks[id].clientID);	
 	sprintf(ack, "Lock[%d] has been released.",id);	
 	if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
@@ -488,6 +491,8 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 		return;
 	}
 
+	//serverCVs take a serverLock. Once again, this has to do with how
+	//lock ownership is transferred.
 	serverCVs[conditionID].condition->Signal(serverLocks[lockID].lock);
 	printf("CV[%d] signaled with Lock[%d] successfully.\n",conditionID,lockID);
 	sprintf(ack, "CV[%d] signaled with Lock[%d] successfully.",conditionID,lockID);
@@ -524,7 +529,10 @@ void Wait_Syscall_Server(ConditionID conditionID, LockID lockID){
 	serverCVs[conditionID].aboutToBeWaited++;
 	//locksLock->Release();
 	//conditionsLock->Release();
-	serverCVs[conditionID].condition->Wait(serverLocks[lockID].lock); //this might not quite work
+	
+	//same as before, we take a serverLock to handle ownership 
+	//issues
+	serverCVs[conditionID].condition->Wait(serverLocks[lockID].lock);
 
 	//conditionsLock->Acquire();
 	serverCVs[conditionID].aboutToBeWaited--;	

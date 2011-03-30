@@ -55,14 +55,12 @@ int main(){
 	Fork(t1);
 	Fork(t2);	
 	Wait(runLockCV,lockID);
-	printf("RaceCondition = [%d], and should = 80 if t2 ran before t1.\n",raceCondition,0,0,"","");
-	
+	printf("RaceCondition = [%d], and should = 80 if t2 ran before t1.\n",raceCondition,0,0,"","");		
 	printf("Setting up broadcast test. Forking a lot of threads.\n",0,0,0,"","");	
-	for(i = 0; i < 10; i++)
+	for(i = 0; i < 8; i++)
 	{		
 		ForkWithArg(broadcastTest,i);				
-	}
-	Acquire(lockID);
+	}	
 	Wait(runLockCV,lockID);
 	printf("Acquiring lock and broadcasting on the CV.\n",0,0,0,"","");	
 	Broadcast(cvID,lockID);
@@ -103,8 +101,11 @@ void broadcastTest(){
 	myArg = GetForkArg();
 	printf("Thread[%d] Forked. Waiting on CV\n",myArg,0,0,"","");	
 	Acquire(lockID);
-	if(myArg == 9) /*this is the last thread*/
+	if(myArg == 7) /*this is the last thread*/
+	{
+		printf("Thread[%d] is the final thread. Signalling the CV.\n",myArg,0,0,"","");		
 		Signal(runLockCV,lockID);
+	}
 	Wait(cvID,lockID);	
 	printf("Broadcast received. Thread[%d] exiting.\n",myArg,0,0,"","");
 	Release(lockID);
