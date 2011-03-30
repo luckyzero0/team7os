@@ -100,6 +100,8 @@ Semaphore::V()
 // Dummy functions -- so we can compile our later assignments 
 // Note -- without a correct implementation of Condition::Wait(), 
 // the test case in the network assignment won't work!
+
+#ifndef NETWORK
 Lock::Lock(char* debugName) {
 	name = debugName;
 	owner = NULL;
@@ -170,8 +172,8 @@ bool Lock::IsBusy() {
 }
 
 //NETWORK--------------------------------------------------------------------------------
-#ifdef NETWORK
-ServerLock::ServerLock(char* debugName) {
+#else
+Lock::Lock(char* debugName) {
 	name = debugName;
 	client = -1;
 	thread = -1;
@@ -179,12 +181,12 @@ ServerLock::ServerLock(char* debugName) {
 	waitQueue = new List;
 }
 
-ServerLock::~ServerLock() {
+Lock::~Lock() {
 	delete waitQueue;
 }
 
-bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether lock has been acquired instantly or not
-	//All threads need to be changed to client IDs. No thread handeling on server side	
+bool Lock::Acquire(int clientID, int threadID) { //Bool indicates whether lock has been acquired instantly or not
+
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (this->client == clientID && this->thread == threadID) {		
 		interrupt->SetLevel(oldLevel);
@@ -204,7 +206,7 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
 	return true;
 }
 
-void ServerLock::Release(int clientID, int threadID) {
+void Lock::Release(int clientID, int threadID) {
 	PacketHeader lockOutPktHdr;
 	MailHeader lockOutMailHdr;
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
@@ -235,14 +237,14 @@ void ServerLock::Release(int clientID, int threadID) {
 	interrupt->SetLevel(oldLevel);
 }
 
-bool ServerLock::IsHeldByCurrentThread(int clientID, int threadID) {
+bool Lock::IsHeldByCurrentThread(int clientID, int threadID) {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	bool result = (this->client == clientID && this->thread == threadID);
 	interrupt->SetLevel(oldLevel);
 	return result;
 }
 
-bool ServerLock::IsBusy() {
+bool Lock::IsBusy() {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	bool result = (this->state == BUSY);
 	interrupt->SetLevel(oldLevel);
