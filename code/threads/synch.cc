@@ -333,7 +333,7 @@ bool Condition::HasThreadsWaiting() {
 
 ServerCondition::ServerCondition(char* debugName) {
 	name = debugName;
-	waitingServerLock = NULL;
+	waitingLock = NULL;
 	waitQueue = new List;
 }
 
@@ -348,10 +348,10 @@ void ServerCondition::Wait(ServerLock* conditionServerLock) {
 		interrupt->SetLevel(oldLevel);
 		return;
 	}
-	if (this->waitingServerLock == NULL) {
-		this->waitingServerLock = conditionServerLock;
+	if (this->waitingLock == NULL) {
+		this->waitingLock = conditionServerLock;
 	}
-	if (this->waitingServerLock != conditionServerLock) {
+	if (this->waitingLock != conditionServerLock) {
 		printf("Wait passed a lock != to its lock!\n");
 		interrupt->SetLevel(oldLevel);
 		return;
@@ -359,7 +359,7 @@ void ServerCondition::Wait(ServerLock* conditionServerLock) {
 	// okay to wait on CV
 	// Add client ID to CV wait queue
 	//currentThread->setStatus(BLOCKED);
-	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->clientID),conditionServerLock->threadID);
+	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->clientID,conditionServerLock->threadID);
 	this->waitQueue->Append(ctp);
 	conditionServerLock->Release(conditionServerLock->clientID);
 	//currentThread->Sleep();
@@ -374,7 +374,7 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 		return;
 	}
 	
-	if (this->waitingServerLock != conditionServerLock) {
+	if (this->waitingLock != conditionServerLock) {
 		printf("Signal passed a lock != to its lock!\n");
 		interrupt->SetLevel(oldLevel);
 		return;
@@ -386,7 +386,7 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 	scheduler->ReadyToRun(signalledThread);*/
 	
 	if (this->waitQueue->IsEmpty() ) {
-		waitingServerLock = NULL;
+		waitingLock = NULL;
 	}
 	
 	interrupt->SetLevel(oldLevel);
