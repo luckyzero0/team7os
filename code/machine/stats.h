@@ -55,6 +55,6 @@ class Statistics {
 #define SeekTime 	(int64_t)500LL    	// time disk takes to seek past one track
 #define ConsoleTime 	(int64_t)100LL	// time to read or write one character
 #define NetworkTime 	(int64_t)100LL   	// time to send or receive one packet
-#define TimerTicks 	(int64_t)100LL    	// (average) time between timer interrupts
+#define TimerTicks 	(int64_t)500LL    	// (average) time between timer interrupts
 
 #endif // STATS_H
