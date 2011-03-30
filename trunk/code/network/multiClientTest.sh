@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for (( i=i; i<=4; i++ ))
-do
-	nachos -m $i -x ../test/multiClientTest
-done
+nachos -m 1 -x ../test/multiClientTest &
+nachos -m 2 -x ../test/multiClientTest &
+nachos -m 3 -x ../test/multiClientTest &
+nachos -m 4 -x ../test/multiClientTest
