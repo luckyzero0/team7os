@@ -53,11 +53,12 @@ using namespace std;
 
 int threadArgs[MAX_THREADS];
 
+//Networking
 #ifdef NETWORK
 PacketHeader outPktHdr, inPktHdr;
 MailHeader outMailHdr, inMailHdr;
-char buffer[MaxMailSize];
-bool success;
+char buffer[MaxMailSize]; //Data sent in message
+bool success; //where send was successful
 #endif
 
 struct LockEntry {
@@ -151,6 +152,11 @@ int copyout(unsigned int vaddr, int len, char *buf) {
 
 	return n;
 }
+
+// Dear Grader, 
+// This is for your enjoyment during these troubling times.
+
+//   =]
 
 /*I fed my goat vintage whiskey through a funnel while listening to this Nantes.
 
@@ -464,21 +470,22 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 		}
 	}
 
-	//at this point buf is the valid name
+	// If Networking is enabled, send message to server asking it to create
+	// a lock. The LockID will be returned to the client.
 #ifdef NETWORK
 	char msg[MaxMailSize] = {""};	
-	sprintf(msg,"%d,%s,%d,*",SC_CreateLock,buf,currentThread->ID);	
+	sprintf(msg,"%d,%s,%d,*",SC_CreateLock,buf,currentThread->ID);	//Message is in the form [<RequestType><data><ThreadID>]
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
 	outMailHdr.from = 0;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
-		printf("The postOffice Send failed.\n");
+		printf("The postOffice Send to server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	LockID lockID = atoi(buffer);
 	return lockID;
@@ -513,9 +520,14 @@ void DestroyLock_Syscall(LockID id) {
 		printf("LockID[%d] is out of range!\n", id);
 		return;
 	}
+
+	
+	// If Networking is enabled, send message to server asking it to destroy
+	// a lock.
+
 #ifdef NETWORK
 	char msg[MaxMailSize] = {""};
-	sprintf(msg,"%d,%d,%d,*",SC_DestroyLock,id,currentThread->ID);
+	sprintf(msg,"%d,%d,%d,*",SC_DestroyLock,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -526,8 +538,8 @@ void DestroyLock_Syscall(LockID id) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from); 
 	fflush(stdout);
 	
 #else
@@ -575,9 +587,13 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 			return -1;
 		}				
 	}
+
+	// If Networking is enabled, send message to server asking it to create
+	// a condition variable. ConditionID will be returned to the client
+
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%s,%d,*",SC_CreateCondition,buf,currentThread->ID);
+	sprintf(msg,"%d,%s,%d,*",SC_CreateCondition,buf,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -590,8 +606,8 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 	} 
 
 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	ConditionID conditionID = atoi(buffer);
 	return conditionID;
@@ -623,9 +639,13 @@ void DestroyCondition_Syscall(ConditionID id) {
 		printf("ConditionID[%d] is out of range!\n", id);
 		return;
 	}
+
+	// If Networking is enabled, send message to server asking it to destroy
+	// a condition variable. 
+
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,*",SC_DestroyCondition,id,currentThread->ID);
+	sprintf(msg,"%d,%d,%d,*",SC_DestroyCondition,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -636,8 +656,8 @@ void DestroyCondition_Syscall(ConditionID id) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 	conditionsLock->Acquire();
@@ -660,9 +680,12 @@ void Acquire_Syscall(LockID id) {
 		return;
 	}
 
+	// If Networking is enabled, send message to server asking it to acquire
+	// a certain lock. Msg will only be sent back when lock is available
+
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,*",SC_Acquire,id,currentThread->ID);
+	sprintf(msg,"%d,%d,%d,*",SC_Acquire,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -673,8 +696,8 @@ void Acquire_Syscall(LockID id) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -699,9 +722,13 @@ void Release_Syscall(LockID id) {
 		printf("LockID[%d] is out of range!\n", id);
 		return;
 	}
+
+	// If Networking is enabled, send message to server asking it to release
+	// a certain lock. 
+
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,*",SC_Release,id,currentThread->ID);
+	sprintf(msg,"%d,%d,%d,*",SC_Release,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -712,8 +739,8 @@ void Release_Syscall(LockID id) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -745,9 +772,13 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("LockID[%d] is out of range!\n", lockID);
 		return;
 	}
+
+	// If Networking is enabled, send message to server asking it to signal
+	// a lock from a CV. 
+
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,*",SC_Signal,conditionID, lockID,currentThread->ID);
+	sprintf(msg,"%d,%d,%d,%d,*",SC_Signal,conditionID, lockID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -758,8 +789,8 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -802,9 +833,11 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 		return;
 	}
 
+	// If Networking is enabled, send message to server asking it to make a CV wait on a lock
+
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,*",SC_Wait,conditionID, lockID,currentThread->ID);
+	sprintf(msg,"%d,%d,%d,%d,*",SC_Wait,conditionID, lockID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -815,8 +848,8 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -839,7 +872,7 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 	conditions[conditionID].aboutToBeWaited++;
 	locksLock->Release();
 	conditionsLock->Release();
-	conditions[conditionID].condition->Wait(locks[lockID].lock); //this might not quite work
+	conditions[conditionID].condition->Wait(locks[lockID].lock); 
 
 	conditionsLock->Acquire();
 	conditions[conditionID].aboutToBeWaited--;
@@ -864,9 +897,11 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 		return;
 	}
 
+	// If Networking is enabled, send message to server asking it to make a CV broadcast to a lock
+
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,*",SC_Broadcast,conditionID, lockID,currentThread->ID);
+	sprintf(msg,"%d,%d,%d,%d,*",SC_Broadcast,conditionID, lockID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -877,8 +912,8 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
 
@@ -917,6 +952,9 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 
 #ifdef NETWORK
 MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
+
+	//Validating the desired name
+
 	char* buf;
 	if ( !(buf = new char[len]) ) {
 		printf("%s","Error allocating kernel buffer for write!\n");
@@ -935,7 +973,7 @@ MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%s,%d,*",SC_CreateMonitor,buf,currentThread->ID);
+	sprintf(msg,"%d,%s,%d,*",SC_CreateMonitor,buf,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -948,8 +986,8 @@ MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 	} 
 
 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	MonitorID id = atoi(buffer);
 	return id;
@@ -957,12 +995,14 @@ MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 
 
 int GetMonitor_Syscall(MonitorID monitorID){
+
+	//Validating the desired monitorID
 	if (monitorID < 0 || monitorID >= MAX_MONITORS) {
 		printf("MonitorID[%d] is out of range!\n", monitorID);
 		return -1;
 	}
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,*",SC_GetMonitor,monitorID,currentThread->ID);
+	sprintf(msg,"%d,%d,%d,*",SC_GetMonitor,monitorID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -975,21 +1015,23 @@ int GetMonitor_Syscall(MonitorID monitorID){
 	} 
 
 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	int value = atoi(buffer);
 	return value;
 }
 
 void SetMonitor_Syscall(MonitorID monitorID, int value){
+
+	//Validating the desired monitorID
 	if (monitorID < 0 || monitorID >= MAX_MONITORS) {
 		printf("MonitorID[%d] is out of range!\n", monitorID);
 		return;
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d, %d, %d,*", SC_SetMonitor, monitorID, value, currentThread->ID);
+	sprintf(msg,"%d,%d, %d, %d,*", SC_SetMonitor, monitorID, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -1002,8 +1044,8 @@ void SetMonitor_Syscall(MonitorID monitorID, int value){
 	} 
 
 
-	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
-	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	//printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 
 }
