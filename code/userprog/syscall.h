@@ -19,16 +19,16 @@
  * is being asked for
  */
 #define SC_Halt				0
-#define SC_Exit				    1
+#define SC_Exit			    1
 #define SC_Exec				2
 #define SC_Join				3
 #define SC_Create			4
 #define SC_Open				5
 #define SC_Read				6
-#define SC_Write			    7
-#define SC_Close			    8
+#define SC_Write		    7
+#define SC_Close		    8
 #define SC_Fork				9
-#define SC_Yield			    10
+#define SC_Yield		    10
 #define SC_CreateLock		11
 #define SC_DestroyLock		12
 #define SC_CreateCondition	13
@@ -42,6 +42,10 @@
 #define SC_ForkWithArg		21
 #define SC_GetForkArg		22
 #define SC_GetThreadID		23
+#define SC_CreateMonitor    24
+#define SC_DestroyMonitor   25
+#define SC_SetMonitor       26
+#define SC_GetMonitor       27
 
 
 
@@ -168,6 +172,12 @@ void Signal(ConditionID conditionID, LockID lockID);
 void Wait(ConditionID conditionID, LockID lockID);
 
 void Broadcast(ConditionID conditionID, LockID lockID);
+
+MonitorID CreateMonitor(char* name, int len);
+
+void SetMonitor(MonitorID monitorID, int value);
+
+int GetMonitor(MonitorID monitorID);
 
 int Rand();
 
