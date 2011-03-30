@@ -914,7 +914,7 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 //===============================================================================================
 //					NETWORKING - Monitor Variable Syscalls
 //===============================================================================================
-#ifdef NETWORK
+
 
 MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 	char* buf;
@@ -1008,7 +1008,7 @@ void SetMonitor_Syscall(MonitorID monitorID, int value){
 
 }
 
-#endif
+
 
 
 void kernel_thread(int virtualAddr)
@@ -1442,7 +1442,7 @@ void ExceptionHandler(ExceptionType which) {
 			break;
 
 		case SC_GetMonitor:
-			DEBUG('a', "Broadcast syscall.\n");
+			DEBUG('a', "GetMonitor syscall.\n");
 			GetMonitor_Syscall(machine->ReadRegister(4));							
 			break;
 
