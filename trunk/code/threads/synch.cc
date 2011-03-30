@@ -359,9 +359,9 @@ void ServerCondition::Wait(ServerLock* conditionServerLock) {
 	// okay to wait on CV
 	// Add client ID to CV wait queue
 	//currentThread->setStatus(BLOCKED);
-	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->clientID,conditionServerLock->threadID);
+	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->client,conditionServerLock->thread);
 	this->waitQueue->Append(ctp);
-	conditionServerLock->Release(conditionServerLock->clientID);
+	conditionServerLock->Release(conditionServerLock->client);
 	//currentThread->Sleep();
 	interrupt->SetLevel(oldLevel);
 }
@@ -381,7 +381,7 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 	}
 	
 	ClientThreadPair* ctp = (ClientThreadPair*) this->waitQueue->Remove();
-	conditionServerLock->Acquire(ctp>clientID, ctp->threadID);
+	conditionServerLock->Acquire(ctp>client, ctp->thread);
 	/*signalledThread->setStatus(READY);
 	scheduler->ReadyToRun(signalledThread);*/
 	
