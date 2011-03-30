@@ -196,8 +196,9 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
 		this->client = clientID;
 		this->thread = threadID;
 	}
-	else {		
-		this->waitQueue->Append((void*)threadID);
+	else {	
+		ClientThreadPair* ctp = new ClientThreadPair(clientID,threadID);
+		this->waitQueue->Append(ctp);
 		//currentThread->Sleep();   Server thread should NOT go to sleep, should message client
 		return false;
 	}
@@ -217,9 +218,10 @@ void ServerLock::Release(int clientID, int threadID) {
 		interrupt->SetLevel(oldLevel);
 		return;
 	}
-	else if (!this->waitQueue->IsEmpty() ){			
-		lockOutPktHdr.to = clientID;		
-    	lockOutMailHdr.to = (int) waitQueue->Remove();    	
+	else if (!this->waitQueue->IsEmpty() ){	
+		ClientThreadPair* ctp = (ClientThreadPair*) waitQueue->Remove(); 
+		lockOutPktHdr.to = ctp.clientID;		
+    	lockOutMailHdr.to = ctp.threadID;    	
     	svrMsg = "ServerLock was released. Transferring ownership.";    	
     	lockOutMailHdr.length = strlen(svrMsg) + 1;    	
 		lockOutMailHdr.from = 0;
@@ -323,3 +325,83 @@ bool Condition::HasThreadsWaiting() {
 	interrupt->SetLevel(oldLevel);
 	return result;
 }
+
+//======================================================================
+//				NETWORK - SERVERCONDITIONS
+//======================================================================
+/*#ifdef NETWORK
+
+ServerCondition::ServerCondition(char* debugName) {
+	name = debugName;
+	waitingServerLock = NULL;
+	waitQueue = new List;
+}
+
+ServerCondition::~ServerCondition() {
+	delete waitQueue;
+}
+
+void ServerCondition::Wait(ServerLock* conditionServerLock) { 
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	if (conditionServerLock == NULL) {
+		printf("Wait called on a condition with a NULL conditionServerLock!\n");
+		interrupt->SetLevel(oldLevel);
+		return;
+	}
+	if (this->waitingServerLock == NULL) {
+		this->waitingServerLock = conditionServerLock;
+	}
+	if (this->waitingServerLock != conditionServerLock) {
+		printf("Wait passed a lock != to its lock!\n");
+		interrupt->SetLevel(oldLevel);
+		return;
+	}
+	// okay to wait on CV
+	// Add client ID to CV wait queue
+	currentThread->setStatus(BLOCKED);
+	this->waitQueue->Append(currentThread);
+	conditionServerLock->Release();
+	currentThread->Sleep();
+	conditionServerLock->Acquire();
+	interrupt->SetLevel(oldLevel);
+}
+
+void ServerCondition::Signal(ServerLock* conditionServerLock) {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	
+	if (this->waitQueue->IsEmpty() ) {
+		interrupt->SetLevel(oldLevel);
+		return;
+	}
+	
+	if (this->waitingServerLock != conditionServerLock) {
+		printf("Signal passed a lock != to its lock!\n");
+		interrupt->SetLevel(oldLevel);
+		return;
+	}
+	
+	Thread* signalledThread = (Thread *) this->waitQueue->Remove();
+	signalledThread->setStatus(READY);
+	scheduler->ReadyToRun(signalledThread);
+	
+	if (this->waitQueue->IsEmpty() ) {
+		waitingServerLock = NULL;
+	}
+	
+	interrupt->SetLevel(oldLevel);
+}
+
+void ServerCondition::Broadcast(ServerLock* conditionServerLock) {
+  while (!this->waitQueue->IsEmpty() ) {
+    this->Signal(conditionServerLock);
+  }
+}
+
+bool ServerCondition::HasThreadsWaiting() {
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);
+	bool result = this->waitQueue->IsEmpty();
+	interrupt->SetLevel(oldLevel);
+	return result;
+}
+#endif
+*/

@@ -97,8 +97,8 @@ class ServerLock {
     ~ServerLock();				// deallocate lock
     char* getName() { return name; }	// debugging assist
 
-    bool Acquire(int, int); // these are the only operations on a lock
-    void Release(int, int); // they are both *atomic*
+    bool Acquire(int clientID, int threadID); // these are the only operations on a lock
+    void Release(int clientID, int threadID); // they are both *atomic*
 
     bool IsHeldByCurrentThread(int, int);	// true if the current thread
 					// holds this lock.  Useful for
@@ -118,6 +118,17 @@ class ServerLock {
 };
 #endif
 
+
+#ifdef NETWORK
+struct ClientThreadPair{
+	ClientThreadPair(int cID, int tID){
+		clientID = cID;
+		threadID = tID;
+	}
+	public:
+		int clientID, threadID;
+};
+#endif
 
 // The following class defines a "condition variable".  A condition
 // variable does not have a value, but threads may be queued, waiting
@@ -174,4 +185,32 @@ class Condition {
     Lock* waitingLock;
     List* waitQueue;
 };
+
+/*
+#ifdef NETWORK
+	class ServerCondition {
+	  public:
+		ServerCondition(char* debugName);		// initialize condition to 
+						// "no one waiting"
+		~ServerCondition();			// deallocate the condition
+		char* getName() { return (name); }
+	    
+		void Wait(ServerLock *conditionLock); 	// these are the 3 operations on 
+						// condition variables; releasing the 
+						// lock and going to sleep are 
+						// *atomic* in Wait()
+		void Signal(ServerLock *conditionLock);   // conditionLock must be held by
+		void Broadcast(ServerLock *conditionLock);// the currentThread for all of 
+						// these operations
+
+		bool HasThreadsWaiting();
+
+	  private:
+		char* name;
+		// plus some other stuff you'll need to define
+		ServerLock* waitingLock;
+		List* waitQueue;
+};
+#endif
+*/
 #endif // SYNCH_H
