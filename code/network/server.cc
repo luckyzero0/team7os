@@ -21,11 +21,6 @@ extern "C" {
 	int bcopy(char *, char *, int);
 };
 
-struct WaitListEntry{
-	int clientID;
-	int threadID;
-	char* msg;
-};
 
 struct LockEntry {
 	ServerLock* lock; //Changed from Lock to ServerLock
@@ -50,8 +45,6 @@ struct MonitorEntry {
 	Monitor monitor;
 	int clientID;
 	int threadID;
-	bool needsToBeDeleted;
-	int aboutToBeWaited;
 };
 MonitorEntry serverMVs[MAX_MONITORS];
 
@@ -68,8 +61,12 @@ void Release_Syscall_Server(LockID id);
 void Signal_Syscall_Server(ConditionID conditionID, LockID lockID);
 void Wait_Syscall_Server(ConditionID conditionID, LockID lockID);
 void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID);
+MonitorID CreateMonitor_Syscall_Server(char* name);
+int GetMonitor_Syscall_Server(MonitorID monitorID);
+void SetMonitor_Syscall_Server(MonitorID monitorID, int value);
+
+
 void handleIncomingRequests();
-void handleQueuedRequests();
 
 
 char *ack = "";
@@ -169,6 +166,24 @@ void handleIncomingRequests(){
 	    		DestroyCondition_Syscall_Server(atoi(args[1].c_str())); 
 	    		threadBox = atoi(args[3].c_str());
 	    	break;
+	    	
+	    	case SC_CreateMonitor:
+	    		printf("Request from Client[%d], ThreadID[%s]. Creating a new Monitor.\n", serverInPktHdr.from, args[2].c_str());	    			    		    		
+	    		sprintf(ack,"%d",CreateMonitor_Syscall_Server(const_cast<char *>(args[1].c_str())));    	
+	    		threadBox = atoi(args[2].c_str());
+	    	break;
+	    	
+	    	case SC_SetMonitor:
+	    		printf("Request from Client[%d], ThreadID[%s]. Creating a new Monitor.\n", serverInPktHdr.from, args[3].c_str());	    			    		    		
+	    		SetMonitor_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));
+	    		threadBox = atoi(args[3].c_str());
+	    	break;
+	    	
+	    	case SC_GetMonitor:
+	    		printf("Request from Client[%d], ThreadID[%s]. Creating a new Monitor.\n", serverInPktHdr.from, args[2].c_str());	    			    		    		
+	    		sprintf(ack,"%d",GetMonitor_Syscall_Server(atoi(args[1].c_str())));    	
+	    		threadBox = atoi(args[2].c_str());
+	    	break;
 	    		
     	}
     	if(!requestCompleted)	    	   
@@ -262,9 +277,7 @@ void initServerData(){
 	for (int i = 0; i < MAX_CONDITIONS; i++) {
 		serverMVs[i].monitor = NULL;
 		serverMVs[i].clientID = -1;
-		serverMVs[i].threadID = -1;
-		serverMVs[i].needsToBeDeleted = FALSE;
-		serverMVs[i].aboutToBeWaited = 0;
+		serverMVs[i].threadID = -1;		
 	}
 }
 
@@ -283,6 +296,17 @@ int getAvailableServerConditionID() {
 	int index = -1;
 	for (int i = 0; i < MAX_CONDITIONS; i++) {
 		if (serverCVs[i].condition == NULL) {
+			index = i;
+			break;
+		}
+	}
+	return index;
+}
+
+int getAvailableServerMonitorID() {
+	int index = -1;
+	for (int i = 0; i < MAX_MONITORS; i++) {
+		if (serverMVs[i].monitor == NULL) {
 			index = i;
 			break;
 		}
@@ -559,12 +583,27 @@ void DestroyCondition_Syscall_Server(ConditionID id){
 }
 
 MonitorID CreateMonitor_Syscall_Server(char* name){
-	return 0;
+	//locksLock->Acquire();
+		int index = getAvailableServerMonitorID();
+		if (index == -1) {
+			printf("No locks available!\n");
+		} else {
+			serverMVs[index].monitor = -1;
+			serverMVs[index].clientID = serverInPktHdr.from;
+			serverMVs[index].threadID = atoi(args[2].c_str());			
+		}
+		//locksLock->Release();
+		printf("Returning monitor index: %d\n", index); //DEBUG	
+		requestCompleted = true;	
+		return index;
 }
 
 int GetMonitor_Syscall_Server(MonitorID monitorID){
-	return 0;
+	return serverMVs[monitorID].monitor;
 }
 
+
 void SetMonitor_Syscall_Server(MonitorID monitorID, int value){
+	serverMVs[monitorID].monitor = value;
+	sprintf(ack,"MonitorVar[%d] successfully set.",monitorID);
 }
