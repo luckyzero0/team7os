@@ -88,18 +88,18 @@ class Lock {
     LockState state;
     List* waitQueue;
 };
-/*
+
 #ifdef NETWORK
-class SeverLock {
+class ServerLock {
   public:
     ServerLock(char* debugName);  		// initialize lock to be FREE
     ~ServerLock();				// deallocate lock
     char* getName() { return name; }	// debugging assist
 
-    bool Acquire(); // these are the only operations on a lock
-    void Release(); // they are both *atomic*
+    bool Acquire(int, int); // these are the only operations on a lock
+    void Release(int, int); // they are both *atomic*
 
-    bool IsHeldByCurrentThread();	// true if the current thread
+    bool IsHeldByCurrentThread(int, int);	// true if the current thread
 					// holds this lock.  Useful for
 					// checking in Release, and in
 					// Condition variable ops below.
@@ -109,12 +109,14 @@ class SeverLock {
   private:
     char* name;				// for debugging
     // plus some other stuff you'll need to define
-    Thread* owner;
+    int client;
+    int thread;
+    char* svrMsg;
     LockState state;
     List* waitQueue;
 };
 #endif
-*/
+
 
 // The following class defines a "condition variable".  A condition
 // variable does not have a value, but threads may be queued, waiting

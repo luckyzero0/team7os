@@ -169,11 +169,12 @@ bool Lock::IsBusy() {
 	return result;
 }
 
-/*NETWORK--------------------------------------------------------------------------------
+//NETWORK--------------------------------------------------------------------------------
 #ifdef NETWORK
 ServerLock::ServerLock(char* debugName) {
 	name = debugName;
-	owner = NULL;
+	client = -1;
+	thread = -1;
 	state = FREE;
 	waitQueue = new List;
 }
@@ -182,19 +183,20 @@ ServerLock::~ServerLock() {
 	delete waitQueue;
 }
 
-bool ServerLock::Acquire() { //Bool indicates whether lock has been acquired instantly or not
+bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether lock has been acquired instantly or not
 	//All threads need to be changed to client IDs. No thread handeling on server side
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	if (this->owner == currentThread) {
+	if (this->client == clientID && this->thread == threadID) {
 		interrupt->SetLevel(oldLevel);
 		return true;
 	}
 	else if (this->state == FREE) {
 		this->state = BUSY;
-		this->owner = currentThread;
+		this->client = clientID;
+		this->thread = threadID;
 	}
 	else {
-		this->waitQueue->Append(currentThread);
+		this->waitQueue->Append((void*)clientID);
 		//currentThread->Sleep();   Server thread should NOT go to sleep, should message client
 		return false;
 	}
@@ -202,33 +204,37 @@ bool ServerLock::Acquire() { //Bool indicates whether lock has been acquired ins
 	return true;
 }
 
-void ServerLock::Release() {
+void ServerLock::Release(int clientID, int threadID) {
+	PacketHeader lockOutPktHdr;
+	MailHeader lockOutMailHdr;
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	if (this->owner != currentThread) {
-	  if (this->owner == NULL) {
+	if (this->client != clientID || this->thread != threadID) {
+	  if (this->client == -1) {
 	    printf("Lock %s: has a NULL owner!\n", this->getName());
 	  }
-	  printf("Cannot release lock from a non-owning thread! id = %d\n", currentThread->ID);
+	  printf("Cannot release lock from a non-owning thread! Client[%d] Thread[%d]\n", clientID, threadID);
 		interrupt->SetLevel(oldLevel);
 		return;
 	}
 	else if (!this->waitQueue->IsEmpty() ){
-		Thread* nextThread = (Thread *) this->waitQueue->Remove();
-		nextThread->setStatus(READY); 
-		scheduler->ReadyToRun(nextThread);
-		this->owner = nextThread;
+		lockOutPktHdr.to = clientID;
+    	lockOutMailHdr.to = threadID;
+    	sprintf(svrMsg, "Lock was released. Transferring ownership to Client[%d]->Thread[%d].\n",clientID,threadID);
+    	lockOutMailHdr.length = strlen(svrMsg) + 1;
+		lockOutMailHdr.from = 0;
+    	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);
 	}
 	else {
 		this->state = FREE;
-		this->owner = NULL;
+		this->client = -1;
 	}
 	
 	interrupt->SetLevel(oldLevel);
 }
 
-bool ServerLock::IsHeldByCurrentThread() {
+bool ServerLock::IsHeldByCurrentThread(int clientID, int threadID) {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	bool result = (this->owner == currentThread);
+	bool result = (this->client == clientID && this->thread == threadID);
 	interrupt->SetLevel(oldLevel);
 	return result;
 }

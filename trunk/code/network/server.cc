@@ -27,7 +27,7 @@ struct WaitListEntry{
 };
 
 struct LockEntry {
-	Lock* lock; //Changed from Lock to ServerLock
+	ServerLock* lock; //Changed from Lock to ServerLock
 	int clientID;
 	int threadID;
 	bool needsToBeDeleted;
@@ -403,7 +403,7 @@ LockID CreateLock_Syscall_Server(char* name){
 		if (index == -1) {
 			printf("No locks available!\n");
 		} else {
-			serverLocks[index].lock = new Lock(name);
+			serverLocks[index].lock = new ServerLock(name);
 			serverLocks[index].clientID = serverInPktHdr.from;
 			serverLocks[index].threadID = atoi(args[2].c_str());
 			numLocks++;
@@ -444,7 +444,7 @@ void Acquire_Syscall_Server(LockID id){
 	
 	serverLocks[id].abserverOutToBeAcquired++;
 	//serverLocksLock->Release();
-	serverLocks[id].lock->Acquire();
+	serverLocks[id].lock->Acquire(serverLocks[id].clientID, serverLocks[id].threadID);
 	serverLocks[id].abserverOutToBeAcquired--;
 	DEBUG('a', "Lock [%d] has been acquired.\n", id); //DEBUG
 	sprintf(ack,"Lock [%d] has been acquired.", id); //DEBUG
@@ -466,7 +466,7 @@ void Release_Syscall_Server(LockID id){
 		return;
 	}
 
-	serverLocks[id].lock->Release();
+	serverLocks[id].lock->Release(serverLocks[id].clientID, serverLocks[id].threadID);
 	sprintf(ack, "Lock[%d] has been released.",id);	
 	if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
 		&& serverLocks[id].abserverOutToBeAcquired == 0) {			
@@ -482,7 +482,7 @@ void DestroyLock_Syscall_Server(LockID id){
 	//locksLock->Acquire();	
 	if (serverLocks[id].clientID != serverInPktHdr.from) {		
 		printf("LockID[%d] cannot be destroyed from a non-owning process!\n", id);
-		ack = "LockID cannot be destroyed from a non-owning process.";
+		ack = "LockID cannot be destroyed from non-owner.";
 		requestCompleted = true;
 	} else {	
 		if(serverLocks[id].lock == NULL){
@@ -539,7 +539,7 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 		return;
 	}
 
-	serverCVs[conditionID].condition->Signal(serverLocks[lockID].lock);
+	//serverCVs[conditionID].condition->Signal(serverLocks[lockID].lock);
 
 	if (serverCVs[conditionID].needsToBeDeleted 
 		&& !serverCVs[conditionID].condition->HasThreadsWaiting()
@@ -573,7 +573,7 @@ void Wait_Syscall_Server(ConditionID conditionID, LockID lockID){
 	serverCVs[conditionID].abserverOutToBeWaited++;
 	//locksLock->Release();
 	//conditionsLock->Release();
-	serverCVs[conditionID].condition->Wait(serverLocks[lockID].lock); //this might not quite work
+	//serverCVs[conditionID].condition->Wait(serverLocks[lockID].lock); //this might not quite work
 
 	//conditionsLock->Acquire();
 	serverCVs[conditionID].abserverOutToBeWaited--;
