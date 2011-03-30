@@ -184,18 +184,18 @@ ServerLock::~ServerLock() {
 }
 
 bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether lock has been acquired instantly or not
-	//All threads need to be changed to client IDs. No thread handeling on server side
+	//All threads need to be changed to client IDs. No thread handeling on server side	
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	if (this->client == clientID && this->thread == threadID) {
+	if (this->client == clientID && this->thread == threadID) {		
 		interrupt->SetLevel(oldLevel);
 		return true;
 	}
-	else if (this->state == FREE) {
+	else if (this->state == FREE) {		
 		this->state = BUSY;
 		this->client = clientID;
 		this->thread = threadID;
 	}
-	else {
+	else {		
 		this->waitQueue->Append((void*)threadID);
 		//currentThread->Sleep();   Server thread should NOT go to sleep, should message client
 		return false;
@@ -216,13 +216,16 @@ void ServerLock::Release(int clientID, int threadID) {
 		interrupt->SetLevel(oldLevel);
 		return;
 	}
-	else if (!this->waitQueue->IsEmpty() ){
-		lockOutPktHdr.to = clientID;
-    	lockOutMailHdr.to = (int) waitQueue->Remove();
-    	sprintf(svrMsg, "Lock was released. Transferring ownership to Client[%d]->Thread[%d].\n",clientID,threadID);
-    	lockOutMailHdr.length = strlen(svrMsg) + 1;
+	else if (!this->waitQueue->IsEmpty() ){			
+		lockOutPktHdr.to = clientID;		
+    	lockOutMailHdr.to = (int) waitQueue->Remove();    	
+    	svrMsg = "Lock was released. Transferring ownership.";    	
+    	lockOutMailHdr.length = strlen(svrMsg) + 1;    	
 		lockOutMailHdr.from = 0;
-    	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);
+    	printf("Lock was released. Transferring ownership to Client[%d]->Thread[%d].\n",lockOutPktHdr.to,lockOutMailHdr.to);    		
+    	this->client = lockOutPktHdr.to;
+    	this->thread = lockOutMailHdr.to;
+    	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);    	
 	}
 	else {
 		this->state = FREE;

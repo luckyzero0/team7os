@@ -160,13 +160,8 @@ void handleIncomingRequests(){
 	    	break;
 	    		
     	}
-    	/*if(!requestCompleted)	    	
-    	{
-	    	Thread* queued = new Thread("QueueHandler"); // HACK
-    		queued->Fork((VoidFunctionPtr)handleQueuedRequests, 1);
-    		//requestLock->Release();
-    		continue;
-    	}*/
+    	if(!requestCompleted)	    	   
+    		continue;    	
     	
     	serverOutPktHdr.to = sender;
     	serverOutMailHdr.to = serverInMailHdr.from;
@@ -444,11 +439,15 @@ void Acquire_Syscall_Server(LockID id){
 	
 	serverLocks[id].abserverOutToBeAcquired++;
 	//serverLocksLock->Release();
-	serverLocks[id].lock->Acquire(serverLocks[id].clientID, serverLocks[id].threadID);
+	if(serverLocks[id].lock->IsBusy())
+		requestCompleted = false;
+	else
+		requestCompleted = true;
+		
+	serverLocks[id].lock->Acquire(serverLocks[id].clientID, atoi(args[2].c_str()));
 	serverLocks[id].abserverOutToBeAcquired--;
 	DEBUG('a', "Lock [%d] has been acquired.\n", id); //DEBUG
-	sprintf(ack,"Lock [%d] has been acquired.", id); //DEBUG
-	requestCompleted = true;
+	sprintf(ack,"Lock [%d] has been acquired.", id); //DEBUG	
 }
 
 void Release_Syscall_Server(LockID id){
@@ -466,7 +465,8 @@ void Release_Syscall_Server(LockID id){
 		return;
 	}
 
-	serverLocks[id].lock->Release(serverLocks[id].clientID, serverLocks[id].threadID);
+
+	serverLocks[id].lock->Release(serverLocks[id].clientID, atoi(args[2].c_str()));
 	sprintf(ack, "Lock[%d] has been released.",id);	
 	if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
 		&& serverLocks[id].abserverOutToBeAcquired == 0) {			
