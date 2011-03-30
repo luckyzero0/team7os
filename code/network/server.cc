@@ -384,17 +384,22 @@ void Acquire_Syscall_Server(LockID id){
 	serverLocks[id].aboutToBeAcquired++;
 	//serverLocksLock->Release();
 	if(serverLocks[id].lock->IsBusy())
+	{
+		printf("Lock[%d] is busy. Request Failed.\n",id);
 		requestCompleted = false;
+	}
 	else
+	{
+		printf("Lock[%d] is free. Request Succeeded.\n",id);
 		requestCompleted = true;
+	}
 		
 	//server lock Acquire takes the clientID and threadID. This has to do with
 	//how lock ownership is transferred on the server, as the server cannot
 	//acquire the lock itself, as trying to acquire a busy lock would cause
 	//the server to lock up. 	
 	serverLocks[id].lock->Acquire(serverLocks[id].clientID, atoi(args[2].c_str()));
-	serverLocks[id].aboutToBeAcquired--;
-	DEBUG('a', "Lock [%d] has been acquired.\n", id); //DEBUG
+	serverLocks[id].aboutToBeAcquired--;	
 	sprintf(ack,"Lock [%d] has been acquired.", id); //DEBUG	
 }
 

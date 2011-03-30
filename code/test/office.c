@@ -202,7 +202,7 @@ void Office() {
 	for (i = 0 ; i < numSenators; i++) {
 		Fork(SenatorRun);
 	}
-
+	
 	Fork(ManagerRun);
 
 	FINISHED_FORKING = TRUE;
