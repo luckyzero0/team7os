@@ -495,7 +495,6 @@ static void doCashierClerk(int* index, int* cashDollars)
 			if (waitAndRestart(cashLineLock, *index))
 			{           /*SENATOR*/				
 				printf("Customer [%d] joins the [regular] wait queue for [Cashier] Clerk.\n",*index,0,0,"","");
-				needToAcquire = FALSE;
 				continue;
 			} 
 			else 
