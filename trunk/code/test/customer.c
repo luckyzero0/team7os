@@ -406,7 +406,6 @@ static void doPassPortClerk(int *index, int* cashDollars){
 					printf("Customer [%d] joins the [priveleged] wait queue for [Passport] Clerk.\n",*index,0,0,"","");
 				else
 					printf("Customer [%d] joins the [regular] wait queue for [Passport] Clerk.\n",*index,0,0,"","");
-				needToAcquire = FALSE;
 				continue;
 			} 
 			else 
