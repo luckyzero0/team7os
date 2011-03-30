@@ -206,7 +206,7 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
 	return true;
 }
 
-void ServerLock::Release(int clientID, int threadID) {
+void ServerLock::Release(int clientID) {
 	PacketHeader lockOutPktHdr;
 	MailHeader lockOutMailHdr;
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
@@ -214,7 +214,7 @@ void ServerLock::Release(int clientID, int threadID) {
 	  if (this->client == -1) {
 	    printf("ServerLock %s: has a NULL owner!\n", this->getName());
 	  }
-	  printf("Cannot release lock from a non-owning thread! Client[%d]", threadID);
+	  printf("Cannot release lock from a non-owning thread! Client[%d]", clientID);
 		interrupt->SetLevel(oldLevel);
 		return;
 	}
@@ -329,7 +329,7 @@ bool Condition::HasThreadsWaiting() {
 //======================================================================
 //				NETWORK - SERVERCONDITIONS
 //======================================================================
-/*#ifdef NETWORK
+#ifdef NETWORK
 
 ServerCondition::ServerCondition(char* debugName) {
 	name = debugName;
@@ -358,11 +358,11 @@ void ServerCondition::Wait(ServerLock* conditionServerLock) {
 	}
 	// okay to wait on CV
 	// Add client ID to CV wait queue
-	currentThread->setStatus(BLOCKED);
-	this->waitQueue->Append(currentThread);
-	conditionServerLock->Release();
-	currentThread->Sleep();
-	conditionServerLock->Acquire();
+	//currentThread->setStatus(BLOCKED);
+	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->clientID),conditionServerLock->threadID);
+	this->waitQueue->Append(ctp);
+	conditionServerLock->Release(conditionServerLock->clientID);
+	//currentThread->Sleep();
 	interrupt->SetLevel(oldLevel);
 }
 
@@ -380,9 +380,10 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 		return;
 	}
 	
-	Thread* signalledThread = (Thread *) this->waitQueue->Remove();
-	signalledThread->setStatus(READY);
-	scheduler->ReadyToRun(signalledThread);
+	ClientThreadPair* ctp = (ClientThreadPair*) this->waitQueue->Remove();
+	conditionServerLock->Acquire(ctp>clientID, ctp->threadID);
+	/*signalledThread->setStatus(READY);
+	scheduler->ReadyToRun(signalledThread);*/
 	
 	if (this->waitQueue->IsEmpty() ) {
 		waitingServerLock = NULL;
@@ -404,4 +405,4 @@ bool ServerCondition::HasThreadsWaiting() {
 	return result;
 }
 #endif
-*/
+
