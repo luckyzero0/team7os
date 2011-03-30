@@ -172,11 +172,15 @@ void Wait(ConditionID conditionID, LockID lockID);
 
 void Broadcast(ConditionID conditionID, LockID lockID);
 
+
 MonitorID CreateMonitor(char* name, int len);
+
+int GetMonitor(MonitorID monitorID);
 
 void SetMonitor(MonitorID monitorID, int value);
 
-int GetMonitor(MonitorID monitorID);
+
+
 
 int Rand();
 
