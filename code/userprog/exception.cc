@@ -911,6 +911,105 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 #endif
 }
 
+//===============================================================================================
+//					NETWORKING - Monitor Variable Syscalls
+//===============================================================================================
+#ifdef NETWORK
+
+MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
+	char* buf;
+	if ( !(buf = new char[len]) ) {
+		printf("%s","Error allocating kernel buffer for write!\n");
+		return -1;
+	} else {		
+		if( copyin(vaddr,len,buf) != (signed int)strlen(buf) ) {
+			printf("%s","Bad string length, data not written.\n");
+			delete[] buf;
+			return -1;
+		}		
+		if ( copyin(vaddr,len,buf) == -1 ) {
+			printf("%s","Bad pointer passed to to write: data not written\n");
+			delete[] buf;
+			return -1;
+		}				
+	}
+
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%s,%d,*",SC_CreateMonitor,buf,currentThread->ID);
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+
+
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+	MonitorID id = atoi(buffer);
+	return id;
+}
+
+
+int GetMonitor_Syscall(MonitorID monitorID){
+	if (monitorID < 0 || monitorID >= MAX_MONITORS) {
+		printf("MonitorID[%d] is out of range!\n", monitorID);
+		return;
+	}
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d,%d,*",SC_GetMonitor,monitorID,currentThread->ID);
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+
+
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+	int value = atoi(buffer);
+	return value;
+}
+
+void SetMonitor_Syscall(MonitorID monitorID, int value){
+	if (monitorID < 0 || monitorID >= MAX_MONITORS) {
+		printf("MonitorID[%d] is out of range!\n", monitorID);
+		return;
+	}
+
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d, %d, %d,*", SC_SetMonitor, monitorID, value, currentThread->ID);
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+
+
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+
+}
+
+#endif
+
 
 void kernel_thread(int virtualAddr)
 {
@@ -1229,21 +1328,7 @@ void HandlePageFault() {
 }
 
 #endif
-//===============================================================================================
-//					NETWORKING
-//===============================================================================================
-#ifdef NETWORK
 
-MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
-}
-
-int GetMonitor_Syscall(MonitorID monitorID){
-}
-
-void SetMonitor_Syscall(MonitorID monitorID, int value){
-}
-
-#endif
 
 Lock* pageFaultTESTLock = new Lock("pageFaultTESTLock");
 
@@ -1343,6 +1428,24 @@ void ExceptionHandler(ExceptionType which) {
 			Broadcast_Syscall(machine->ReadRegister(4),
 				machine->ReadRegister(5));							
 			break;
+
+		case SC_CreateMonitor:
+			DEBUG('a', "CreateMonitor syscall.\n");
+			Broadcast_Syscall(machine->ReadRegister(4),
+				machine->ReadRegister(5));							
+			break;
+
+		case SC_SetMonitor:
+			DEBUG('a', "SetMonitor syscall.\n");
+			Broadcast_Syscall(machine->ReadRegister(4),
+				machine->ReadRegister(5));							
+			break;
+
+		case SC_GetMonitor:
+			DEBUG('a', "Broadcast syscall.\n");
+			Broadcast_Syscall(machine->ReadRegister(4));							
+			break;
+
 		case SC_Fork:
 			DEBUG('a', "Fork syscall.\n");
 			Fork_Syscall(machine->ReadRegister(4), -2);		
