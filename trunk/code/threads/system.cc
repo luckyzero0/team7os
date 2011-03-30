@@ -162,7 +162,7 @@ Initialize(int argc, char **argv)
 
     threadToBeDestroyed = NULL;
 	physPageBitMap = new BitMap(NumPhysPages);
-	threadCount = 0;
+	threadCount = 1;
 	for(int x = 0; x < PROCESS_TABLE_SIZE; x++)
 		processTable[x] = NULL;
     // We didn't explicitly allocate the current thread we are running in.
