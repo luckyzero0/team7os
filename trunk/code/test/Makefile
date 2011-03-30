@@ -31,7 +31,7 @@ CPP = $(GCCDIR)cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt matmult sort testfiles
+all: halt forkTest sort testfiles
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -50,11 +50,11 @@ sort: sort.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o sort.o utils.o -o sort.coff
 	../bin/coff2noff sort.coff sort
 
-matmult.o: matmult.c
-	$(CC) $(CFLAGS) -c matmult.c utils.c
-matmult: matmult.o start.o utils.o
-	$(LD) $(LDFLAGS) start.o matmult.o utils.o -o matmult.coff
-	../bin/coff2noff matmult.coff matmult
+forkTest.o: forkTest.c
+	$(CC) $(CFLAGS) -c forkTest.c utils.c
+forkTest: forkTest.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o forkTest.o utils.o -o forkTest.coff
+	../bin/coff2noff forkTest.coff forkTest
 
 testLocks.o: testLocks.c
 	$(CC) $(CFLAGS) -c testLocks.c utils.c
@@ -125,11 +125,17 @@ exec_office: exec_office.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o exec_office.o utils.o -o exec_office.coff
 	../bin/coff2noff exec_office.coff exec_office
 	
-exec_matmult.o: exec_matmult.c
-	$(CC) $(CFLAGS) -c exec_matmult.c utils.c
-exec_matmult: exec_matmult.o start.o utils.o
-	$(LD) $(LDFLAGS) start.o exec_matmult.o utils.o -o exec_matmult.coff
-	../bin/coff2noff exec_matmult.coff exec_matmult
+exec_forkTest.o: exec_forkTest.c
+	$(CC) $(CFLAGS) -c exec_forkTest.c utils.c
+exec_forkTest: exec_forkTest.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o exec_forkTest.o utils.o -o exec_forkTest.coff
+	../bin/coff2noff exec_forkTest.coff exec_forkTest
+	
+exec_forkTest.o: exec_forkTest.c
+	$(CC) $(CFLAGS) -c exec_forkTest.c utils.c
+exec_forkTest: exec_forkTest.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o exec_forkTest.o utils.o -o exec_forkTest.coff
+	../bin/coff2noff exec_forkTest.coff exec_forkTest
 
 
 testConditions.o: testConditions.c
