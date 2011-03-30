@@ -193,6 +193,7 @@ static void doAppClerk(int* index, int* cashDollars, int needToAcquire)
 					printf("Customer [%d] joins the [priveleged] wait queue for [Application] Clerk.\n",*index,0,0,"","");
 				else
 					printf("Customer [%d] joins the [regular] wait queue for [Application] Clerk.\n",*index,0,0,"","");
+				needToAcquire = FALSE;
 				continue;
 			} 
 			else 
@@ -285,6 +286,7 @@ static void doPicClerk(int* index, int* cashDollars, int needToAcquire)
 					printf("Customer [%d] joins the [priveleged] wait queue for [Picture] Clerk.\n",*index,0,0,"","");
 				else
 					printf("Customer [%d] joins the [regular] wait queue for [Picture] Clerk.\n",*index,0,0,"","");
+				needToAcquire = FALSE;
 				continue;
 			} 
 			else 
@@ -404,6 +406,7 @@ static void doPassPortClerk(int *index, int* cashDollars){
 					printf("Customer [%d] joins the [priveleged] wait queue for [Passport] Clerk.\n",*index,0,0,"","");
 				else
 					printf("Customer [%d] joins the [regular] wait queue for [Passport] Clerk.\n",*index,0,0,"","");
+				needToAcquire = FALSE;
 				continue;
 			} 
 			else 
@@ -492,6 +495,7 @@ static void doCashierClerk(int* index, int* cashDollars)
 			if (waitAndRestart(cashLineLock, *index))
 			{           /*SENATOR*/				
 				printf("Customer [%d] joins the [regular] wait queue for [Cashier] Clerk.\n",*index,0,0,"","");
+				needToAcquire = FALSE;
 				continue;
 			} 
 			else 
