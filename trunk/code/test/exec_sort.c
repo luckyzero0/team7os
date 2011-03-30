@@ -4,7 +4,7 @@
 int main() {
 	int i;
 	char* name;
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < 3; i++) {
 		name = "../test/sort";
 		Exec(name, strlen(name));
 	}
