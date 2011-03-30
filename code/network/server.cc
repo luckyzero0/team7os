@@ -32,16 +32,16 @@ struct LockEntry {
 	int clientID;
 	int threadID;
 	bool needsToBeDeleted;
-	int abserverOutToBeAcquired;	
+	int aboutToBeAcquired;	
 };
 LockEntry serverLocks[MAX_LOCKS];
 
 struct ConditionEntry {
-	Condition* condition;
+	ServerCondition* condition;
 	int clientID;
 	int threadID;
 	bool needsToBeDeleted;
-	int abserverOutToBeWaited;
+	int aboutToBeWaited;
 };
 ConditionEntry serverCVs[MAX_CONDITIONS];
 
@@ -51,7 +51,7 @@ struct MonitorEntry {
 	int clientID;
 	int threadID;
 	bool needsToBeDeleted;
-	int abserverOutToBeWaited;
+	int aboutToBeWaited;
 };
 MonitorEntry serverMVs[MAX_MONITORS];
 
@@ -245,7 +245,7 @@ void initServerData(){
 		serverLocks[i].clientID = -1;
 		serverLocks[i].threadID = -1;
 		serverLocks[i].needsToBeDeleted = FALSE;
-		serverLocks[i].abserverOutToBeAcquired = 0;				
+		serverLocks[i].aboutToBeAcquired = 0;				
 	}
 
 	//initialize conditions
@@ -254,7 +254,7 @@ void initServerData(){
 		serverCVs[i].clientID = -1;
 		serverCVs[i].threadID = -1;
 		serverCVs[i].needsToBeDeleted = FALSE;
-		serverCVs[i].abserverOutToBeWaited = 0;
+		serverCVs[i].aboutToBeWaited = 0;
 	}
 
 	//initialize monitorvars		
@@ -263,7 +263,7 @@ void initServerData(){
 		serverMVs[i].clientID = -1;
 		serverMVs[i].threadID = -1;
 		serverMVs[i].needsToBeDeleted = FALSE;
-		serverMVs[i].abserverOutToBeWaited = 0;
+		serverMVs[i].aboutToBeWaited = 0;
 	}
 }
 
@@ -275,7 +275,7 @@ void deleteServerCondition(int id) {
 	serverCVs[id].clientID = -1;
 	serverCVs[id].threadID = -1;
 	serverCVs[id].needsToBeDeleted = FALSE;
-	serverCVs[id].abserverOutToBeWaited = 0;
+	serverCVs[id].aboutToBeWaited = 0;
 }
 
 int getAvailableServerConditionID() {
@@ -295,7 +295,7 @@ void deleteServerLock(int id) {
 	serverLocks[id].clientID = -1;
 	serverLocks[id].threadID = -1;
 	serverLocks[id].needsToBeDeleted = FALSE;
-	serverLocks[id].abserverOutToBeAcquired = 0;
+	serverLocks[id].aboutToBeAcquired = 0;
 }
 
 int getAvailableServerLockID() {
@@ -359,7 +359,7 @@ void Acquire_Syscall_Server(LockID id){
 		return;
 	}*/
 	
-	serverLocks[id].abserverOutToBeAcquired++;
+	serverLocks[id].aboutToBeAcquired++;
 	//serverLocksLock->Release();
 	if(serverLocks[id].lock->IsBusy())
 		requestCompleted = false;
@@ -367,7 +367,7 @@ void Acquire_Syscall_Server(LockID id){
 		requestCompleted = true;
 		
 	serverLocks[id].lock->Acquire(serverLocks[id].clientID, atoi(args[2].c_str()));
-	serverLocks[id].abserverOutToBeAcquired--;
+	serverLocks[id].aboutToBeAcquired--;
 	DEBUG('a', "Lock [%d] has been acquired.\n", id); //DEBUG
 	sprintf(ack,"Lock [%d] has been acquired.", id); //DEBUG	
 }
@@ -388,10 +388,10 @@ void Release_Syscall_Server(LockID id){
 	}
 
 
-	serverLocks[id].lock->Release(serverLocks[id].clientID, atoi(args[2].c_str()));	
+	serverLocks[id].lock->Release(serverLocks[id].clientID);	
 	sprintf(ack, "Lock[%d] has been released.",id);	
 	if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
-		&& serverLocks[id].abserverOutToBeAcquired == 0) {			
+		&& serverLocks[id].aboutToBeAcquired == 0) {			
 			deleteServerLock(id);
 			ack = "Lock released and deleted.";
 	}
@@ -411,7 +411,7 @@ void DestroyLock_Syscall_Server(LockID id){
 			ack = "LockID does not exist.";
 			requestCompleted = true;
 		}
-		else if (serverLocks[id].lock->IsBusy() || serverLocks[id].abserverOutToBeAcquired > 0) {
+		else if (serverLocks[id].lock->IsBusy() || serverLocks[id].aboutToBeAcquired > 0) {
 			serverLocks[id].needsToBeDeleted = TRUE;
 			ack = "Lock will be deleted when possible.";
 			DEBUG('a', "Lock[%d] will be deleted when possible.\n",id); //DEBUG
@@ -433,7 +433,7 @@ ConditionID CreateCondition_Syscall_Server(char* name){
 	if (index == -1) {
 		printf("No conditions available!\n");		
 	} else {
-		serverCVs[index].condition = new Condition(name);
+		serverCVs[index].condition = new ServerCondition(name);
 		serverCVs[index].clientID = serverInPktHdr.from;		
 		serverLocks[index].threadID = atoi(args[2].c_str());
 	}
@@ -447,6 +447,7 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 	//locksLock->Acquire();
 	if (serverCVs[conditionID].clientID != serverInPktHdr.from) {
 		printf("ConditionID[%d] cannot be waited from a non-owning process!\n", conditionID);
+		sprintf(ack,"ConditionID[%d] cannot be waited from a non-owning process!", conditionID);
 		//locksLock->Release();
 		//conditionsLock->Release();
 		requestCompleted = true;
@@ -455,20 +456,22 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 
 	if (serverLocks[lockID].clientID != serverInPktHdr.from) {
 		printf("LockID[%d] cannot be passed to Wait from a non-owning process!\n", lockID);
+		sprintf(ack,"LockID[%d] cannot be passed to Wait from a non-owning process!", lockID);
 		//locksLock->Release();
 		//conditionsLock->Release();
 		requestCompleted = true;
 		return;
 	}
 
-	//serverCVs[conditionID].condition->Signal(serverLocks[lockID].lock);
-
+	serverCVs[conditionID].condition->Signal(serverLocks[lockID].lock);
+	sprintf(ack, "CV[%d] signaled with Lock[%d] successfully.",conditionID,lockID);
 	if (serverCVs[conditionID].needsToBeDeleted 
 		&& !serverCVs[conditionID].condition->HasThreadsWaiting()
-		&& serverCVs[conditionID].abserverOutToBeWaited == 0) {
+		&& serverCVs[conditionID].aboutToBeWaited == 0) {
 			deleteServerCondition(conditionID);
+			sprintf(ack, "CV[%d] signaled with Lock[%d] successfully and deleted.",conditionID,lockID);
 	}
-	//locksLock->Release();
+	//locksLock->Release(); 
 	//conditionsLock->Release();
 	requestCompleted = true;
 }
@@ -492,21 +495,15 @@ void Wait_Syscall_Server(ConditionID conditionID, LockID lockID){
 		return;
 	}
 
-	serverCVs[conditionID].abserverOutToBeWaited++;
+	serverCVs[conditionID].aboutToBeWaited++;
 	//locksLock->Release();
 	//conditionsLock->Release();
-	//serverCVs[conditionID].condition->Wait(serverLocks[lockID].lock); //this might not quite work
+	serverCVs[conditionID].condition->Wait(serverLocks[lockID].lock); //this might not quite work
 
 	//conditionsLock->Acquire();
-	serverCVs[conditionID].abserverOutToBeWaited--;
-
-	if (serverCVs[conditionID].needsToBeDeleted 
-		&& !serverCVs[conditionID].condition->HasThreadsWaiting()
-		&& serverCVs[conditionID].abserverOutToBeWaited == 0) {
-			deleteServerCondition(conditionID);
-	}
+	serverCVs[conditionID].aboutToBeWaited--;	
 	//conditionsLock->Release();
-	requestCompleted = true;
+	requestCompleted = false;
 }
 
 void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID){
@@ -517,7 +514,7 @@ void DestroyCondition_Syscall_Server(ConditionID id){
 	if (serverCVs[id].clientID != serverInPktHdr.from) {
 		printf("ConditionID[%d] cannot be destroyed from a non-owning process!\n", id);
 	} else {
-		if (serverCVs[id].condition->HasThreadsWaiting() || serverCVs[id].abserverOutToBeWaited > 0) {
+		if (serverCVs[id].condition->HasThreadsWaiting() || serverCVs[id].aboutToBeWaited > 0) {
 			serverCVs[id].needsToBeDeleted = TRUE;
 		} else {
 			deleteServerCondition(id);
