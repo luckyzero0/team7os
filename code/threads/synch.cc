@@ -209,11 +209,11 @@ void ServerLock::Release(int clientID, int threadID) {
 	PacketHeader lockOutPktHdr;
 	MailHeader lockOutMailHdr;
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	if (this->client != clientID || this->thread != threadID) {
+	if (this->client != clientID) {
 	  if (this->client == -1) {
 	    printf("ServerLock %s: has a NULL owner!\n", this->getName());
 	  }
-	  printf("Cannot release lock from a non-owning thread! Client[%d] Thread[%d]\n", clientID, threadID);
+	  printf("Cannot release lock from a non-owning thread! Client[%d]", threadID);
 		interrupt->SetLevel(oldLevel);
 		return;
 	}
@@ -228,12 +228,11 @@ void ServerLock::Release(int clientID, int threadID) {
     	this->thread = lockOutMailHdr.to;
     	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);    	
 	}
-	else {
+	else {	
 		this->state = FREE;
-		this->client = -1;
-	}
-	
-	interrupt->SetLevel(oldLevel);
+		this->client = -1;		
+	}	
+	interrupt->SetLevel(oldLevel);	
 }
 
 bool ServerLock::IsHeldByCurrentThread(int clientID, int threadID) {

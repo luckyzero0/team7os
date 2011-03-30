@@ -80,6 +80,7 @@ int fnCall = 0;
 int numLocks = 0;
 string args[4];
 int sender;
+int threadBox;
 bool xferLock = FALSE;
 List* waitList;
 char serverBuffer[MaxMailSize];
@@ -117,57 +118,69 @@ void handleIncomingRequests(){
 	    	
 	    	case SC_CreateLock:
 	    		printf("Request from Client[%d], ThreadID[%s]. Creating a new ServerLock.\n", serverInPktHdr.from, args[2].c_str());	    			    		    		
-	    		sprintf(ack,"%d",CreateLock_Syscall_Server(const_cast<char *>(args[1].c_str())));    		    		
+	    		sprintf(ack,"%d",CreateLock_Syscall_Server(const_cast<char *>(args[1].c_str())));    	
+	    		threadBox = atoi(args[2].c_str());
 	    	break;
 	    	
 	    	case SC_Acquire:
 	    		printf("Request from Client[%d], ThreadID[%s]. Acquiring ServerLock[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));
-	    		Acquire_Syscall_Server(atoi(args[1].c_str()));	    		
+	    		Acquire_Syscall_Server(atoi(args[1].c_str()));	    
+	    		threadBox = atoi(args[2].c_str());		
 	    	break;
 	    	
 	    	case SC_Release:	  
 	    		printf("Request from Client[%d], ThreadID[%s]. Releasing ServerLock[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));
 	    		Release_Syscall_Server(atoi(args[1].c_str()));	    	
+	    		threadBox = atoi(args[2].c_str());
 	    	break;
 	    	
 	    	case SC_DestroyLock:
 	    		printf("Request from Client[%d], ThreadID[%s]. Destroying ServerLock[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));
-	    		DestroyLock_Syscall_Server(atoi(args[1].c_str())); 	
+	    		DestroyLock_Syscall_Server(atoi(args[1].c_str())); 
+	    		threadBox = atoi(args[2].c_str());	
 	    	break;
 	    	
 	    	case SC_CreateCondition:
 	    		printf("Request from Client[%d], ThreadID[%s]. Creating a new ServerCV.\n", serverInPktHdr.from, args[2].c_str());
 	    		sprintf(ack,"%d",CreateCondition_Syscall_Server(const_cast<char *>(args[1].c_str())));	    	
+	    		threadBox = atoi(args[2].c_str());
 	    	break;
 	    	
 	    	case SC_Signal:	   
 	    		printf("Request from Client[%d], ThreadID[%s]. Signaling ServerCV[%d] with ServerLock[%d]\n",serverInPktHdr.from, args[3].c_str(), atoi(args[1].c_str()),atoi(args[2].c_str()));
 	    		Signal_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));	 
+	    		threadBox = atoi(args[3].c_str());
 	    	break;
 	    	
 	    	case SC_Wait:	    
 	    		printf("Request from Client[%d], ThreadID[%s]. Waiting on ServerCV[%d] with ServerLock[%d]\n",serverInPktHdr.from, args[3].c_str(), atoi(args[1].c_str()),atoi(args[2].c_str()));
 	    		Wait_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));	
+	    		threadBox = atoi(args[3].c_str());
 	    	break;
 	    	
 	    	case SC_Broadcast:	  
 	    		printf("Request from Client[%d], ThreadID[%s]. Broadcasting ServerCV[%d] with ServerLock[%d]\n",serverInPktHdr.from, args[3].c_str(), atoi(args[1].c_str()),atoi(args[2].c_str()));
 	    		Broadcast_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));  	
+	    		threadBox = atoi(args[3].c_str());
 	    	break;
 	    	
 	    	case SC_DestroyCondition:
 	    		printf("Request from Client[%d], ThreadID[%s]. Destroying ServerCV[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));
 	    		DestroyCondition_Syscall_Server(atoi(args[1].c_str())); 
+	    		threadBox = atoi(args[3].c_str());
 	    	break;
 	    		
     	}
     	if(!requestCompleted)	    	   
     		continue;    	
     	
+    	
+    	
     	serverOutPktHdr.to = sender;
-    	serverOutMailHdr.to = serverInMailHdr.from;
+    	serverOutMailHdr.to = threadBox;
     	serverOutMailHdr.length = strlen(ack) + 1;
 		serverOutMailHdr.from = 0;
+		printf("Sending reply to Client[%d], Box[%d]\n",sender, threadBox);
     	serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack); 		    	    	    	
 	    	
     	
@@ -467,7 +480,7 @@ void Release_Syscall_Server(LockID id){
 	}
 
 
-	serverLocks[id].lock->Release(serverLocks[id].clientID, atoi(args[2].c_str()));
+	serverLocks[id].lock->Release(serverLocks[id].clientID, atoi(args[2].c_str()));	
 	sprintf(ack, "Lock[%d] has been released.",id);	
 	if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
 		&& serverLocks[id].abserverOutToBeAcquired == 0) {			
@@ -476,8 +489,8 @@ void Release_Syscall_Server(LockID id){
 	}
 	//locksLock->Release();
 	requestCompleted = true;
-	DEBUG('a', "Releasing lock[%d].\n",id); //DEBUG
-}
+	printf("Lock[%d] has been released.\n",id);
+} 
 
 void DestroyLock_Syscall_Server(LockID id){
 	//locksLock->Acquire();	
