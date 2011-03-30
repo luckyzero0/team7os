@@ -196,7 +196,7 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
 		this->thread = threadID;
 	}
 	else {
-		this->waitQueue->Append((void*)clientID);
+		this->waitQueue->Append((void*)threadID);
 		//currentThread->Sleep();   Server thread should NOT go to sleep, should message client
 		return false;
 	}
@@ -218,7 +218,7 @@ void ServerLock::Release(int clientID, int threadID) {
 	}
 	else if (!this->waitQueue->IsEmpty() ){
 		lockOutPktHdr.to = clientID;
-    	lockOutMailHdr.to = threadID;
+    	lockOutMailHdr.to = (int) waitQueue->Remove();
     	sprintf(svrMsg, "Lock was released. Transferring ownership to Client[%d]->Thread[%d].\n",clientID,threadID);
     	lockOutMailHdr.length = strlen(svrMsg) + 1;
 		lockOutMailHdr.from = 0;
