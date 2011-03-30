@@ -281,6 +281,7 @@ AddrSpace::AddrSpace(OpenFile *theExecutable, int spaceID) : fileTable(MaxOpenFi
 AddrSpace::~AddrSpace()
 {
 #ifdef USE_TLB
+	/*
 	pageTableLock->Acquire();
 	iptLock->Acquire();
 
@@ -306,6 +307,7 @@ AddrSpace::~AddrSpace()
 
 	iptLock->Release();
 	pageTableLock->Release();
+	*/
 #endif
 	delete pageTable;
 	delete executable;
