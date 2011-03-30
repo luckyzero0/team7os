@@ -101,7 +101,6 @@ Semaphore::V()
 // Note -- without a correct implementation of Condition::Wait(), 
 // the test case in the network assignment won't work!
 
-#ifndef NETWORK
 Lock::Lock(char* debugName) {
 	name = debugName;
 	owner = NULL;
@@ -172,8 +171,8 @@ bool Lock::IsBusy() {
 }
 
 //NETWORK--------------------------------------------------------------------------------
-#else
-Lock::Lock(char* debugName) {
+#ifdef NETWORK
+ServerLock::ServerLock(char* debugName) {
 	name = debugName;
 	client = -1;
 	thread = -1;
@@ -181,11 +180,11 @@ Lock::Lock(char* debugName) {
 	waitQueue = new List;
 }
 
-Lock::~Lock() {
+ServerLock::~ServerLock() {
 	delete waitQueue;
 }
 
-bool Lock::Acquire(int clientID, int threadID) { //Bool indicates whether lock has been acquired instantly or not
+bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether lock has been acquired instantly or not
 
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (this->client == clientID && this->thread == threadID) {		
@@ -206,13 +205,13 @@ bool Lock::Acquire(int clientID, int threadID) { //Bool indicates whether lock h
 	return true;
 }
 
-void Lock::Release(int clientID, int threadID) {
+void ServerLock::Release(int clientID, int threadID) {
 	PacketHeader lockOutPktHdr;
 	MailHeader lockOutMailHdr;
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (this->client != clientID || this->thread != threadID) {
 	  if (this->client == -1) {
-	    printf("Lock %s: has a NULL owner!\n", this->getName());
+	    printf("ServerLock %s: has a NULL owner!\n", this->getName());
 	  }
 	  printf("Cannot release lock from a non-owning thread! Client[%d] Thread[%d]\n", clientID, threadID);
 		interrupt->SetLevel(oldLevel);
@@ -221,10 +220,10 @@ void Lock::Release(int clientID, int threadID) {
 	else if (!this->waitQueue->IsEmpty() ){			
 		lockOutPktHdr.to = clientID;		
     	lockOutMailHdr.to = (int) waitQueue->Remove();    	
-    	svrMsg = "Lock was released. Transferring ownership.";    	
+    	svrMsg = "ServerLock was released. Transferring ownership.";    	
     	lockOutMailHdr.length = strlen(svrMsg) + 1;    	
 		lockOutMailHdr.from = 0;
-    	printf("Lock was released. Transferring ownership to Client[%d]->Thread[%d].\n",lockOutPktHdr.to,lockOutMailHdr.to);    		
+    	printf("ServerLock was released. Transferring ownership to Client[%d]->Thread[%d].\n",lockOutPktHdr.to,lockOutMailHdr.to);    		
     	this->client = lockOutPktHdr.to;
     	this->thread = lockOutMailHdr.to;
     	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);    	
@@ -237,14 +236,14 @@ void Lock::Release(int clientID, int threadID) {
 	interrupt->SetLevel(oldLevel);
 }
 
-bool Lock::IsHeldByCurrentThread(int clientID, int threadID) {
+bool ServerLock::IsHeldByCurrentThread(int clientID, int threadID) {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	bool result = (this->client == clientID && this->thread == threadID);
 	interrupt->SetLevel(oldLevel);
 	return result;
 }
 
-bool Lock::IsBusy() {
+bool ServerLock::IsBusy() {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	bool result = (this->state == BUSY);
 	interrupt->SetLevel(oldLevel);
