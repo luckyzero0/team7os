@@ -181,7 +181,8 @@ void handleIncomingRequests(){
     	serverOutMailHdr.length = strlen(ack) + 1;
 		serverOutMailHdr.from = 0;
 		printf("Sending reply to Client[%d], Box[%d]\n",sender, threadBox);
-    	serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack); 		    	    	    	
+    	serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack); 	
+    	   	    
 	    	
     	
     	ack = "";
@@ -464,7 +465,7 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 	}
 
 	serverCVs[conditionID].condition->Signal(serverLocks[lockID].lock);
-	printf("CV[%d] signaled with Lock[%d] successfully.",conditionID,lockID);
+	printf("CV[%d] signaled with Lock[%d] successfully.\n",conditionID,lockID);
 	sprintf(ack, "CV[%d] signaled with Lock[%d] successfully.",conditionID,lockID);
 	if (serverCVs[conditionID].needsToBeDeleted 
 		&& !serverCVs[conditionID].condition->HasThreadsWaiting()

@@ -758,7 +758,7 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
@@ -1152,7 +1152,7 @@ void UpdateTLB(int vpn, int ppn) {
 
 int HandleFullMemory(int vpn) {
 	int ppn = -1;
-	numMemoryFull++;
+	numFullMemory++;
 
 	// lock the ipt to find an acceptable ipt entry, then set its inUse and release the iptLock
 	iptLock->Acquire();
@@ -1231,7 +1231,7 @@ void HandleIPTMiss(int vpn) {
 		DEBUG('b', "ipt[%d] vpn:%d dirty:%d readOnly:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].readOnly, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
 	}
 
-	numIPTMisses++;
+	numIPTMiss++;
 	iptLock->Acquire();
 	int ppn = getPhysicalPage(); // sets inUse to true on ipt[ppn]
 	iptLock->Release();
