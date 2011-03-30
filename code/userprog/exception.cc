@@ -1442,7 +1442,7 @@ void ExceptionHandler(ExceptionType which) {
 
 		case SC_GetMonitor:
 			DEBUG('a', "GetMonitor syscall.\n");
-			GetMonitor_Syscall(machine->ReadRegister(4));							
+			rv = GetMonitor_Syscall(machine->ReadRegister(4));							
 			break;
 			
 		case SC_SetMonitor:
