@@ -247,7 +247,7 @@ CreateMonitor:
 	j	$31
 	.end CreateMonitor
 	
-	globl GetMonitor
+	.globl GetMonitor
 	.ent GetMonitor
 GetMonitor:
 	addiu $2,$0,SC_GetMonitor
@@ -255,7 +255,7 @@ GetMonitor:
 	j	$31
 	.end GetMonitor
 	
-	globl SetMonitor
+	.globl SetMonitor
 	.ent SetMonitor
 SetMonitor:
 	addiu $2,$0,SC_SetMonitor
