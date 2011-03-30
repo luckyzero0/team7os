@@ -317,7 +317,7 @@ Cleanup()
     delete interrupt;
 
 #ifdef USE_TLB
-	printf("PageFaults:%d IPTMisses:%d FullMemory:%d SwapFileWrites:%d", stats->numPageFaults, numIPTMisses, numMemoryFull, numSwapFileWrites);
+	printf("PageFaults:%d IPTMisses:%d FullMemory:%d SwapFileWrites:%d\n", stats->numPageFaults, numIPTMisses, numMemoryFull, numSwapFileWrites);
 #endif
     
     Exit(0);
