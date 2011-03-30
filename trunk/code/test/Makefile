@@ -43,6 +43,12 @@ halt.o: halt.c
 halt: halt.o start.o
 	$(LD) $(LDFLAGS) start.o halt.o -o halt.coff
 	../bin/coff2noff halt.coff halt
+	
+matmult.o: matmult.c
+	$(CC) $(CFLAGS) -c matmult.c
+matmult: matmult.o start.o
+	$(LD) $(LDFLAGS) start.o matmult.o -o matmult.coff
+	../bin/coff2noff matmult.coff matmult
 
 sort.o: sort.c
 	$(CC) $(CFLAGS) -c sort.c utils.c
