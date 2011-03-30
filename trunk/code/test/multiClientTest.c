@@ -13,6 +13,7 @@ int x;
 	
 int main(){	
 	/*routines for testing lock creation and deletion*/
+	printf("Beginning multiClient test. For best results, run with -a debug arguments to see server replies.\n",0,0,0,"","");	
 	printf("Creating a new lock on the network...\n",0,0,0,"","");	
 	lockID = CreateLock("lock",4);
 	printf("LockID = [%d]\n",lockID,0,0,"","");	
@@ -39,19 +40,23 @@ int main(){
 	Signal(cvID,lockID);
 	printf("CVID[%d] signaled.\n",cvID,0,0,"","");
 	
-	printf("Releasing LockID[%d].\n",lockID,0,0,"","");
-	Release(lockID);
-	printf("LockID[%d] released",lockID,0,0,"","");
-	
-	printf("Destroying LockID[%d]...\n",lockID,0,0,"","");
-	DestroyLock(lockID);		
-	printf("LockID[%d] destroyed.\n",lockID,0,0,"","");
 	
 	printf("Destroying CVID[%d]...\n",cvID,0,0,"","");
 	DestroyCondition(cvID);
-	printf("CVID[%d] destroyed.\n",cvID,0,0,"","");
+	printf("CVID[%d] destroyed, verifying with a signal.\n",cvID,0,0,"","");
+	Signal(cvID,lockID);
 	
+	printf("Releasing LockID[%d].\n",lockID,0,0,"","");
+	Release(lockID);
+	printf("LockID[%d] released",lockID,0,0,"","");
+		
 	
+	printf("Destroying LockID[%d]...\n",lockID,0,0,"","");
+	DestroyLock(lockID);		
+	printf("LockID[%d] destroyed, verifying with an acquire.\n",lockID,0,0,"","");
+	Acquire(lockID);
+	
+		
 	printf("Done.\n",0,0,0,"","");
 	
 	Exit(0);
