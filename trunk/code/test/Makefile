@@ -130,12 +130,6 @@ exec_forkTest.o: exec_forkTest.c
 exec_forkTest: exec_forkTest.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o exec_forkTest.o utils.o -o exec_forkTest.coff
 	../bin/coff2noff exec_forkTest.coff exec_forkTest
-	
-exec_forkTest.o: exec_forkTest.c
-	$(CC) $(CFLAGS) -c exec_forkTest.c utils.c
-exec_forkTest: exec_forkTest.o start.o utils.o
-	$(LD) $(LDFLAGS) start.o exec_forkTest.o utils.o -o exec_forkTest.coff
-	../bin/coff2noff exec_forkTest.coff exec_forkTest
 
 
 testConditions.o: testConditions.c
