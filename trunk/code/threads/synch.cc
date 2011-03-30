@@ -381,7 +381,7 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 	}
 	
 	ClientThreadPair* ctp = (ClientThreadPair*) this->waitQueue->Remove();
-	conditionServerLock->Acquire(ctp>client, ctp->thread);
+	conditionServerLock->Acquire(ctp->clientID, ctp->threadID);
 	/*signalledThread->setStatus(READY);
 	scheduler->ReadyToRun(signalledThread);*/
 	
