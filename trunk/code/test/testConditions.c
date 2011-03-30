@@ -32,7 +32,7 @@ int main(){
 	printf("Creating a lock for the CV...\n",0,0,0,"","");
 	lockID = CreateLock("RaceLock",8);	
 	
-	/*printf("Attempting to signal with a bad lock...\n",0,0,0,"","");
+	printf("Attempting to signal with a bad lock...\n",0,0,0,"","");
 	Signal(cvID, lockID+1);
 	printf("Attempting to Wait with a bad lock...\n",0,0,0,"","");
 	Wait(cvID,lockID+1);
@@ -45,7 +45,7 @@ int main(){
 	Wait(cvID+1,lockID);
 	printf("Attempting to broadcast on a non-owned CV...\n",0,0,0,"","");
 	Broadcast(cvID+1,lockID);
-	*/		
+			
 	printf("Creating threads to *actually* test CV functionallity...\n",0,0,0,"","");
 	runLockCV = CreateCondition("runCV",5);
 	Acquire(lockID);
@@ -54,7 +54,7 @@ int main(){
 	Wait(runLockCV,lockID);
 	printf("RaceCondition = [%d], and should = 80 if t2 ran before t1.\n",raceCondition,0,0,"","");
 	
-	/*printf("Setting up broadcast test. Forking a lot of threads.\n",0,0,0,"","");	
+	printf("Setting up broadcast test. Forking a lot of threads.\n",0,0,0,"","");	
 	for(i = 0; i < 10; i++)
 	{		
 		ForkWithArg(broadcastTest,i);				
@@ -63,7 +63,7 @@ int main(){
 	Wait(runLockCV,lockID);
 	printf("Acquiring lock and broadcasting on the CV.\n",0,0,0,"","");	
 	Broadcast(cvID,lockID);
-	Release(lockID);*/
+	Release(lockID);
 	Exit(0);
 }
 
