@@ -207,5 +207,17 @@ NTLockCVs: NTLockCVs.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o NTLockCVs.o utils.o -o NTLockCVs.coff
 	../bin/coff2noff NTLockCVs.coff NTLockCVs
 
+testMonitors.o: testMonitors.c
+	$(CC) $(CFLAGS) -c testMonitors.c utils.c
+testMonitors: testMonitors.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o testMonitors.o utils.o -o testMonitors.coff
+	../bin/coff2noff testMonitors.coff testMonitors
+
+multiClientTest.o: multiClientTest.c
+	$(CC) $(CFLAGS) -c multiClientTest.c utils.c
+multiClientTest: multiClientTest.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o multiClientTest.o utils.o -o multiClientTest.coff
+	../bin/coff2noff multiClientTest.coff multiClientTest
+
 clean:
 	rm -f *.o *.coff

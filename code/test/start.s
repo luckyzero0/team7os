@@ -239,14 +239,6 @@ GetThreadID:
 	
 /*Project 3 additions*/
 
-	.globl CreateMonitor
-	.ent CreateMonitor
-CreateMonitor:
-	addiu $2,$0,SC_CreateMonitor
-	syscall
-	j	$31
-	.end CreateMonitor
-	
 	.globl SetMonitor
 	.ent SetMonitor
 SetMonitor:
@@ -254,6 +246,22 @@ SetMonitor:
 	syscall
 	j	$31
 	.end SetMonitor
+	
+	.globl GetMonitor
+	.ent GetMonitor
+GetMonitor:
+	addiu $2,$0,SC_GetMonitor
+	syscall
+	j	$31
+	.end GetMonitor
+
+	.globl CreateMonitor
+	.ent CreateMonitor
+CreateMonitor:
+	addiu $2,$0,SC_CreateMonitor
+	syscall
+	j	$31
+	.end CreateMonitor
 
 
 /* dummy function to keep gcc happy */
