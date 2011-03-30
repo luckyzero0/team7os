@@ -129,7 +129,7 @@ void handleIncomingRequests(){
 	    	break;
 	    	
 	    	case SC_Release:	  
-	    		printf("Request from Client[%d], ThreadID[%s]. Releasing ServerLock[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));
+	    		printf("Request from Client[%d], ThreadID[%s]. Releasing ServerLock[%d]\n",serverInPktHdr.from, args[2].c_str(), atoi(args[1].c_str()));
 	    		Release_Syscall_Server(atoi(args[1].c_str()));	    	
 	    		threadBox = atoi(args[2].c_str());
 	    	break;

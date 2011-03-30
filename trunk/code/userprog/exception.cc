@@ -477,7 +477,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 		printf("The postOffice Send failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	LockID lockID = atoi(buffer);
@@ -526,7 +526,7 @@ void DestroyLock_Syscall(LockID id) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	
@@ -590,7 +590,7 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 	} 
 
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	ConditionID conditionID = atoi(buffer);
@@ -636,7 +636,7 @@ void DestroyCondition_Syscall(ConditionID id) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
@@ -815,7 +815,7 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
@@ -877,7 +877,7 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 		printf("The postOffice Send to Server failed.\n");
 		interrupt->Halt();      	      	       	      	 
 	} 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 #else
@@ -948,7 +948,7 @@ MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 	} 
 
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	MonitorID id = atoi(buffer);
@@ -975,7 +975,7 @@ int GetMonitor_Syscall(MonitorID monitorID){
 	} 
 
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 	int value = atoi(buffer);
@@ -1002,7 +1002,7 @@ void SetMonitor_Syscall(MonitorID monitorID, int value){
 	} 
 
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer);
 	printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
 	fflush(stdout);
 
