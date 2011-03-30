@@ -1,6 +1,7 @@
-/*NTLockCVs.c
- * A short suite (PUN!) of tests to verify
- * Lock related RPCs
+/* MultiClientTest.c
+ * This test ensures that the server can handle multiple clients
+ * connecting to the server and that the server can handle the 
+ * stress of such a hostile work environment.
  */
 #include "utils.h"
 #include "syscall.h"
@@ -28,19 +29,19 @@ int main(){
 	printf("Lock[%d] acquired.\n",lockID,0,0,"","");
 	
 	printf("Modifying MV[%d].\n",mvID,0,0,"","");
-	for (x = 0; x < 20; x++;)
+	for (x = 0; x < 20; x++)
 	{
-		SetMonitor(x);
+		SetMonitor(mvID,x);
 	}
 	printf("Done modifying. MV[%d] = [%d]\n",mvID,GetMonitor(mvID),0,"","");
 	
 	printf("Signalling CVID[%d].\n",cvID,0,0,"","");
-	Signal(cvID);
+	Signal(cvID,lockID);
 	printf("CVID[%d] signaled.\n",cvID,0,0,"","");
 	
-	printf("Releasing LockID[%d].\n"lockID,0,0,"","");
+	printf("Releasing LockID[%d].\n",lockID,0,0,"","");
 	Release(lockID);
-	printf("LockID[%d] released.\n"lockID,0,0,"","");
+	printf("LockID[%d] released.\n",lockID,0,0,"","");
 	
 	printf("Destroying LockID[%d]...\n",lockID,0,0,"","");
 	DestroyLock(lockID);		
@@ -51,7 +52,7 @@ int main(){
 	printf("CVID[%d] destroyed.\n",cvID,0,0,"","");
 	
 	
-	printf("Done.\n",0,0,"","");
+	printf("Done.\n",0,0,0,"","");
 	
 	Exit(0);
 }

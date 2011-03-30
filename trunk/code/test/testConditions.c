@@ -6,6 +6,9 @@
  * t2 will run before t1.
  * Finally, tests broadcast. If successful, all threads will
  * exit.
+ * NOTE: This test is designed to run without RSing. If you RS,
+ * the test creates it's own race conditions that are beyond
+ * the scope of this program.
  */
 #include "syscall.h"
 #include "utils.h"
