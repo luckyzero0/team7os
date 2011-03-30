@@ -220,8 +220,8 @@ void ServerLock::Release(int clientID, int threadID) {
 	}
 	else if (!this->waitQueue->IsEmpty() ){	
 		ClientThreadPair* ctp = (ClientThreadPair*) waitQueue->Remove(); 
-		lockOutPktHdr.to = ctp.clientID;		
-    	lockOutMailHdr.to = ctp.threadID;    	
+		lockOutPktHdr.to = ctp->clientID;		
+    	lockOutMailHdr.to = ctp->threadID;    	
     	svrMsg = "ServerLock was released. Transferring ownership.";    	
     	lockOutMailHdr.length = strlen(svrMsg) + 1;    	
 		lockOutMailHdr.from = 0;
