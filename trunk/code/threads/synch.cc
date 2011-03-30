@@ -221,6 +221,7 @@ void ServerLock::Release(int clientID) {
 		return;
 	}
 	else if (!this->waitQueue->IsEmpty() ){	
+		DEBUG('a',"Transferring ownership of lock\n.");
 		ClientThreadPair* ctp = (ClientThreadPair*) waitQueue->Remove(); 
 		lockOutPktHdr.to = ctp->clientID;	//get clientID from CTP, and set that as the client to message
     	lockOutMailHdr.to = ctp->threadID;   //get threadID from CTP, and set that as the destination mailbox
@@ -233,7 +234,7 @@ void ServerLock::Release(int clientID) {
     	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);    	
 	}
 	else {	
-		//printf("The lock is free now.\n");
+		DEBUG('a',"The lock is free now.\n");
 		this->state = FREE;
 		this->client = -1;		
 	}	
@@ -364,6 +365,7 @@ void ServerCondition::Wait(ServerLock* conditionServerLock) {
 	//currentThread->setStatus(BLOCKED);
 	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->client,conditionServerLock->thread);
 	this->waitQueue->Append(ctp); //Add client and thread info to wait queue
+	DEBUG('a',"Appended Client[%d]Thread[%d] to CV WaitQ.\n",conditionServerLock->client,conditionServerLock->thread);
 	conditionServerLock->Release(conditionServerLock->client); //Release the lock
 	//currentThread->Sleep();  //Do not go to sleep, instead just don't message the client back
 	interrupt->SetLevel(oldLevel);
