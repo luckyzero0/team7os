@@ -254,14 +254,7 @@ GetMonitor:
 	syscall
 	j	$31
 	.end GetMonitor
-	
-	.globl SetMonitor
-	.ent SetMonitor
-SetMonitor:
-	addiu $2,$0,SC_SetMonitor
-	syscall
-	j	$31
-	.end SetMonitor
+
 
 
 /* dummy function to keep gcc happy */
