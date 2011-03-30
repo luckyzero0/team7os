@@ -67,6 +67,12 @@ exec_testLocks.o: exec_testLocks.c
 exec_testLocks: exec_testLocks.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o exec_testLocks.o utils.o -o exec_testLocks.coff
 	../bin/coff2noff exec_testLocks.coff exec_testLocks
+	
+exec_sort.o: exec_sort.c
+	$(CC) $(CFLAGS) -c exec_sort.c utils.c
+exec_sort: exec_sort.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o exec_sort.o utils.o -o exec_sort.coff
+	../bin/coff2noff exec_sort.coff exec_sort
 
 testfiles.o: testfiles.c
 	$(CC) $(CFLAGS) -c testfiles.c
