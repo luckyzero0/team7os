@@ -50,6 +50,10 @@ extern void giveUpPhysicalPage(int);
 extern IPTEntry ipt[NumPhysPages];
 extern OpenFile* swapFile;
 extern Lock* iptLock;
+
+extern int numIPTMisses;
+extern int numMemoryFull;
+extern int numSwapFileWrites;
 #endif
 
 extern bool PRAND;

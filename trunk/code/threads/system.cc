@@ -40,6 +40,10 @@ Machine *machine;	// user program memory and registers
 IPTEntry ipt[NumPhysPages];
 Lock* iptLock = new Lock("iptLock");
 OpenFile* swapFile;
+
+int numIPTMisses = 0;
+int numMemoryFull = 0;
+int numSwapFileWrites = 0;
 #endif
 
 bool PRAND = false;
@@ -311,6 +315,10 @@ Cleanup()
     delete timer;
     delete scheduler;
     delete interrupt;
+
+#ifdef USE_TLB
+	printf("PageFaults:%d IPTMisses:%d FullMemory:%d SwapFileWrites:%d", stats->pageFaults, numIPTMiss, numMemoryFull, numSwapFileWrites);
+#endif
     
     Exit(0);
 }
