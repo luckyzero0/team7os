@@ -113,7 +113,7 @@ class ServerLock {
     int client;
     int thread;
     char* svrMsg;
-    ServerLockState state;
+    LockState state;
     List* waitQueue;
 };
 #endif
