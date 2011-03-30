@@ -1,7 +1,7 @@
 #WRITEUP#
 
-Writeup for Project 2, Spring2011
-02/27/2011
+Writeup for Project 3, Spring2011
+03/30/2011
 
 
 Team 24:	Nick Bopp		nbopp@usc.edu
@@ -13,129 +13,119 @@ Team 24:	Nick Bopp		nbopp@usc.edu
 
 ---USAGE---
 To build Nachos:
-	gmake (inside the userprog directory)
+	gmake (inside the vm directory for Parts 1/2, but inside the network directory for part 2)
 	
 To build coff2noff:
 	gmake coff2noff (inside the bin directory)
 	
-To build individual tests:
-	gmake TEST_EXECUTABLE_FILE (inside the test directory)
+To build all the tests:
+	make all (inside the test directory)
 
-To run simulation with user-input for desired numbers of things (and the "correct" print statements):
-	nachos -rs XXXX -x ../test/*TEST_EXECUTABLE_FILE* (inside the userprog directory)
-
-To run our big monster mega test (compiles nrun.cc, based on the utility on the class website), runs nachos with all -rs args 1-9998:
-	g++ -onrun nrun.cc (inside the userprog directory)
-	nrun
+To run parts 1/2 tests:
+	nachos -x ../test/EXECUTABLE_NAME (inside the vm directory)
+	
+To run part 3 tests:
+	
 
 
 ---DOCUMENTATION---
 
 I. REQUIREMENTS
 
-	The main assignment for Project 2 was the implementation of system calls, and the execution of the Passport Office
-	as a user program executed on the simulated MIPS CPU with the Nachos OS handling system calls.
+	Project 3 has two main components, the implementation of a basic virtual memory system and the implementation
+	of some basic Remote Procedure Calls.
 
 II. ASSUMPTIONS
 
-	1.) Object oriented is for suckas.
-	2.) The simulation halts (ends) when there are no customers left. This is because all threads go to 
-		sleep when there are no customers, and nachos interprets this as the program terminating.
+	1. A reasonable number of threads / processes are being run on the virtual memory system (if you do too many, it seems
+		like the program is hung, but it actually just context switching so much that very little real work gets done).  These programs
+		do successfully complete, but can page fault in the range of tens of millions of times.
+		
+	2. For Part 3, only one address space is running per process (no Exec'ing in the user program).
 
 III. DESIGN
 
-	Locks / Conditions:
-		Global array of LockEntry and ConditionEntries that each user program can checkout, use, and destroy.
-		Right now checked out locks / conditions are NOT automatically returned to the OS when a process is destroyed,
-			that is still the application programmer's responsibility.
+	Parts 1/2:
+		Our design follows the pattern set by Professor Crowley in the lecture.
+		Main steps:
+			1. Check the TLB for virtual page
+			2. If not in the TLB, page fault.
+			3. Check the IPT for the correct virtual page
+				a. If it's there copy to the TLB and return.
+				b. If it's not, look for an available physical page.
+				c. If no physical pages are available, select a RANDOM or FIFO one to evict.
+					i. Propagate dirty bit up from the TLB to the IPT.
+					ii. If IPT page is dirty, write it to the swap file.
+					iii. Update the page table for the evicted page.
+				d. Read the needed virtual page into physical memory from the executable, swap file, or by bzero'ing.
+			4. Copy the entry from the IPT to the TLB.
+			5. Restart the user instruction.
+			
+	Part 3:
 		
-		The design / implementation of the syscalls relating to locks / conditions is nearl identical to that offered
-			in the class notes.  As such, I'm not going to go into a great deal of detail here.
-			
-	Fork:
-		Our Fork very closely follows the design offered in the Student Documentation section in the class website.
-		Our only significant change was to make a thread have a globally unique ID, as well as keeping track of the virtual pages
-			it uses.  These are useful later in exit, so we can give back virtual pages to our process, and physical pages to
-			the operating system.
-			
-		We also implemented a ForkWithArg, that is exactly like fork, except it allows the user program to pass an arg
-			to the forked thread, which can be collected in the new thread by calling GetForkArg().
-			
-	Exec:
-		Again, this closely follows the design offered in the Student Documentation on the class website.  We did make
-			a fair amount of changes to the AddrSpace constructor so that virtual pages always start at 0, and physical pages
-			acquire are contiguous.  We also DO NOT zero out unitialized data section of the loaded executable, as none of our
-			user programs make the assumption that uninitialized data is set to 0 (neither do programs on any OS as far as I know).
-		
-		Once constructed, the process is added to the process table so it can be cleaned up later in Exit().  If for some reason the process
-			did not construct successfully, we immediately delete it and return a -1 SpaceID to the user program.
-			
-	Exit:
-		If we are the last thread of the last process, we halt the machine.  If we are the last thread of a process, we delete the process
-			and free its entry from the process table, handing back all its physical pages to the OS.  If we are not the final thread of a process,
-			we just give up a thread's stack space.
 	
+!!!! NECESSARY MACHINE.H CHANGES FOR YOU, THE GRADER, TO MAKE !!!!!
+	1. Replace #define NumPhysPages xxxx with,
+	#ifdef USE_TLB
+	#define NumPhysPages 32
+	#else
+	#define NumPhysPages 16500
+	#endif
+	
+	2. Replace #define MaxMailSize
+	/* JAY COMPLETE */
+	
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 IV. IMPLEMENTATION
 
+	Parts 1/2:
 	+ Files Modified
 		- exception.cc
-		- machine.h (Changed around number of PhysPages)
-		- thread.h/cc
-		- synch.h/cc
 		- addrspace.h/cc
-		- syscall.h
 		- system.cc
+		
+		- syscall.h
+		- synch.h/cc
+		- server.cc
 	
 	+ Files Added
 		- test/* (All the tests in the test directory)
+		- vm/ipt.h
 		
 	+ Data Structures Added
-		AddrSpace* processTable[]; - keeps track of all open processes
-		int threadArgs[]; - holds arguments to forked threads
-		Bitmap physPageBitmap; - keeps track of which physical pages are checked out
-		Lock* bigLock; - makes sure we don't have multiple threads / processes messing with any of the new data at once
+		Lock* iptLock;
+		IPTEntry ipt[];
+		
+		
+	+ Data Structures Modified
+		Added Lock* pageTableLock to each AddrSpace.
+		Changed class of pageTable to IPTEntry*.
+			
+	+ Functions Added
+		- New syscalls
+			. HandlePageFault()
+			+ Supporting Subroutines
+				- HandleIPTMiss()
+				- UpdateTLB()
+				- EvictPageFromTLB()
+				- HandleFullMemory()
+				
+	Part 3:
+	+ Files Modified
+		- syscall.h
+		- synch.h/cc
+		- server.cc
+	
+	+ Files Added
+		
+	+ Data Structures Added
 		
 	+ Data Structures Modified
 		NONE
 			
 	+ Functions Added
-		- New syscalls
-			. Fork
-			. Exec
-			. Yield
-			. Exit
-			. Create/Destroy Lock/Condition
-			. Acquire
-			. Release
-			. Wait
-			. Signal
-			. Broadcast
-			. ForkWithArg - Calls Fork and supplies an argument to the thread
-			. GetForkArg - Called by a Thread to get its argument
-			
-		- Private Functions to AddrSpace and Thread
-			. Used to tell each thread which virtual pages it has, so it can
-				be cleaned up properly when it exists.
-			
-		- PhysicalPage Checkout
-			- int getContiguousPages(int num); -- Checks out num contiguous physical pages for a address space
-			- int getPhysicalPage(); -- Checks out one physical page
-			- void releasePhysicalPage(int pageNum); -- Gives that physical page back to the system
-			
-		- Additional Testing Functions
-			- office.c
-				- OfficeTest1() -- used by customerLineTest
-				- OfficeTest2() -- used by managerTest
-				- OfficeTest3() -- used by customerCashierTest
-				- OfficeTest4() -- used by clerkBreakTest
-				- OfficeTest5() -- used by managerClerkTest
-				- OfficeTest6() -- used by senatorTest
-			- customer.c
-				- CustomerCashTest() -- used by customerCashierTest, executes only cashierClerk routine
-			- manager.c
-				- ManagerClerkTest() -- used by managerClerkTest, executes only tryWakeUpClerks routine
-
+		
 V. TESTING
 
 	+ How to Test
@@ -305,26 +295,24 @@ V. TESTING
 		 * when cashier's cash == numCustomers*100. No customers
 		 * are forked, so the value must be 0.
 		 */
-		 
-		 
-		 
-		
-		nrun: Runs "nachos -rs XXXX -x ../test/officeMain" with every value of RS up to 1 to 9998
-			- We used this once we verified our simulation worked without random yielding.  Certain race conditions only occur in one or a few random
-			  seeds, so we used this to verify complete and total accuracy.  nrun will exit if a -rs value causes nachos to fail.  Also, if nrun hangs
-			  forever, we knew we had a race condition with that -rs value, so we were able to run it, read the TEST output, and debug.
 
 
 VI. DISCUSSION
 
-As far as we can tell, our project has no race conditions or deadlock. We used nrun to check many random seed values, and our program never broke.
-All customers leave the office when senators arrive, and re-enter once they finish. Everyone leaves the office by the end. Customers and senators
-are never in the office at the same time.  We can also execute multiple simulations at once by execing them.
+The only really weird thing we have experienced with this project is the EXTREME slowness when using more than 3 processes or threads.
+They constantly interrupt each other and invalidate the TLB, so only in lucky changes (where context switches are temporarily spaced apart),
+does a thread get the CPU long enough to execute a few lines of user instruction.  The program looks like it is hanging, but it really isn't, 
+it is just constantly context switching and causing the necessary page faults.  Programs will complete, just in a VERY long amount of time (like an
+hour if exec 4 matmults).  Note that this only happens with -rs values, because if you don't -rs, we don't get the crazy often context switches.
+
+It turns out that disabling interrupts at the top of HandlePageFault actually speeds up our code dramatically in this case, because threads are
+able to complete their work without invalidating the TLB and doing it over and over again.  In our submitted code, we DO NOT disable interrupts
+for the whole page fault, despite this speed up when running more than 3-4 processes / threads with -rs enabled.
 
 
 VII. MISCELLANEOUS
 
-Please feel free to contact us if you have any questions. We'd be happy to meet to meet up and discuss any issues/what's going on in the simulation.
+Please feel free to contact us if you have any questions. We'd be happy to meet to meet up and discuss any issues/what's going on in our code.
 Please contact us by emailing Nick Bopp at nbopp@usc.edu.
 
 
