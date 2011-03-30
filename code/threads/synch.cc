@@ -231,6 +231,7 @@ void ServerLock::Release(int clientID) {
     	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);    	
 	}
 	else {	
+		printf("The lock is free now.\n");
 		this->state = FREE;
 		this->client = -1;		
 	}	

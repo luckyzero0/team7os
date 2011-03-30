@@ -437,7 +437,7 @@ ConditionID CreateCondition_Syscall_Server(char* name){
 		serverCVs[index].clientID = serverInPktHdr.from;		
 		serverLocks[index].threadID = atoi(args[2].c_str());
 	}
-	//conditionsLock->Release();
+	//conditionsLock->Release();	
 	requestCompleted = true;
 	return index;
 }
@@ -464,6 +464,7 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 	}
 
 	serverCVs[conditionID].condition->Signal(serverLocks[lockID].lock);
+	printf("CV[%d] signaled with Lock[%d] successfully.",conditionID,lockID);
 	sprintf(ack, "CV[%d] signaled with Lock[%d] successfully.",conditionID,lockID);
 	if (serverCVs[conditionID].needsToBeDeleted 
 		&& !serverCVs[conditionID].condition->HasThreadsWaiting()
@@ -507,6 +508,38 @@ void Wait_Syscall_Server(ConditionID conditionID, LockID lockID){
 }
 
 void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID){
+	//conditionsLock->Acquire();
+	//locksLock->Acquire();
+	if (serverCVs[conditionID].clientID != serverInPktHdr.from) {
+		printf("ConditionID[%d] cannot be waited from a non-owning process!\n", conditionID);
+		sprintf(ack,"ConditionID[%d] cannot be waited from a non-owning process!", conditionID);
+		//locksLock->Release();
+		//conditionsLock->Release();
+		requestCompleted = true;
+		return;
+	} 
+
+	if (serverLocks[lockID].clientID != serverInPktHdr.from) {
+		printf("LockID[%d] cannot be passed to Wait from a non-owning process!\n", lockID);
+		sprintf(ack, "LockID[%d] cannot be passed to Wait from a non-owning process!", lockID);
+		//locksLock->Release();
+		//conditionsLock->Release();
+		requestCompleted = true;
+		return;
+	}
+
+	serverCVs[conditionID].condition->Broadcast(serverLocks[lockID].lock);
+	sprintf(ack, "Condition[%d] successfully broadcasted.",conditionID);
+	if (serverCVs[conditionID].needsToBeDeleted 
+		&& !serverCVs[conditionID].condition->HasThreadsWaiting()
+		&& serverCVs[conditionID].aboutToBeWaited == 0) {
+			deleteServerCondition(conditionID);
+			sprintf(ack, "Condition[%d] successfully broadcasted and deleted.",conditionID);
+	}
+
+	//locksLock->Release();
+	//conditionsLock->Release();
+	requestCompleted = true;
 }
 
 void DestroyCondition_Syscall_Server(ConditionID id){
