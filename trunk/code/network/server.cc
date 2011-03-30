@@ -15,7 +15,7 @@
 #define MAX_LOCKS 100 
 #define MAX_CONDITIONS 200
 #define MAX_MONITORS 200
-#define ServerLock Lock
+//#define ServerLock Lock
 
 extern "C" {
 	int bcopy(char *, char *, int);
