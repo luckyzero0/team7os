@@ -190,7 +190,7 @@ void handleIncomingRequests(){
 	interrupt->Halt();
 }
 
-void handleQueuedRequests(){
+/*void handleQueuedRequests(){
 	//requestLock->Acquire();
 	printf("Ready to handle bad requests...\n");
 	while(true){					
@@ -281,7 +281,7 @@ void handleQueuedRequests(){
 	}
 	
 	interrupt->Halt();
-}
+}*/
 
 //parses the char[] from the packet
 void parsePacket(char* serverBuffer){
