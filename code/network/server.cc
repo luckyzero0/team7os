@@ -203,7 +203,7 @@ void handleIncomingRequests(){
     	serverOutMailHdr.to = threadBox;
     	serverOutMailHdr.length = strlen(ack) + 1;
 		serverOutMailHdr.from = 0;
-		printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",sender, threadBox, ack);
+		printf("Sending reply to Client[%d], Box[%d]\n",sender, threadBox);
     	serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack); 	
     	   	    
 	    	
@@ -316,7 +316,7 @@ int getAvailableServerConditionID() {
 int getAvailableServerMonitorID() {
 	int index = -1;
 	for (int i = 0; i < MAX_MONITORS; i++) {
-		if (serverMVs[i].monitor == NULL) {
+		if (serverMVs[i].free) {
 			index = i;
 			break;
 		}
@@ -336,7 +336,7 @@ void deleteServerLock(int id) {
 int getAvailableServerLockID() {
 	int index = -1;
 	for (int i = 0; i < MAX_LOCKS; i++) {
-		if (serverLocks[i].free) {
+		if (serverLocks[i].lock == NULL) {
 			index = i;
 			break;
 		}
@@ -378,7 +378,7 @@ void Acquire_Syscall_Server(LockID id){
 		return;
 	} 
 	if(serverLocks[id].lock == NULL){
-		sprintf(ack,"Acquire failed Lock[%d]=null.",id);
+		ack = "Lock does not exist.";
 		requestCompleted = true;
 		return;
 	}
@@ -386,9 +386,9 @@ void Acquire_Syscall_Server(LockID id){
 	serverLocks[id].aboutToBeAcquired++;
 	//serverLocksLock->Release();
 	if(serverLocks[id].lock->IsBusy())
-	{				
-			printf("Lock[%d] is busy. Request Failed.\n",id);
-			requestCompleted = false;
+	{
+		printf("Lock[%d] is busy. Request Failed.\n",id);
+		requestCompleted = false;
 	}
 	else
 	{
@@ -402,29 +402,29 @@ void Acquire_Syscall_Server(LockID id){
 	//the server to lock up. 	
 	serverLocks[id].lock->Acquire(serverLocks[id].clientID, atoi(args[2].c_str()));
 	serverLocks[id].aboutToBeAcquired--;	
-	sprintf(ack,"Lock [%d] acquired", id);
+	sprintf(ack,"Lock [%d] has been acquired.", id); //DEBUG	
 }
 
 void Release_Syscall_Server(LockID id){
 	//locksLock->Acquire();
 	if (serverLocks[id].clientID != serverInPktHdr.from) {
 		printf("LockID[%d] cannot be released from a non-owning client!\n", id);
-		ack = "Release failed.";
+		ack = "LockID cannot be released from a non-owning client.";
 		//locksLock->Release();
 		requestCompleted = true;
 		return;
 	}
 	if(serverLocks[id].lock == NULL){
 		requestCompleted = true;
-		ack = "Lock = NULL.";
+		ack = "Lock does not exist.";
 		return;
 	}
 
 	//serverLocks take clientID in Release for the same reasons as
 	//above (the way we handle transferring lock ownership requires
 	// it).
-	serverLocks[id].lock->Release(serverLocks[id].clientID, atoi(args[2].c_str()));	
-	sprintf(ack, "Lock[%d] released.",id);
+	serverLocks[id].lock->Release(serverLocks[id].clientID);	
+	sprintf(ack, "Lock[%d] has been released.",id);	
 	if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
 		&& serverLocks[id].aboutToBeAcquired == 0) {			
 			deleteServerLock(id);
@@ -432,14 +432,14 @@ void Release_Syscall_Server(LockID id){
 	}
 	//locksLock->Release();
 	requestCompleted = true;
-	printf("Lock[%d] released.\n",id);
+	printf("Lock[%d] has been released.\n",id);
 } 
 
 void DestroyLock_Syscall_Server(LockID id){
 	//locksLock->Acquire();	
 	if (serverLocks[id].clientID != serverInPktHdr.from) {		
 		printf("LockID[%d] cannot be destroyed from a non-owning process!\n", id);
-		ack = "Destroy failed.";
+		ack = "LockID cannot be destroyed from non-owner.";
 		requestCompleted = true;
 	} else {	
 		if(serverLocks[id].lock == NULL){
@@ -482,7 +482,7 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 	//locksLock->Acquire();
 	if (serverCVs[conditionID].clientID != serverInPktHdr.from) {
 		printf("ConditionID[%d] cannot be waited from a non-owning process!\n", conditionID);
-		sprintf(ack,"ConditionID[%d] wait failed. Bad owner!", conditionID);
+		sprintf(ack,"ConditionID[%d] cannot be waited from a non-owning process!", conditionID);
 		//locksLock->Release();
 		//conditionsLock->Release();
 		requestCompleted = true;
@@ -491,7 +491,7 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 
 	if (serverLocks[lockID].clientID != serverInPktHdr.from) {
 		printf("LockID[%d] cannot be passed to Wait from a non-owning process!\n", lockID);
-		sprintf(ack,"LockID[%d] not owned by client.", lockID);
+		sprintf(ack,"LockID[%d] cannot be passed to Wait from a non-owning process!", lockID);
 		//locksLock->Release();
 		//conditionsLock->Release();
 		requestCompleted = true;
@@ -502,12 +502,12 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 	//lock ownership is transferred.
 	serverCVs[conditionID].condition->Signal(serverLocks[lockID].lock);
 	printf("CV[%d] signaled with Lock[%d] successfully.\n",conditionID,lockID);
-	sprintf(ack, "CV[%d] signaled successfully.",conditionID,lockID);
+	sprintf(ack, "CV[%d] signaled with Lock[%d] successfully.",conditionID,lockID);
 	if (serverCVs[conditionID].needsToBeDeleted 
 		&& !serverCVs[conditionID].condition->HasThreadsWaiting()
 		&& serverCVs[conditionID].aboutToBeWaited == 0) {
 			deleteServerCondition(conditionID);
-			sprintf(ack, "CV[%d] signaled successfully and deleted.",conditionID,lockID);
+			sprintf(ack, "CV[%d] signaled with Lock[%d] successfully and deleted.",conditionID,lockID);
 	}
 	//locksLock->Release(); 
 	//conditionsLock->Release();
@@ -521,14 +521,12 @@ void Wait_Syscall_Server(ConditionID conditionID, LockID lockID){
 		printf("ConditionID[%d] cannot be waited from a non-owning process!\n", conditionID);
 		//locksLock->Release();
 		//conditionsLock->Release();
-		sprintf(ack, "CV[%d] wait failed.",conditionID);
 		requestCompleted = true;
 		return;
 	} 
 
 	if (serverLocks[lockID].clientID != serverInPktHdr.from) {
 		printf("LockID[%d] cannot be passed to Wait from a non-owning process!\n", lockID);
-		sprintf(ack, "Wait failed.\n", lockID);
 		//locksLock->Release();
 		//conditionsLock->Release();
 		requestCompleted = true;
@@ -546,15 +544,15 @@ void Wait_Syscall_Server(ConditionID conditionID, LockID lockID){
 	//conditionsLock->Acquire();
 	serverCVs[conditionID].aboutToBeWaited--;	
 	//conditionsLock->Release();
-	requestCompleted = false; //client needs to wait, so don't msg them back
+	requestCompleted = false;
 }
 
 void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID){
 	//conditionsLock->Acquire();
 	//locksLock->Acquire();
 	if (serverCVs[conditionID].clientID != serverInPktHdr.from) {
-		printf("ConditionID[%d] cannot be broadcasted from a non-owning process!\n", conditionID);
-		sprintf(ack,"Broadcast failed..!", conditionID);
+		printf("ConditionID[%d] cannot be waited from a non-owning process!\n", conditionID);
+		sprintf(ack,"ConditionID[%d] cannot be waited from a non-owning process!", conditionID);
 		//locksLock->Release();
 		//conditionsLock->Release();
 		requestCompleted = true;
@@ -562,8 +560,8 @@ void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID){
 	} 
 
 	if (serverLocks[lockID].clientID != serverInPktHdr.from) {
-		printf("LockID[%d] cannot be passed to Broadcast from a non-owning process!\n", lockID);
-		sprintf(ack, "Broadcast failed.", lockID);
+		printf("LockID[%d] cannot be passed to Wait from a non-owning process!\n", lockID);
+		sprintf(ack, "LockID[%d] cannot be passed to Wait from a non-owning process!", lockID);
 		//locksLock->Release();
 		//conditionsLock->Release();
 		requestCompleted = true;
@@ -571,12 +569,12 @@ void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID){
 	}
 
 	serverCVs[conditionID].condition->Broadcast(serverLocks[lockID].lock);
-	sprintf(ack, "CV[%d] broadcasted.",conditionID);
+	sprintf(ack, "Condition[%d] successfully broadcasted.",conditionID);
 	if (serverCVs[conditionID].needsToBeDeleted 
 		&& !serverCVs[conditionID].condition->HasThreadsWaiting()
 		&& serverCVs[conditionID].aboutToBeWaited == 0) {
 			deleteServerCondition(conditionID);
-			sprintf(ack, "CV[%d] broadcasted and deleted.",conditionID);
+			sprintf(ack, "Condition[%d] successfully broadcasted and deleted.",conditionID);
 	}
 
 	//locksLock->Release();
@@ -587,7 +585,7 @@ void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID){
 void DestroyCondition_Syscall_Server(ConditionID id){
 	//conditionsLock->Acquire();
 	if (serverCVs[id].clientID != serverInPktHdr.from) {
-		printf("CVID[%d] cannot be destroyed from a non-owning process!\n", id);
+		printf("ConditionID[%d] cannot be destroyed from a non-owning process!\n", id);
 	} else {
 		if (serverCVs[id].condition->HasThreadsWaiting() || serverCVs[id].aboutToBeWaited > 0) {
 			serverCVs[id].needsToBeDeleted = TRUE;
@@ -623,5 +621,5 @@ int GetMonitor_Syscall_Server(MonitorID monitorID){
 
 void SetMonitor_Syscall_Server(MonitorID monitorID, int value){
 	serverMVs[monitorID].monitor = value;
-	sprintf(ack,"MVar[%d]set.",monitorID);
+	sprintf(ack,"MonitorVar[%d] successfully set.",monitorID);
 }
