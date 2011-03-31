@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/usc/bin/bash
 
 nachos -m 1 -x ../test/mc_wait &
 sleep 2
