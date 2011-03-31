@@ -364,8 +364,10 @@ V. TESTING
 		/*
 		 * This is designed to test multiple clients connected to a server.
 		 * Creates locks, CVs, MVs, and performs operations on them, then
-		 * deletes the lock and CV before exiting. To run this, set up
-		 * a nachos server, and execute "bash multiClientTest.sh"
+		 * deletes the lock and CV before exiting. Because it is multiple 
+		 * instances of the same program, all clients will share the same lock, CV, and MV
+		 * To run this, set up a nachos server, and execute "bash multiClientTest.sh" 
+		 * from the network directory.
 		 */
 
 VI. DISCUSSION
