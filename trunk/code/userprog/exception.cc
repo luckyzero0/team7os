@@ -1209,6 +1209,7 @@ int HandleFullMemory(int vpn) {
 	ipt[ppn].inUse = true;
 	AddrSpace* owningSpace = processTable[ipt[ppn].spaceID];
 
+	// this shouldn't happen
 	if (owningSpace == NULL) {
 		for (int i = 0; i < NumPhysPages; i++) {
 			printf("OWNING SPACE NULL IN HANDLE FULL MEMORY ipt[%d] vpn:%d dirty:%d inUse:%d valid:%d spaceID:%d\n", ipt[i].physicalPage, ipt[i].virtualPage, ipt[i].dirty, ipt[i].inUse, ipt[i].valid, ipt[i].spaceID);
@@ -1218,7 +1219,7 @@ int HandleFullMemory(int vpn) {
 
 	iptLock->Release();
 
-	RemovePageFromTLB(ppn);
+	RemovePageFromTLB(ppn); // make sure we invalidate any TLB entry that matches the physical page we are evicting
 
 	DEBUG('z', "About to get the owning space lock to evict a page.\n");
 	owningSpace->pageTableLock->Acquire();
@@ -1226,13 +1227,14 @@ int HandleFullMemory(int vpn) {
 
 	DEBUG('b', "In HandleFullMemory() with vpn = %d and selected ppn to evict: %d.\n", vpn, ppn);
 
-	if (ipt[ppn].dirty) {
+	if (ipt[ppn].dirty) { // if it's dirty, write it to the swap file
 
 		numSwapFileWrites++;
 		ASSERT(!ipt[ppn].readOnly);
 		// write back to swapfile
 		DEBUG('b', "Flushing a dirty page = %d to the swapfile.\n", ppn);
 
+		// if we haven't written it to the swap file before, find a place for it and record this in the pageTable
 		if (ipt[ppn].pageLocation != PageLocationSwapFile) { //we don't already have a space for this page in the swapfile, get it one
 			int swapFileIndex = swapFileBitMap->Find();
 			if (swapFileIndex == -1) {
@@ -1244,12 +1246,11 @@ int HandleFullMemory(int vpn) {
 			owningSpace->pageTable[ipt[ppn].virtualPage].byteSize = PageSize;
 		}
 
+		// actually write to the physical swapFile
 		swapFile->WriteAt(&(machine->mainMemory[ppn * PageSize]), PageSize, owningSpace->pageTable[ipt[ppn].virtualPage].byteOffset);
 		DEBUG('b', "Wrote the dirty vpn = %d, ppn = %d to the swapfile at swapFileIndex: %d. numThreads = %d\n", ipt[ppn].virtualPage, ppn, owningSpace->pageTable[ipt[ppn].virtualPage].byteOffset / PageSize, currentThread->space->numThreads);
 
-		//update the page table to reflect that we kicked out 
-		//	owningSpace->pageTable[ipt[ppn].virtualPage] = ipt[ppn]; // copy back to the process translation table
-
+		//update the page table to reflect that we kicked out the page
 		owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1;
 		owningSpace->pageTable[ipt[ppn].virtualPage].valid = true; // setting this to invalid would mean the VPN was invalid (given up by thread), but we don't want that
 		owningSpace->pageTable[ipt[ppn].virtualPage].dirty = false;
@@ -1258,7 +1259,7 @@ int HandleFullMemory(int vpn) {
 		DEBUG('p', "Copied the ipt entry back to the owningSpace page table. numThreads = %d\n", currentThread->space->numThreads);
 	}
 
-	owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1;
+	owningSpace->pageTable[ipt[ppn].virtualPage].physicalPage = -1; // set physicalPage to -1 regardless of whether the thing we evicted was dirty or not, because it's not at a physical page
 
 	owningSpace->pageTableLock->Release();
 
@@ -1288,6 +1289,7 @@ void HandleIPTMiss(int vpn) {
 	// ppn's inUse is set
 	DEBUG('p', "About to read, numThreads = %d.\n", currentThread->space->numThreads);
 
+	// here we are reading the page from its location (Executable, SwapFile, or nowhere) into main memory
 	if (currentThread->space->pageTable[vpn].pageLocation == PageLocationExecutable) {
 		DEBUG('d', "Reading from the executable, with byteSize = %d.\n", currentThread->space->pageTable[vpn].byteSize);
 		currentThread->space->executable->ReadAt(&(machine->mainMemory[ppn * PageSize]), currentThread->space->pageTable[vpn].byteSize, currentThread->space->pageTable[vpn].byteOffset);
@@ -1303,8 +1305,6 @@ void HandleIPTMiss(int vpn) {
 		DEBUG('d', "Reading from the swapfile.\n");
 		ASSERT(currentThread->space->pageTable[vpn].byteOffset % PageSize == 0); // the byte offset should be the very beginning of a page-sized amount of bytes, since we always read/write whole pages to the swapfiel
 		swapFile->ReadAt(&(machine->mainMemory[ppn * PageSize]), PageSize, currentThread->space->pageTable[vpn].byteOffset);
-		//	swapFileBitMap->Clear(currentThread->space->pageTable[vpn].byteOffset / PageSize); // HACK, we can't clear the swapfile because if we don't set the dirty bit, we won't write this back, and someone else may come and claim this spot
-		// we should only clear on addrSpace deletion / thread deletion
 		DEBUG('d', "Read in vpn: %d from the swapFile at swapFileIndex: %d.\n", vpn, currentThread->space->pageTable[vpn].byteOffset / PageSize);
 	} else {
 		ASSERT(false);
@@ -1344,14 +1344,14 @@ void HandlePageFault() {
 	space->pageTableLock->Acquire();
 	DEBUG('z', "Grabbed page table lock.\n");
 
-	if (space->pageTable[badVPN].inUse) { // another thread is already page faulting to bring this into the tlb, so just get out and wait a sec
+	if (space->pageTable[badVPN].inUse) { // another thread is already page faulting to bring this into the ipt/tlb, so just get out and wait a sec
 		DEBUG('b', "VPN %d inUse set, returning from PageFault in tid:%d without doing anything.\n", badVPN, currentThread->ID);
 		space->pageTableLock->Release();
 		currentThread->Yield(); // not really necessary, but might help a bit, just get out of the way so the other thread can finish
 		return;
 	}
 
-	space->pageTable[badVPN].inUse = true;
+	space->pageTable[badVPN].inUse = true; // lock this virtual page
 	space->pageTableLock->Release();
 
 	int ppn = -1; //check IPT for physical page
