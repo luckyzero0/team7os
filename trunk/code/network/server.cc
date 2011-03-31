@@ -316,7 +316,7 @@ int getAvailableServerConditionID() {
 int getAvailableServerMonitorID() {
         int index = -1;
         for (int i = 0; i < MAX_MONITORS; i++) {
-                if (serverMVs[i].monitor == NULL) {
+                if (serverMVs[i].free) {
                         index = i;
                         break;
                 }
