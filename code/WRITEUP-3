@@ -12,17 +12,17 @@ Team 24:	Nick Bopp		nbopp@usc.edu
 
 
 ---USAGE---
-To build Nachos:
-	gmake (inside the vm directory for Parts 1/2, but inside the network directory for part 3)
-	
 To build coff2noff:
 	gmake coff2noff (inside the bin directory)
+	
+To build Nachos:
+	gmake (inside the vm directory for Parts 1/2, but inside the network directory for part 3)
 	
 To build all the tests:
 	make all (inside the test directory)
 
 To run parts 1/2 tests:
-	nachos -x ../test/EXECUTABLE_NAME (inside the vm directory)
+	nachos -P RAND|FIFO -x ../test/EXECUTABLE_NAME (inside the vm directory) (defaults to FIFO, MAKE SURE THE -P IS BEFORE THE REST OF THE ARGUMENTS!)
 	
 To run part 3 tests:
 	
