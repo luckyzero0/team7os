@@ -112,9 +112,10 @@ class ServerLock {
 	bool IsBusy();
 	int client; //clientID
     int thread; //threadID
+    char* name;				// for server/client synchronization
 
   private:
-    char* name;				// for debugging
+    
     // plus some other stuff you'll need to define
     
     char svrMsg[100];
@@ -214,9 +215,9 @@ class Condition {
 						// these operations
 
 		bool HasThreadsWaiting();
-
-	  private:
 		char* name;
+	  private:
+		
 		// plus some other stuff you'll need to define
 		ServerLock* waitingLock;
 		List* waitQueue;
