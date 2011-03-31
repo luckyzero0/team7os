@@ -13,7 +13,7 @@ Team 24:	Nick Bopp		nbopp@usc.edu
 
 ---USAGE---
 To build Nachos:
-	gmake (inside the vm directory for Parts 1/2, but inside the network directory for part 2)
+	gmake (inside the vm directory for Parts 1/2, but inside the network directory for part 3)
 	
 To build coff2noff:
 	gmake coff2noff (inside the bin directory)
@@ -62,7 +62,17 @@ III. DESIGN
 			5. Restart the user instruction.
 			
 	Part 3:
-		
+		We used Post as our abstraction for message sending, and did all the message handling on the server and client kernel code.
+		We created a version of CVs and Locks that are compatible with our networking design, named ServerCondition and ServerLock respectively.
+		No changes in any user program have to be made for RPCs to work.
+		Main Steps:
+			1. If userprog uses a syscall related to locks, condition variables or monitors, check whether networking is enabled. If not, continue using syscalls as in assignment 2.
+			2. If it is, validate parameters and then send server a request to perform the syscall, passing along any needed information, and wait for a reply.
+			3. Server constantly checks if it has received a message. If it has, handle one message a time:
+				a. Find out what the client requested.
+				b. Do what the client requested.
+				c. If necessary, send an acknowledgement message back to the client.
+			4. Upon receiving a message from the server, client finishes syscall, returning some value if needed.
 	
 !!!! NECESSARY MACHINE.H CHANGES FOR YOU, THE GRADER, TO MAKE !!!!!
 	1. Replace #define NumPhysPages xxxx with,
@@ -115,9 +125,10 @@ IV. IMPLEMENTATION
 	+ Files Modified
 		- syscall.h
 		- synch.h/cc
-		- server.cc
+		
 	
 	+ Files Added
+		- server.cc
 		
 	+ Data Structures Added
 		
