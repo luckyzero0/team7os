@@ -199,7 +199,9 @@ IV. IMPLEMENTATION
 		
 		In exception.cc:
 			1. More syscalls:
-				a) 
+				a) MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len)
+				b) GetMonitor_Syscall(MonitorID monitorID)
+				c) SetMonitor_Syscall(MonitorID monitorID, int value)
 		
 V. TESTING
 
