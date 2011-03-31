@@ -43,6 +43,7 @@ ConditionEntry serverCVs[MAX_CONDITIONS];
 typedef int Monitor; //monitors are just ints.
 struct MonitorEntry {
         Monitor monitor;
+		bool free;
         int clientID;
         int threadID;
 };
@@ -283,6 +284,7 @@ void initServerData(){
         //initialize monitorvars                
         for (int i = 0; i < MAX_CONDITIONS; i++) {
                 serverMVs[i].monitor = NULL;
+				serverMVs[i].free = true;
                 serverMVs[i].clientID = -1;
                 serverMVs[i].threadID = -1;             
         }
@@ -604,6 +606,7 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
                         printf("No locks available!\n");
                 } else {
                         serverMVs[index].monitor = -1;
+						serverMVs[index].free = false;
                         serverMVs[index].clientID = serverInPktHdr.from;
                         serverMVs[index].threadID = atoi(args[2].c_str());                      
                 }
