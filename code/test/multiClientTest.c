@@ -24,6 +24,7 @@ int main(){
 	
 	printf("Creating a new MV on the network...\n",0,0,0,"","");
 	mvID = CreateMonitor("MV",2);
+	printf("MVID = [%d]\n",mvID,0,0,"","");
 	
 	printf("Acquiring Lock[%d].\n",lockID,0,0,"","");
 	Acquire(lockID);	
