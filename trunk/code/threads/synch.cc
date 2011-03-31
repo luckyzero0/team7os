@@ -115,7 +115,6 @@ Lock::~Lock() {
 void Lock::Acquire() {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (this->owner == currentThread) {
-		printf("!!!!!!!!!!!!!!!!!! ACQUIRING WHEN WE ALREADY HAVE THE LOCK, owner tid=%d !!!!!!!!!!!!!!!\n\n\n\n\n", currentThread->ID);
 		interrupt->SetLevel(oldLevel);
 		return;
 	}
