@@ -1478,7 +1478,7 @@ void ExceptionHandler(ExceptionType which) {
 #ifdef NETWORK
 		case SC_CreateMonitor:
 			DEBUG('a', "CreateMonitor syscall.\n");
-			CreateMonitor_Syscall(machine->ReadRegister(4),
+			rv = CreateMonitor_Syscall(machine->ReadRegister(4),
 				machine->ReadRegister(5));							
 			break;		
 
