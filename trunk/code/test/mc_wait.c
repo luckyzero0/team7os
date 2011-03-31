@@ -11,7 +11,7 @@ int main() {
 	printf("Stopped waiting on condition in mc_wait.\n", 0, 0,0,"","");
 	Release(lock);
 
-	DestroyCondition(condition, lock);
+	DestroyCondition(condition);
 	DestroyLock(lock);
 
 	printf("Destroyed both in mc_wait.\n", 0, 0,0,"","");
