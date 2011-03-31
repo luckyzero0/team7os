@@ -42,21 +42,21 @@ int main(){
 	printf("CVID[%d] signaled.\n",cvID,0,0,"","");
 	
 	
-	printf("Destroying CVID[%d]...\n",cvID,0,0,"","");
+	/*printf("Destroying CVID[%d]...\n",cvID,0,0,"","");
 	DestroyCondition(cvID);
 	printf("CVID[%d] destroyed, verifying with a signal.\n",cvID,0,0,"","");
 	Signal(cvID,lockID);
-	
+	*/
 	printf("Releasing LockID[%d].\n",lockID,0,0,"","");
 	Release(lockID);
 	printf("LockID[%d] released",lockID,0,0,"","");
 		
-	
+	/*
 	printf("Destroying LockID[%d]...\n",lockID,0,0,"","");
 	DestroyLock(lockID);		
 	printf("LockID[%d] destroyed, verifying with an acquire.\n",lockID,0,0,"","");
 	Acquire(lockID);
-	
+	*/
 		
 	printf("Done.\n",0,0,0,"","");
 	

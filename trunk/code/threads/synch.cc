@@ -196,7 +196,7 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
     	lockOutMailHdr.to =threadID;
     	lockOutMailHdr.length = strlen(svrMsg) + 1;    	
 		lockOutMailHdr.from = 0;
-		sprintf(svrMsg,"Lock already owned.\n",lockOutPktHdr.to,lockOutMailHdr.to);    
+		sprintf(svrMsg,"Lock already owned.\n");
     	DEBUG('a',"Client[%d]->Thread[%d]. already owns this lock.\n",lockOutPktHdr.to,lockOutMailHdr.to);    		    	
     	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);    	
 		

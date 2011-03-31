@@ -16,11 +16,11 @@ int waitAndRestart(LockID lineToExit, int index){
 			/*lineToExit->Release();*/
 			Release(lineToExit);
 		}
-		tprintf("Customer [%d]: There are %d senators in waiting room\n", index, senatorsInWaitingRoom,0,"","");
-		printf("Customer [%d] leaves the Passport Office as a senator arrives.\n",index,0,0,"","");
+		tprintf("Customer [%d]: There are %d senators in waiting room\n", index, senatorsInWaitingRoom,0,"","");		
 		/*senatorWaitingRoomLock->Release();*/
 		customersInWaitingRoom++;
 		customersInOffice--;
+		printf("Customer [%d] leaves the Passport Office as a senator arrives.\n",index,0,0,"","");
 		Wait(customerWaitingRoomCV, entryLock);
 		customersInWaitingRoom--;
 		customersInOffice++;
