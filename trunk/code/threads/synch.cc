@@ -336,7 +336,7 @@ void Condition::Broadcast(Lock* conditionLock) {
 
 bool Condition::HasThreadsWaiting() {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	bool result = this->waitQueue->IsEmpty();
+	bool result = !this->waitQueue->IsEmpty();
 	interrupt->SetLevel(oldLevel);
 	return result;
 }
@@ -416,7 +416,7 @@ void ServerCondition::Broadcast(ServerLock* conditionServerLock) {
 
 bool ServerCondition::HasThreadsWaiting() {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	bool result = this->waitQueue->IsEmpty();
+	bool result = !this->waitQueue->IsEmpty();
 	interrupt->SetLevel(oldLevel);
 	return result;
 }
