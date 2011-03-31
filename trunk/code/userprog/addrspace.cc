@@ -287,9 +287,9 @@ AddrSpace::~AddrSpace()
 
 //	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 #endif
-	printf("In AddrSpace destructor.\n");
+	DEBUG('b', "In AddrSpace destructor.\n");
 	for (unsigned int i = 0; i < numPages; i++) {
-		printf("Giving up VPN %d ", i);
+		DEBUG('b', "Giving up VPN %d ", i);
 		if (pageTable[i].valid && pageTable[i].physicalPage != -1) {
 			giveUpPhysicalPage(pageTable[i].physicalPage);
 #ifdef USE_TLB
