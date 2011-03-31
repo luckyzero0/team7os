@@ -212,6 +212,33 @@ V. TESTING
 		The .c's listed below are the tests.  For example, to build, just do "gmake forkTest".
 		
 		PARTS 1 AND 2: ----------------------------------------------------------------------
+		
+				/* matmult.c 
+		 *    Test program to do matrix multiplication on large arrays.
+		 *
+		 *    Intended to stress virtual memory system.
+		 *
+		 *    Ideally, we could read the matrices off of the file system,
+		 *	and store the result back to the file system!
+		 */
+		 
+				/* sort.c 
+		*    Test program to sort a large number of integers.
+		*
+		*    Intention is to stress virtual memory system.
+		*
+		*    Ideally, we could read the unsorted array off of the file system,
+		*	and store the result back to the file system!
+		*/
+		
+		-- exec_matmult /* Exec's 2 matmults */
+		-- exec_sort /* Exec's 2 sorts */
+		-- forkSort /* Forks two sorts, sorting two different arrays */
+		
+		These are the most useful tests for verifying the correctness of the TLB, those below are just extras we had from the previous
+		projects.  Some have the "page fault forever" problem if you -rs them because there are so many threads.
+		
+		-----------------------------------------------------------------
 	
 				/*forkTest.c*/
 		/* 
@@ -233,27 +260,11 @@ V. TESTING
 		 *	be careful to allocate a big enough stack to hold the automatics!
 		 */
 		 
-				 /* matmult.c 
-		 *    Test program to do matrix multiplication on large arrays.
-		 *
-		 *    Intended to stress virtual memory system.
-		 *
-		 *    Ideally, we could read the matrices off of the file system,
-		 *	and store the result back to the file system!
-		 */
+
 		 
 				/*randTest.c*/
 		*	Produces a few random numbers.
 		*	Should always produce the exact same numbers for a given -rs value
-		*/
-		
-				/* sort.c 
-		*    Test program to sort a large number of integers.
-		*
-		*    Intention is to stress virtual memory system.
-		*
-		*    Ideally, we could read the unsorted array off of the file system,
-		*	and store the result back to the file system!
 		*/
 		
 				/*testConditions.c*/
@@ -266,13 +277,13 @@ V. TESTING
 		 * exit.
 		 */
 		 
-				 /*execTest.c*/
+				 /*execTest.c*/ -- DO NOT RS, too many threads for it to handle, as mentioned in other sections of the writeup
 		/*
 		 *	Tests the Exec function call with some bad input
 		 *	as well as a normative case.
 		 */
 		 
-				 /* exec_testLocks.c */
+				 /* exec_testLocks.c */ -- DO NOT RS, too many threads for it to handle, as mentioned in other sections of the writeup
 		/*	This will run the test "testLocks"
 		*	in 9 processes simultaneously, then shutdown.
 		*/
@@ -301,6 +312,11 @@ V. TESTING
 		
 		terminal1 (server):  nachos -m 0 -o 1
 		terminal2 (client):  nachos -m 1 -x ../test/testName
+		
+		Also, for the multiClientTest test, you can type the command:
+			bash multiClientTest (from within the network dir)
+		
+		You will get some warnings, but it will run 4 clients running the test, make sure you have a server up first.
 		
 				/* officeMain.c */
 		/*	This runs the office with the default values of 3 of each clerk,
