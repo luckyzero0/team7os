@@ -31,7 +31,7 @@ CPP = $(GCCDIR)cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt forkArg exec_testLocks execTest forkTest sort testfiles matmult exec_matmult exec_sort forkSort testLocks testConditions testMonitors officeMain multiClientTest
+all: halt forkArg exec_testLocks execTest forkTest sort testfiles matmult exec_matmult exec_sort mc_signal mc_wait forkSort testLocks testConditions testMonitors officeMain multiClientTest
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -67,6 +67,18 @@ forkSort.o: forkSort.c
 forkSort: forkSort.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o forkSort.o utils.o -o forkSort.coff
 	../bin/coff2noff forkSort.coff forkSort
+	
+mc_signal.o: mc_signal.c
+	$(CC) $(CFLAGS) -c mc_signal.c utils.c
+mc_signal: mc_signal.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o mc_signal.o utils.o -o mc_signal.coff
+	../bin/coff2noff mc_signal.coff mc_signal
+	
+mc_wait.o: mc_wait.c
+	$(CC) $(CFLAGS) -c mc_wait.c utils.c
+mc_wait: mc_wait.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o mc_wait.o utils.o -o mc_wait.coff
+	../bin/coff2noff mc_wait.coff mc_wait
 
 exec_testLocks.o: exec_testLocks.c
 	$(CC) $(CFLAGS) -c exec_testLocks.c utils.c
