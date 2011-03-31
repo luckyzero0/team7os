@@ -188,9 +188,19 @@ ServerLock::~ServerLock() {
 }
 
 bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether lock has been acquired instantly or not
-
+	PacketHeader lockOutPktHdr; 
+	MailHeader lockOutMailHdr;
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (this->client == clientID && this->thread == threadID) {	//check IDs instead of actual threads	
+		
+		lockOutPktHdr.to = clientID;
+    	lockOutMailHdr.to =threadID;
+    	lockOutMailHdr.length = strlen(svrMsg) + 1;    	
+		lockOutMailHdr.from = 0;
+		sprintf(svrMsg,"Lock already owned.\n",lockOutPktHdr.to,lockOutMailHdr.to);    
+    	DEBUG('a',"Client[%d]->Thread[%d]. already owns this lock.\n",lockOutPktHdr.to,lockOutMailHdr.to);    		    	
+    	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);    	
+		
 		interrupt->SetLevel(oldLevel);
 		return true;
 	}
@@ -209,11 +219,11 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
 	return true;
 }
 
-void ServerLock::Release(int clientID) {
+void ServerLock::Release(int clientID, int threadID) {
 	PacketHeader lockOutPktHdr; 
 	MailHeader lockOutMailHdr;
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
-	if (this->client != clientID) { //check IDs instead of actual threads	
+	if (this->client != clientID || this->thread != threadID) { //check IDs instead of actual threads	
 	  if (this->client == -1) {
 	    printf("ServerLock %s: has a NULL owner!\n", this->getName());
 	  }
@@ -225,10 +235,10 @@ void ServerLock::Release(int clientID) {
 		DEBUG('a',"Transferring ownership of lock\n.");
 		ClientThreadPair* ctp = (ClientThreadPair*) waitQueue->Remove(); 
 		lockOutPktHdr.to = ctp->clientID;	//get clientID from CTP, and set that as the client to message
-    	lockOutMailHdr.to = ctp->threadID;   //get threadID from CTP, and set that as the destination mailbox
-    	svrMsg = "ServerLock was released. Transferring ownership.";    	
+    	lockOutMailHdr.to = ctp->threadID;   //get threadID from CTP, and set that as the destination mailbox    		
     	lockOutMailHdr.length = strlen(svrMsg) + 1;    	
 		lockOutMailHdr.from = 0;
+		sprintf(svrMsg,"Xfrng to Cl[%d]->TID[%d].\n",lockOutPktHdr.to,lockOutMailHdr.to);    
     	DEBUG('a',"ServerLock was released. Transferring ownership to Client[%d]->Thread[%d].\n",lockOutPktHdr.to,lockOutMailHdr.to);    		
     	this->client = lockOutPktHdr.to; //transfering ownership to waiting thread
     	this->thread = lockOutMailHdr.to; //transfering ownership to waiting thread
@@ -367,7 +377,7 @@ void ServerCondition::Wait(ServerLock* conditionServerLock) {
 	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->client,conditionServerLock->thread);
 	this->waitQueue->Append(ctp); //Add client and thread info to wait queue
 	DEBUG('a',"Appended Client[%d]Thread[%d] to CV WaitQ.\n",conditionServerLock->client,conditionServerLock->thread);
-	conditionServerLock->Release(conditionServerLock->client); //Release the lock
+	conditionServerLock->Release(conditionServerLock->client, conditionServerLock->thread); //Release the lock
 	//currentThread->Sleep();  //Do not go to sleep, instead just don't message the client back
 	interrupt->SetLevel(oldLevel);
 }
