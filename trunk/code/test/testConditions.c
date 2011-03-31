@@ -73,6 +73,7 @@ void t1(){
 	printf("Thread[%d] forked.\n",GetThreadID(),0,0,"","");
 	printf("Thread[%d] waiting on CV for t2 to signal...\n",GetThreadID(),0,0,"","");
 	Acquire(lockID);
+	printf("Thread[%d] acquired the execution lock...\n",GetThreadID());
 	Wait(cvID,lockID);
 	printf("Thread1 has been signaled by T2. Entering CritSection\n",0,0,0,"","");
 	for(i = 0; i < 3; i++)
