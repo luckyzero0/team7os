@@ -188,7 +188,7 @@ Initialize(int argc, char **argv)
 
 #ifdef NETWORK
 	//setup SERVAR
-    postOffice = new PostOffice(netname, rely, 100); //This is the same as maxLocks
+    postOffice = new PostOffice(netname, rely, 1000); //This is the same as the max number of threads.
 #endif
 
 #ifdef USE_TLB

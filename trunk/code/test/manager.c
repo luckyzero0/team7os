@@ -7,12 +7,10 @@ void tryToWakeUpCustomers();
 
 void tryToWakeUpCustomers(){ 
 	/*senatorWaitingRoomLock->Acquire();*/
-	printf("Manager: Seeing if there are customers to wake up...\n",0,0,0,"","");
+	tprintf("Manager: Seeing if there are customers to wake up...\n",0,0,0,"","");
 	Acquire(senatorWaitingRoomLock);
-	printf("Manager: Acquired SWRoomLock",0,0,0,"","");
 	/*senatorOfficeLock->Acquire();*/
 	Acquire(senatorOfficeLock);
-	printf("Manager: Acquired SOfficeLock",0,0,0,"","");
 	if (senatorsInWaitingRoom+senatorsInOffice == 0){
 		tprintf("Manager: There are no more senators in the office...\n", 0,0,0,"","");
 		/*customerWaitingRoomLock->Acquire();*/
@@ -26,16 +24,15 @@ void tryToWakeUpCustomers(){
 	/*senatorOfficeLock->Release();
 	senatorWaitingRoomLock->Release();*/
 	Release(senatorOfficeLock);
-	printf("Manager: Released SOfficeLock",0,0,0,"","");
-	Release(senatorWaitingRoomLock);
-	printf("Manager: Released SWRoomLock",0,0,0,"","");
-	printf("Manager: Done checking if there are customers to wake up...\n",0,0,0,"","");
+	
+	Release(senatorWaitingRoomLock);	
+	tprintf("Manager: Done checking if there are customers to wake up...\n",0,0,0,"","");
 
 }
 
 void tryToWakeUpSenators() {
 	/*senatorWaitingRoomLock->Acquire();*/
-	printf("Manager: Seeing if there are senators to wake up...\n",0,0,0,"","");
+	tprintf("Manager: Seeing if there are senators to wake up...\n",0,0,0,"","");
 	Acquire(senatorWaitingRoomLock);
 	if (senatorsInWaitingRoom > 0) {
 		/*senatorWaitingRoomLock->Release();*/
@@ -132,7 +129,7 @@ void tryToWakeUpSenators() {
 		/*senatorWaitingRoomLock->Release();*/
 		Release(senatorWaitingRoomLock);		
 	}
-	printf("Manager: Done seeing if there are Senators to wake up...\n",0,0,0,"","");
+	tprintf("Manager: Done seeing if there are Senators to wake up...\n",0,0,0,"","");
 }
 
 void ManagerRun(){
@@ -140,11 +137,11 @@ void ManagerRun(){
 	int totalCashCollected;
 	while(TRUE)
 	{
-		printf("Manager: Doing my job of waking people up.\n",0,0,0,"","");
+		tprintf("Manager: Doing my job of waking people up.\n",0,0,0,"","");
 		tryToWakeUpSenators();
 		tryToWakeUpCustomers();
 
-		printf("Manager: Checking the registers...\n",0,0,0,"","");
+		tprintf("Manager: Checking the registers...\n",0,0,0,"","");
 		totalCashCollected = 0;
 		for (i = 0; i < numCashClerks; i++) {
 		  totalCashCollected += cashClerkMoney[i];
@@ -177,7 +174,7 @@ void ManagerRun(){
 		  }
 		}
 
-		printf("Manager: Time to slavedrive my clerks. Checking the lines...\n",0,0,0,"","");
+		tprintf("Manager: Time to slavedrive my clerks. Checking the lines...\n",0,0,0,"","");
 		tryToWakeUpClerks();
 	}		
 	Exit(0);
