@@ -588,13 +588,19 @@ void DestroyCondition_Syscall_Server(ConditionID id){
         //conditionsLock->Acquire();
         if (serverCVs[id].clientID != serverInPktHdr.from) {
                 printf("CVID[%d] cannot be destroyed from a non-owning process!\n", id);
+                ack = "CV Delete failed.";
+                return;
         } else {
                 if (serverCVs[id].condition->HasThreadsWaiting() || serverCVs[id].aboutToBeWaited > 0) {
                         serverCVs[id].needsToBeDeleted = TRUE;
+                        ack = "CV Marked for delete.";
                 } else {
                         deleteServerCondition(id);
+                        ack = "CV Destroyed.";
                 }
         }
+        
+        printf("CV[%d] destroyed successfully.\n",id);
         requestCompleted = true;
         //conditionsLock->Release();
 }
