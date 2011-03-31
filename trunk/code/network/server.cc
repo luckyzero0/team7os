@@ -46,6 +46,7 @@ struct MonitorEntry {
 		bool free;
         int clientID;
         int threadID;
+        char* name;
 };
 MonitorEntry serverMVs[MAX_MONITORS];
 
@@ -282,11 +283,12 @@ void initServerData(){
         }
 
         //initialize monitorvars                
-        for (int i = 0; i < MAX_CONDITIONS; i++) {
+        for (int i = 0; i < MAX_MONITORS; i++) {
                 serverMVs[i].monitor = NULL;
 				serverMVs[i].free = true;
                 serverMVs[i].clientID = -1;
-                serverMVs[i].threadID = -1;             
+                serverMVs[i].threadID = -1;      
+                serverMVs[i].name = "";       
         }
 }
 
@@ -301,10 +303,18 @@ void deleteServerCondition(int id) {
         serverCVs[id].aboutToBeWaited = 0;
 }
 
-int getAvailableServerConditionID() {
+int getAvailableServerConditionID(char* name) {
         int index = -1;
         for (int i = 0; i < MAX_CONDITIONS; i++) {
-                if (serverCVs[i].condition == NULL) {
+	        if(serverCVs[i].condition != NULL)
+	        {
+	        	if(name == serverCVs[i].condition->name)
+	        	{
+		        	index = i;
+		        	break;
+	        	}
+	        }
+             else{
                         index = i;
                         break;
                 }
@@ -313,9 +323,14 @@ int getAvailableServerConditionID() {
 }
 // Except this one. I had to write this one. ========================================
 //             -J
-int getAvailableServerMonitorID() {
+int getAvailableServerMonitorID(char* name) {
         int index = -1;
         for (int i = 0; i < MAX_MONITORS; i++) {
+	        if(name == serverMVs[i].name)
+	        	{
+		        	index = i;
+		        	break;
+	        	}
                 if (serverMVs[i].free) {
                         index = i;
                         break;
@@ -333,13 +348,23 @@ void deleteServerLock(int id) {
         serverLocks[id].aboutToBeAcquired = 0;
 }
 
-int getAvailableServerLockID() {
+int getAvailableServerLockID(char* name) {
         int index = -1;
         for (int i = 0; i < MAX_LOCKS; i++) {
-                if (serverLocks[i].lock == NULL) {
+	       if(serverLocks[i].lock != NULL){
+	        	if(name == serverLocks[i].lock->name)
+	        	{
+		        	index = i;
+		        	break;
+	        	}
+	       }
+           else
+          {
                         index = i;
                         break;
-                }
+           }
+        
+	       
         }
         return index;
 }
@@ -353,7 +378,7 @@ int getAvailableServerLockID() {
 //======================================================================
 LockID CreateLock_Syscall_Server(char* name){           
                 //locksLock->Acquire(); //the server is a single thread, so these locks aren't needed
-                int index = getAvailableServerLockID();
+                int index = getAvailableServerLockID(name);
                 if (index == -1) {
                         printf("No locks available!\n");
                 } else {
@@ -464,7 +489,7 @@ void DestroyLock_Syscall_Server(LockID id){
 
 ConditionID CreateCondition_Syscall_Server(char* name){
         //conditionsLock->Acquire();
-        int index = getAvailableServerConditionID();
+        int index = getAvailableServerConditionID(name);
         if (index == -1) {
                 printf("No conditions available!\n");           
         } else {
@@ -607,14 +632,15 @@ void DestroyCondition_Syscall_Server(ConditionID id){
 
 MonitorID CreateMonitor_Syscall_Server(char* name){
         //locksLock->Acquire();
-                int index = getAvailableServerMonitorID();
+                int index = getAvailableServerMonitorID(name);
                 if (index == -1) {
                         printf("No locks available!\n");
                 } else {
                         serverMVs[index].monitor = -1;
 						serverMVs[index].free = false;
                         serverMVs[index].clientID = serverInPktHdr.from;
-                        serverMVs[index].threadID = atoi(args[2].c_str());                      
+                        serverMVs[index].threadID = atoi(args[2].c_str());
+                        serverMVs[index].name = name;
                 }
                 //locksLock->Release();
                 printf("Returning monitor index: %d\n", index); //DEBUG 
