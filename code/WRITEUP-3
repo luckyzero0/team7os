@@ -63,8 +63,16 @@ III. DESIGN
 			
 	Part 3:
 		We used Post as our abstraction for message sending, and did all the message handling on the server and client kernel code.
+				No changes in any user program have to be made for RPCs to work.
+		
+		Since the current implementation of Locks/CVs cause threads to sleep, we had to create versions of these that did the same job but did not cause any thread to sleep.
 		We created a version of CVs and Locks that are compatible with our networking design, named ServerCondition and ServerLock respectively.
-		No changes in any user program have to be made for RPCs to work.
+		Server does all the work for Syscalls relating to CVs, Locks, or MVs. Clients always pass their current thread's ID when messaging the server.
+		The server uniquely identifies a client thread from:
+			a. The Client Address, stored in the PacketHeader when Send is called.
+			b. The Thread ID which is stored in the message.
+		Hence, servers send messages to the post box which corresponds to the desired thread's ID, and the thread itself only Receives on this mailbox.
+		
 		Main Steps:
 			1. If userprog uses a syscall related to locks, condition variables or monitors, check whether networking is enabled. If not, continue using syscalls as in assignment 2.
 			2. If it is, validate parameters and then send server a request to perform the syscall, passing along any needed information, and wait for a reply.
@@ -120,22 +128,78 @@ IV. IMPLEMENTATION
 				
 	Part 3:
 	+ Files Modified
-		- syscall.h
-		- synch.h/cc		
+		- synch.h/cc
 		- exception.cc
-		- start.x		
+		- syscall.h
+		- start.s
 		- main.cc
-		- start.cc
+		
+
 	
 	+ Files Added
 		- server.cc
 		
 	+ Data Structures Added
+	
+		In server.cc:
+			1. LockEntry - uses ServerLock instead of Lock
+			2. ConditionEntry - uses ServerCondition instead of Condition
+			3. MonitorEntry
+			4. LockEntry serverLocks[MAX_LOCKS];
+			5. ConditionEntry serverCVs[MAX_CONDITIONS];
+			6. MonitorEntry serverMVs[MAX_MONITORS];
+		
+		In synch.h:
+			1. ServerLock - differs from locks in the following ways:
+				a) Ownership is checked via ints (clientID, threadID) instead of actual thread pointers. These are passed in the constructor.
+				b) Thread does not fall asleep if it is trying to acquire a lock that has already been acquired. Instead, message is just not sent back to client. The client still has to wait for a message in the future.
+			
+			2. ServerCondition - differs from Conditions in the following ways:
+				a) Takes in a ServerLock instead of a Lock
+				b) Ownership is checked via ints (clientID, threadID) instead of actual thread pointers.
+				c) Thread does not fall asleep when a CV calls Wait - just don't send a message to the client. 
+				
+			3. ClientThreadPair - struct which stores a ClientID, ThreadID pair.
+				
+		In exception.cc:
+			1. char buffer[MaxMailSize] - character array which is sent as a packet across the network
 		
 	+ Data Structures Modified
-		NONE
+		In synch.h/cc:
+			1. ServerLocks are just modified versions of Locks
+			2. ServerCondition are just modified version of Conditions.
+			
 			
 	+ Functions Added
+	
+		In server.cc:
+			1. void RunServer(void) - Causes the server to start.
+			2. void handleIncomingRequests() - Constantly runs and handles client requests, one at a time. Calls the requested server-end syscall handle function.
+			3. void parsePacket(char* serverBuffer) - Parses an incoming message. We chose each token to be seperated by the ',' character, and our endline character is "*"
+			4. void initServerData() - Initializes server data
+			5. Server-end syscall handle functions:
+					a) LockID CreateLock_Syscall_Server(char* name)
+					b) void Acquire_Syscall_Server(LockID id)
+					c) void Release_Syscall_Server(LockID id
+					d) void DestroyLock_Syscall_Server(LockID id)
+					e) ConditionID CreateCondition_Syscall_Server(char* name)
+					f) void Signal_Syscall_Server(ConditionID conditionID, LockID lockID)
+					g) void Wait_Syscall_Server(ConditionID conditionID, LockID lockID)
+					h) void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID)
+					i) void DestroyCondition_Syscall_Server(ConditionID id)
+					j) MonitorID CreateMonitor_Syscall_Server(char* name)
+					k) int GetMonitor_Syscall_Server(MonitorID monitorID)
+					l) void SetMonitor_Syscall_Server(MonitorID monitorID, int value)
+			6. Helping sub-routines:
+					a) int getAvailableServerLockID()
+					b) void deleteServerLock(int id)
+					c) int getAvailableServerMonitorID()
+					d) int getAvailableServerConditionID()
+					e) void deleteServerCondition(int id)
+		
+		In exception.cc:
+			1. More syscalls:
+				a) 
 		
 V. TESTING
 
