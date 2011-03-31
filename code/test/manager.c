@@ -110,6 +110,7 @@ void tryToWakeUpSenators() {
 				/*entryLock->Acquire();*/
 				Acquire(entryLock);
 			}
+			Release(entryLock);
 		}
 
 		
