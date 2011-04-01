@@ -28,6 +28,7 @@ struct LockEntry {
         int threadID;
         bool needsToBeDeleted;
         int aboutToBeAcquired;  
+        char* name;
 };
 LockEntry serverLocks[MAX_LOCKS];
 
@@ -37,6 +38,7 @@ struct ConditionEntry {
         int threadID;
         bool needsToBeDeleted;
         int aboutToBeWaited;
+        char* name;
 };
 ConditionEntry serverCVs[MAX_CONDITIONS];
 
@@ -82,6 +84,7 @@ int sender; //the clientID of received msg
 int threadBox; //the ThreadID making the syscall within the client. ThreadID = MailBox#
 char serverBuffer[MaxMailSize];
 bool requestCompleted; //determines whether a message is sent back immediately
+bool recycle; //used to determine whether we are re-using a resource
 
 
 void RunServer(void){
@@ -124,7 +127,7 @@ void handleIncomingRequests(){
                 break;
                 
                 case SC_Acquire:
-                        printf("Request from Client[%d], ThreadID[%s]. Acquiring ServerLock[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));
+                        printf("Request from Client[%d], ThreadID[%s]. Acquiring ServerLock[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));                        
                         Acquire_Syscall_Server(atoi(args[1].c_str())); //value of ack is set inside the function, as it does not return a value
                         threadBox = atoi(args[2].c_str());              
                 break;
@@ -196,8 +199,7 @@ void handleIncomingRequests(){
          * the waitqueue of the lock.
          */
         if(!requestCompleted)   
-                continue;       
-        
+                continue;                    
         
         //prepare the messsage and send it out.
         serverOutPktHdr.to = sender;
@@ -205,9 +207,7 @@ void handleIncomingRequests(){
         serverOutMailHdr.length = strlen(ack) + 1;
                 serverOutMailHdr.from = 0;
                 printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",sender, threadBox, ack);
-        serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);       
-                    
-                
+        serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);                          		           
         
         //clear everything out for the next message
         ack = "";
@@ -270,7 +270,8 @@ void initServerData(){
                 serverLocks[i].clientID = -1;
                 serverLocks[i].threadID = -1;
                 serverLocks[i].needsToBeDeleted = FALSE;
-                serverLocks[i].aboutToBeAcquired = 0;                           
+                serverLocks[i].aboutToBeAcquired = 0;           
+                serverLocks[i].name = "";                               
         }
 
         //initialize conditions
@@ -279,7 +280,8 @@ void initServerData(){
                 serverCVs[i].clientID = -1;
                 serverCVs[i].threadID = -1;
                 serverCVs[i].needsToBeDeleted = FALSE;
-                serverCVs[i].aboutToBeWaited = 0;
+                serverCVs[i].aboutToBeWaited = 0;    
+                serverCVs[i].name = "";         
         }
 
         //initialize monitorvars                
@@ -287,9 +289,13 @@ void initServerData(){
                 serverMVs[i].monitor = NULL;
 				serverMVs[i].free = true;
                 serverMVs[i].clientID = -1;
-                serverMVs[i].threadID = -1;      
-                serverMVs[i].name = "";       
+                serverMVs[i].threadID = -1;    
+                serverMVs[i].name = "";
         }
+        
+        
+        
+        
 }
 
 // Helper functions for "Server Syscalls" ==============================================
@@ -301,42 +307,56 @@ void deleteServerCondition(int id) {
         serverCVs[id].threadID = -1;
         serverCVs[id].needsToBeDeleted = FALSE;
         serverCVs[id].aboutToBeWaited = 0;
+        serverCVs[id].name = "";
 }
 
 int getAvailableServerConditionID(char* name) {
         int index = -1;
-        for (int i = 0; i < MAX_CONDITIONS; i++) {
-	        if(serverCVs[i].condition != NULL)
-	        {
-	        	if(name == serverCVs[i].condition->name)
+        for (int i = 0; i < MAX_CONDITIONS; i++) {	        
+	       if(serverCVs[i].condition != NULL)
+	       {		       		       
+	        	if(!strcmp(name, serverCVs[i].name))
 	        	{
+		        	printf("CV already exists. Reusing.\n");
 		        	index = i;
-		        	break;
-	        	}
-	        }
-             else{
-                        index = i;
-                        break;
-                }
-        }
-        return index;
+		        	recycle = true;
+		        	return index;
+	        	}	       
+	       }
+	       else
+	       {
+		       recycle = false;
+		       printf("CV[%d] is unused.\n",i);		       
+		       index = i;
+		       break;
+	       }        	       
+         }
+         return index;       
 }
 // Except this one. I had to write this one. ========================================
 //             -J
 int getAvailableServerMonitorID(char* name) {
         int index = -1;
-        for (int i = 0; i < MAX_MONITORS; i++) {
-	        if(name == serverMVs[i].name)
+        for (int i = 0; i < MAX_MONITORS; i++) {	        
+	       if(serverMVs[i].monitor != NULL)
+	       {		       		       
+	        	if(!strcmp(name, serverMVs[i].name))
 	        	{
+		        	recycle = true;
+		        	printf("MV already exists. Reusing.\n");
 		        	index = i;
-		        	break;
-	        	}
-                if (serverMVs[i].free) {
-                        index = i;
-                        break;
-                }
-        }
-        return index;
+		        	return index;
+	        	}	       
+	       }
+	       else
+	       {
+		       recycle = false;
+		       printf("MV[%d] is unused.\n",i);		       
+		       index = i;
+		       break;
+	       }        	       
+         }
+         return index;       
 }
 
 void deleteServerLock(int id) { 
@@ -346,15 +366,17 @@ void deleteServerLock(int id) {
         serverLocks[id].threadID = -1;
         serverLocks[id].needsToBeDeleted = FALSE;
         serverLocks[id].aboutToBeAcquired = 0;
+        serverLocks[id].name = "";
 }
 
 int getAvailableServerLockID(char* name) {
         int index = -1;
-        for (int i = 0; i < MAX_LOCKS; i++) {
+        for (int i = 0; i < MAX_LOCKS; i++) {	        
 	       if(serverLocks[i].lock != NULL)
-	       {
-	        	if(name == serverLocks[i].lock->name)
+	       {		 	       		
+	        	if(!strcmp(name, serverLocks[i].name))
 	        	{
+		        	recycle = true;
 		        	printf("Lock already exists. Reusing.\n");
 		        	index = i;
 		        	return index;
@@ -362,6 +384,8 @@ int getAvailableServerLockID(char* name) {
 	       }
 	       else
 	       {
+		       recycle = false;
+		       printf("Lock[%d] is unused.\n",i);		       
 		       index = i;
 		       break;
 	       }        	       
@@ -378,23 +402,31 @@ int getAvailableServerLockID(char* name) {
 //======================================================================
 LockID CreateLock_Syscall_Server(char* name){           
                 //locksLock->Acquire(); //the server is a single thread, so these locks aren't needed
+                printf("Creating lock for Lock[%s]\n",name);
                 int index = getAvailableServerLockID(name);
+                if(recycle)
+                {
+	                	requestCompleted = true;
+ 	                	return index;
+                }
                 if (index == -1) {
                         printf("No locks available!\n");
-                } else {
+                } else {	                	
                         serverLocks[index].lock = new ServerLock(name);
                         serverLocks[index].clientID = serverInPktHdr.from;
-                        serverLocks[index].threadID = atoi(args[2].c_str());
+                        serverLocks[index].threadID = atoi(args[2].c_str());                        
+                        memcpy(serverLocks[index].name,name,strlen(name));                        
                         numLocks++;
                 }
                 //locksLock->Release();
                 printf("Returning lock index: %d\n", index); //DEBUG    
-                requestCompleted = true;        
+                requestCompleted = true;                        
                 return index;
 }
 
 void Acquire_Syscall_Server(LockID id){
-        //locksLock->Acquire();        
+        //locksLock->Acquire();     
+        printf("Acquiring lock.\n");         
         if(serverLocks[id].lock == NULL){
                 sprintf(ack,"Acquire failed Lock[%d]=null.",id);
                 requestCompleted = true;
@@ -413,14 +445,14 @@ void Acquire_Syscall_Server(LockID id){
                 printf("Lock[%d] is free. Request Succeeded.\n",id);
                 requestCompleted = true;
         }
-                
+               
         //server lock Acquire takes the clientID and threadID. This has to do with
         //how lock ownership is transferred on the server, as the server cannot
         //acquire the lock itself, as trying to acquire a busy lock would cause
         //the server to lock up.        
         serverLocks[id].lock->Acquire(serverLocks[id].clientID, atoi(args[2].c_str()));
         serverLocks[id].aboutToBeAcquired--;    
-        sprintf(ack,"Lock [%d] acquired", id);
+        sprintf(ack,"Lock [%d] acquired", id);        
 }
 
 void Release_Syscall_Server(LockID id){        
@@ -470,14 +502,22 @@ void DestroyLock_Syscall_Server(LockID id){
 
 
 ConditionID CreateCondition_Syscall_Server(char* name){
+	printf("Creating CV for CV[%s]\n",name);
         //conditionsLock->Acquire();
         int index = getAvailableServerConditionID(name);
+        if(recycle)
+                {
+	                	requestCompleted = true;
+ 	                	return index;
+                }
         if (index == -1) {
                 printf("No conditions available!\n");           
         } else {
                 serverCVs[index].condition = new ServerCondition(name);
                 serverCVs[index].clientID = serverInPktHdr.from;                
-                serverLocks[index].threadID = atoi(args[2].c_str());
+                serverCVs[index].threadID = atoi(args[2].c_str());
+                memcpy(serverCVs[index].name,name,strlen(name));                   
+                
         }
         //conditionsLock->Release();    
         requestCompleted = true;
@@ -623,6 +663,11 @@ void DestroyCondition_Syscall_Server(ConditionID id){
 MonitorID CreateMonitor_Syscall_Server(char* name){
         //locksLock->Acquire();
                 int index = getAvailableServerMonitorID(name);
+                if(recycle)
+                {
+	                	requestCompleted = true;
+ 	                	return index;
+                }
                 if (index == -1) {
                         printf("No locks available!\n");
                 } else {
@@ -630,7 +675,7 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
 						serverMVs[index].free = false;
                         serverMVs[index].clientID = serverInPktHdr.from;
                         serverMVs[index].threadID = atoi(args[2].c_str());
-                        serverMVs[index].name = name;
+                        memcpy(serverMVs[index].name,name,strlen(name));                   
                 }
                 //locksLock->Release();
                 printf("Returning monitor index: %d\n", index); //DEBUG 

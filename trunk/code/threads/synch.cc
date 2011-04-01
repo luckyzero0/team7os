@@ -209,6 +209,7 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
 		this->thread = threadID;
 	}
 	else {	
+		printf("Lock is busy. [%d][%d]Waiting...\n",clientID,threadID);
 		ClientThreadPair* ctp = new ClientThreadPair(clientID,threadID);
 		this->waitQueue->Append(ctp); //instead of appending currentThread, append the CTP of currentThread
 		//currentThread->Sleep();   Server thread should NOT go to sleep, just dont message client
@@ -385,6 +386,7 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	
 	if (this->waitQueue->IsEmpty() ) {
+		printf("The waitQ was empty.\n");
 		interrupt->SetLevel(oldLevel);
 		return;
 	}
@@ -396,7 +398,9 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 	}
 	
 	ClientThreadPair* ctp = (ClientThreadPair*) this->waitQueue->Remove();
+	printf("Signal received. Signalling [%d][%d]\n",ctp->clientID,ctp->threadID);
 	conditionServerLock->Acquire(ctp->clientID, ctp->threadID); //Try to acquire the lock using the IDs from the next CTP in the waiting queue
+	conditionServerLock->Release(conditionServerLock->client,conditionServerLock->thread);//we need to give up the lock so it can be acquired
 	/*signalledThread->setStatus(READY);
 	scheduler->ReadyToRun(signalledThread);*/
 	

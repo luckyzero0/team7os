@@ -6,13 +6,12 @@ int main() {
 	ConditionID condition = CreateCondition("condition", 9);
 
 	Acquire(lock);
-	printf("Acquired lock in mc_signal.\n", 0, 0,0,"","");
+	printf("Acquired lock[%d] in mc_signal.\n", lock, 0,0,"","");
 	Signal(condition, lock);
-	printf("Signaled condition in mc_signal.\n", 0, 0,0,"","");
-	Release(lock);
+	printf("Signaled condition[%d] with lock[%d] in mc_signal.\n", lock, condition,0,"","");	
 
-	DestroyCondition(condition);
-	DestroyLock(lock);
+	/*DestroyCondition(condition);
+	DestroyLock(lock);*/
 
 	printf("Destroyed both in mc_signal.\n", 0, 0,0,"","");
 
