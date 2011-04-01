@@ -402,7 +402,7 @@ int getAvailableServerLockID(char* name) {
 //======================================================================
 LockID CreateLock_Syscall_Server(char* name){           
                 //locksLock->Acquire(); //the server is a single thread, so these locks aren't needed
-                printf("Creating lock for Lock[%s]\n",name);
+                printf("Creating lock for Lock[%s], with strlen = %d\n",name, strlen(name));
                 int index = getAvailableServerLockID(name);
                 if(recycle)
                 {
