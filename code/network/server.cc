@@ -427,7 +427,7 @@ LockID CreateLock_Syscall_Server(char* name){
 
 void Acquire_Syscall_Server(LockID id){
         //locksLock->Acquire();     
-        printf("Acquiring lock.\n");         
+        printf("Acquiring lock: %s.\n", serverLocks[id].name);         
         if(serverLocks[id].lock == NULL){
                 sprintf(ack,"Acquire failed Lock[%d]=null.",id);
                 requestCompleted = true;
@@ -453,7 +453,7 @@ void Acquire_Syscall_Server(LockID id){
         //the server to lock up.        
         serverLocks[id].lock->Acquire(serverLocks[id].clientID, atoi(args[2].c_str()));
         serverLocks[id].aboutToBeAcquired--;    
-        sprintf(ack,"Lock [%d] acquired: %s", id, serverLocks[id].name);        
+        sprintf(ack,"Lock [%d] acquired", id);        
 }
 
 void Release_Syscall_Server(LockID id){        
@@ -468,9 +468,9 @@ void Release_Syscall_Server(LockID id){
         //serverLocks take clientID in Release for the same reasons as
         //above (the way we handle transferring lock ownership requires
         // it).
-        printf("Releasing the lock.\n");
+        printf("Releasing the lock: %s.\n", serverLocks[id].name);
         serverLocks[id].lock->Release(serverLocks[id].clientID, atoi(args[2].c_str())); 
-        sprintf(ack, "Lock[%d] released: %s.",id, serverLocks[id].name);
+        sprintf(ack, "Lock[%d] released.",id);
         if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
                 && serverLocks[id].aboutToBeAcquired == 0) {                    
                         deleteServerLock(id);
