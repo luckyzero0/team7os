@@ -34,6 +34,8 @@ extern void strcpy(char dest[], char source[]);
 
 extern void strcat(char dest[], char source[]);
 
+extern void bzero(char str[], int length);
+
 
 /*
  *	reverse implementation borrowed from wikipedia. Reverses
