@@ -20,6 +20,9 @@ int waitAndRestart(LockID lineToExit, int index){
 		/*senatorWaitingRoomLock->Release();*/
 		customersInWaitingRoom++;
 		customersInOffice--;
+		if (customersInOffice == 0) {
+			Signal(managerWaitForCustomersCV, entryLock);
+		}
 		printf("Customer [%d] leaves the Passport Office as a senator arrives.\n",index,0,0,"","");
 		Wait(customerWaitingRoomCV, entryLock);
 		customersInWaitingRoom--;

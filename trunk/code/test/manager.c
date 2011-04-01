@@ -44,7 +44,7 @@ void tryToWakeUpSenators() {
 		if (customersInOffice > 0) { /*if there are customers in the office, tell them to get the hell out.*/
 			tprintf("Manager: I need to tell all %d customers to GTFO\n", customersInOffice,0,0,"","");
 			/*entryLock->Release();*/
-			Release(entryLock);
+
 			tprintf("Manager: Acquiring appPicLineLock\n",0,0,0,"","");
 			/*appPicLineLock->Acquire();*/
 			Acquire(appPicLineLock);
@@ -101,15 +101,7 @@ void tryToWakeUpSenators() {
 
 			
 			/*entryLock->Acquire();*/
-			Acquire(entryLock);
-			while (customersInOffice > 0) {
-				tprintf("Manager: Waiting for remaining %d customers to leave\n", customersInOffice,0,0,"","");
-				/*entryLock->Release();*/
-				Release(entryLock);
-				Yield();
-				/*entryLock->Acquire();*/
-				Acquire(entryLock);
-			}
+			Wait(managerWaitForCustomersCV, entryLock);
 			Release(entryLock);
 		}
 
