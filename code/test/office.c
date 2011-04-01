@@ -218,6 +218,7 @@ void initializeClerkArrays() {
 			itoa(i, intbuf);
 			strcpy(buf, "appClerk");
 			strcat(buf, intbuf);
+			printf("%s", buf);
 			appClerkLocks[i] = CreateLock(buf, strlen(buf));
 			appClerkCVs[i] = CreateCondition(buf, strlen(buf));
 			appClerkSSNs[i] = -1;
@@ -234,6 +235,7 @@ void initializeClerkArrays() {
 			itoa(i, intbuf);
 			strcpy(buf, "picClerk");
 			strcat(buf, intbuf);
+			printf(buf);
 			picClerkLocks[i] = CreateLock(buf, strlen(buf));
 			picClerkCVs[i] = CreateCondition(buf, strlen(buf));
 			picClerkSSNs[i] = -1;
