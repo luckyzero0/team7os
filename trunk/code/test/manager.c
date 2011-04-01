@@ -8,24 +8,23 @@ void tryToWakeUpCustomers();
 void tryToWakeUpCustomers(){ 
 	/*senatorWaitingRoomLock->Acquire();*/
 	tprintf("Manager: Seeing if there are customers to wake up...\n",0,0,0,"","");
-	Acquire(senatorWaitingRoomLock);
+	Acquire(entryLock);
 	/*senatorOfficeLock->Acquire();*/
-	Acquire(senatorOfficeLock);
 	if (senatorsInWaitingRoom+senatorsInOffice == 0){
 		tprintf("Manager: There are no more senators in the office...\n", 0,0,0,"","");
 		/*customerWaitingRoomLock->Acquire();*/
-		Acquire(entryLock);
+		
 		/*customerWaitingRoomCV->Broadcast(customerWaitingRoomLock);*/
 		tprintf("Manager: Broadcasting to all customers in waiting. \n", 0,0,0,"","");
 		Broadcast(customerWaitingRoomCV, entryLock);
 		/*customerWaitingRoomLock->Release();*/
-		Release(entryLock);
+		
 	}
 	/*senatorOfficeLock->Release();
 	senatorWaitingRoomLock->Release();*/
-	Release(senatorOfficeLock);
+
 	
-	Release(senatorWaitingRoomLock);	
+	Release(entryLock);	
 	tprintf("Manager: Done checking if there are customers to wake up...\n",0,0,0,"","");
 
 }
