@@ -468,7 +468,7 @@ void Release_Syscall_Server(LockID id){
         //serverLocks take clientID in Release for the same reasons as
         //above (the way we handle transferring lock ownership requires
         // it).
-        printf("Releasing the lock:%s .\n", serverLocks[id].name);
+        printf("Releasing the lock.\n");
         serverLocks[id].lock->Release(serverLocks[id].clientID, atoi(args[2].c_str())); 
         sprintf(ack, "Lock[%d] released.",id);
         if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
