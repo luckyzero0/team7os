@@ -416,7 +416,7 @@ LockID CreateLock_Syscall_Server(char* name){
                         serverLocks[index].clientID = serverInPktHdr.from;
                         serverLocks[index].threadID = atoi(args[2].c_str());  
                         serverLocks[index].name = "";                      
-                        memcpy(serverLocks[index].name,name,strlen(name));                        
+                        strcpy(serverLocks[index].name,name);                        
                         numLocks++;
                 }
                 //locksLock->Release();
