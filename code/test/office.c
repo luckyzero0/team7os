@@ -215,6 +215,8 @@ void initializeClerkArrays() {
 	for (i = 0; i < MAX_APP_CLERKS; i++) {
 		if (i < numAppClerks) {
 			appClerkStatuses[i] = CLERK_AVAILABLE;
+			bzero(buf, 50);
+			bzero(intbuf, 5);
 			itoa(i, intbuf);
 			strcpy(buf, "appClerk");
 			strcat(buf, intbuf);
@@ -232,6 +234,8 @@ void initializeClerkArrays() {
 	for (i = 0; i < MAX_PIC_CLERKS; i++) {
 		if (i < numPicClerks) {
 			picClerkStatuses[i] = CLERK_AVAILABLE;
+			bzero(buf, 50);
+			bzero(intbuf, 5);
 			itoa(i, intbuf);
 			strcpy(buf, "picClerk");
 			strcat(buf, intbuf);
@@ -251,6 +255,8 @@ void initializeClerkArrays() {
 	for ( i = 0; i < MAX_PASS_CLERKS; i++) {
 		if (i < numPassClerks) {
 			passClerkStatuses[i] = CLERK_AVAILABLE;
+			bzero(buf, 50);
+			bzero(intbuf, 5);
 			itoa(i, intbuf);
 			strcpy(buf, "passClerk");
 			strcat(buf, intbuf);
@@ -268,6 +274,8 @@ void initializeClerkArrays() {
 	for ( i = 0; i < MAX_CASH_CLERKS; i++) {
 		if (i < numCashClerks) {
 			cashClerkStatuses[i] = CLERK_AVAILABLE;
+			bzero(buf, 50);
+			bzero(intbuf, 5);
 			itoa(i, intbuf);
 			strcpy(buf, "cashClerk");
 			strcat(buf, intbuf);

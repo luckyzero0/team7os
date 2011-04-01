@@ -29,6 +29,13 @@ void strcat(char dest[], char source[]) {
 	dest[len + i] = '\0';
 }
 
+void bzero(char string[], int length) {
+	int i = 0;
+	while (i < length) {
+		string[i++] = '\0';
+	}
+}
+
 /*printf-ish function, but without VA list*/
 void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 	char out[100];
