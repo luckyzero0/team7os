@@ -30,6 +30,10 @@ extern void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* ar
 */
 extern void itoa(int n, char s[]);
 
+extern void strcpy(char dest[], char source[]);
+
+extern void strcat(char dest[], char source[]);
+
 
 /*
  *	reverse implementation borrowed from wikipedia. Reverses
