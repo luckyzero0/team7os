@@ -415,8 +415,8 @@ LockID CreateLock_Syscall_Server(char* name){
                         serverLocks[index].lock = new ServerLock(name);
                         serverLocks[index].clientID = serverInPktHdr.from;
                         serverLocks[index].threadID = atoi(args[2].c_str());  
-                        serverLocks[index].name = "";                      
-                        strcpy(serverLocks[index].name,name);                        
+                        serverLocks[index].name = new char[strlen(name)];
+						strcpy(serverLocks[index].name, name);
                         numLocks++;
                 }
                 //locksLock->Release();
@@ -516,8 +516,8 @@ ConditionID CreateCondition_Syscall_Server(char* name){
                 serverCVs[index].condition = new ServerCondition(name);
                 serverCVs[index].clientID = serverInPktHdr.from;                
                 serverCVs[index].threadID = atoi(args[2].c_str());
-                serverCVs[index].name = "";
-                memcpy(serverCVs[index].name,name,strlen(name));                   
+                serverCVs[index].name = new char[strlen(name)];
+				strcpy(serverCVs[index].name, name);                  
                 
         }
         //conditionsLock->Release();    
@@ -676,8 +676,8 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
 						serverMVs[index].free = false;
                         serverMVs[index].clientID = serverInPktHdr.from;
                         serverMVs[index].threadID = atoi(args[2].c_str());
-                        serverMVs[index].name = "";
-                        memcpy(serverMVs[index].name,name,strlen(name));                   
+                        serverMVs[index].name = new char[strlen(name)];
+                        strcpy(serverMVs[index].name,name);                   
                 }
                 //locksLock->Release();
                 printf("Returning monitor index: %d\n", index); //DEBUG 
