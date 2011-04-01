@@ -10,6 +10,25 @@ int strlen(char* str){
 	return i;
 }
 
+void strcpy(char[] dest, char[] source) {
+	int i = 0;
+	while (source[i] != '\0') {
+		dest[i] = source[i];
+		i++;
+	}
+	dest[i] = '\0';
+}
+
+void strcat(char[] dest, char[] source) {
+	int i = 0;
+	int len = strlen(dest);
+	while (source[i] != '\0') {
+		dest[len + i] = source[i];
+		i++;
+	}
+	dest[len + i] = '\0';
+}
+
 /*printf-ish function, but without VA list*/
 void printf(char* str, int arg1, int arg2, int arg3, char* arg4, char* arg5){
 	char out[100];
