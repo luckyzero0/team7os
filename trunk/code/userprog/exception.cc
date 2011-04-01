@@ -498,6 +498,7 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 	} else {
 		locks[index].lock = new Lock(buf);
 		locks[index].space = currentThread->space;
+		printf("Created lock with name: %s\n", locks[index].lock->name);
 	}
 	locksLock->Release();
 	DEBUG('a', "Returning lock index: %d\n", index); //DEBUG
