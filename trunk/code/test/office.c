@@ -57,15 +57,15 @@ int regCashLineLength = 0;
 
 
 /* Senators in office and waiting room */
-LockID senatorWaitingRoomLock;
+
 ConditionID senatorWaitingRoomCV;
 int senatorsInWaitingRoom = 0;
 
-LockID senatorOfficeLock;
+
 int senatorsInOffice = 0;
 
 /* Customers in office and waiting room */
-LockID customerWaitingRoomLock;
+
 ConditionID customerWaitingRoomCV;
 int customersInWaitingRoom = 0;
 
