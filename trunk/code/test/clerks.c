@@ -6,12 +6,12 @@
 char* getCustomerType(){
 	int check=0;
 	/*senatorOfficeLock->Acquire();*/
-	Acquire(senatorOfficeLock);
+	Acquire(entryLock);
 	if (senatorsInOffice>0){
 		check = 1;
 	}
 	/*senatorOfficeLock->Release();*/
-	Release(senatorOfficeLock);
+	Release(entryLock);
 	if (check == 0){
 		return "Customer";
 	}else{

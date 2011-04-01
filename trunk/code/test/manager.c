@@ -33,14 +33,14 @@ void tryToWakeUpCustomers(){
 void tryToWakeUpSenators() {
 	/*senatorWaitingRoomLock->Acquire();*/
 	tprintf("Manager: Seeing if there are senators to wake up...\n",0,0,0,"","");
-	Acquire(senatorWaitingRoomLock);
+	Acquire(entryLock);
 	if (senatorsInWaitingRoom > 0) {
 		/*senatorWaitingRoomLock->Release();*/
-		Release(senatorWaitingRoomLock);
+		
 		tprintf("Manager: There are senators in the waiting room! \n", 0,0,0,"","");
 		/*acquire all line CVs*/
 		/*entryLock->Acquire();*/
-		Acquire(entryLock);
+		
 		if (customersInOffice > 0) { /*if there are customers in the office, tell them to get the hell out.*/
 			tprintf("Manager: I need to tell all %d customers to GTFO\n", customersInOffice,0,0,"","");
 			/*entryLock->Release();*/
@@ -102,7 +102,7 @@ void tryToWakeUpSenators() {
 			
 			/*entryLock->Acquire();*/
 			Wait(managerWaitForCustomersCV, entryLock);
-			Release(entryLock);
+			
 		}
 
 		
@@ -115,13 +115,9 @@ void tryToWakeUpSenators() {
 		
 		
 		/*entryLock->Release();*/
-		Release(entryLock);
+		
 	}
-	else
-	{
-		/*senatorWaitingRoomLock->Release();*/
-		Release(senatorWaitingRoomLock);		
-	}
+	Release(entryLock);
 	tprintf("Manager: Done seeing if there are Senators to wake up...\n",0,0,0,"","");
 }
 
