@@ -227,7 +227,7 @@ void ServerLock::Release(int clientID, int threadID) {
 	  if (this->client == -1) {
 	    printf("ServerLock %s: has a NULL owner!\n", this->getName());
 	  }
-	  printf("Cannot release lock from a non-owning thread! Client[%d]", clientID);
+	  printf("Cannot release lock from a non-owning thread! Client[%d]\n", clientID);
 		interrupt->SetLevel(oldLevel);
 		return;
 	}

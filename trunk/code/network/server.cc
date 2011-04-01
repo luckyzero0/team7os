@@ -414,7 +414,8 @@ LockID CreateLock_Syscall_Server(char* name){
                 } else {	                	
                         serverLocks[index].lock = new ServerLock(name);
                         serverLocks[index].clientID = serverInPktHdr.from;
-                        serverLocks[index].threadID = atoi(args[2].c_str());                        
+                        serverLocks[index].threadID = atoi(args[2].c_str());  
+                        serverLocks[index].name = "";                      
                         memcpy(serverLocks[index].name,name,strlen(name));                        
                         numLocks++;
                 }
@@ -476,8 +477,7 @@ void Release_Syscall_Server(LockID id){
                         ack = "Lock released and deleted.";
         }
         //locksLock->Release();
-        requestCompleted = true;
-        printf("Lock[%d] released.\n",id);
+        requestCompleted = true;        
 } 
 
 void DestroyLock_Syscall_Server(LockID id){
@@ -516,6 +516,7 @@ ConditionID CreateCondition_Syscall_Server(char* name){
                 serverCVs[index].condition = new ServerCondition(name);
                 serverCVs[index].clientID = serverInPktHdr.from;                
                 serverCVs[index].threadID = atoi(args[2].c_str());
+                serverCVs[index].name = "";
                 memcpy(serverCVs[index].name,name,strlen(name));                   
                 
         }
@@ -675,6 +676,7 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
 						serverMVs[index].free = false;
                         serverMVs[index].clientID = serverInPktHdr.from;
                         serverMVs[index].threadID = atoi(args[2].c_str());
+                        serverMVs[index].name = "";
                         memcpy(serverMVs[index].name,name,strlen(name));                   
                 }
                 //locksLock->Release();
