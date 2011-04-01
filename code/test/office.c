@@ -152,11 +152,11 @@ void initOfficeLocks(){
 
 	entryLock = CreateLock("entryLock", 9);
 
-	appClerkUIDLock = CreateLock("appClerkUID",11);
-	picClerkUIDLock = CreateLock("picClerkUID",11);
-	passClerkUIDLock = CreateLock("passClerkUID",12);
-	cashClerkUIDLock = CreateLock("cashClerkUID",12);
-	customerSenatorUIDLock = CreateLock("custSenUID",10);
+	appClerkUIDLock = CreateLock("appClerkUIDLock",15);
+	picClerkUIDLock = CreateLock("picClerkUIDLock",15);
+	passClerkUIDLock = CreateLock("passClerkUIDLock",16);
+	cashClerkUIDLock = CreateLock("cashClerkUIDLock",16);
+	customerSenatorUIDLock = CreateLock("customerSenatorUIDLock",22);
 }
 
 void Office() {
@@ -210,16 +210,16 @@ void Office() {
 
 void initializeClerkArrays() {
 	int i;
-	char lockName[10];
+	char buf[50];
+	char intbuf[5];
 	for (i = 0; i < MAX_APP_CLERKS; i++) {
-		if (i < numAppClerks) {			
-			lockName[0] = 'a'; /*HACK*/
-			lockName[1] = 'c';			
-			lockName[2] = i;
-			lockName[3] = '\0';
+		if (i < numAppClerks) {
 			appClerkStatuses[i] = CLERK_AVAILABLE;
-			appClerkLocks[i] = CreateLock(lockName,0);
-			appClerkCVs[i] = CreateCondition(lockName,0);
+			itoa(i, intbuf);
+			strcpy(buf, "appClerk");
+			strcat(buf, intbuf);
+			appClerkLocks[i] = CreateLock(buf, strlen(buf));
+			appClerkCVs[i] = CreateCondition(buf, strlen(buf));
 			appClerkSSNs[i] = -1;
 			appClerkMoney[i] = 0;
 			appClerkBribed[i] = FALSE;
@@ -230,13 +230,12 @@ void initializeClerkArrays() {
 
 	for (i = 0; i < MAX_PIC_CLERKS; i++) {
 		if (i < numPicClerks) {
-			lockName[0] = 'p'; /*HACK*/
-			lockName[1] = 'c';			
-			lockName[2] = i;
-			lockName[3] = '\0';
 			picClerkStatuses[i] = CLERK_AVAILABLE;
-			picClerkLocks[i] = CreateLock("",0);
-			picClerkCVs[i] = CreateCondition("",0);
+			itoa(i, intbuf);
+			strcpy(buf, "picClerk");
+			strcat(buf, intbuf);
+			picClerkLocks[i] = CreateLock(buf, strlen(buf));
+			picClerkCVs[i] = CreateCondition(buf, strlen(buf));
 			picClerkSSNs[i] = -1;
 			picClerkMoney[i] = 0;
 			picClerkBribed[i] = FALSE;
@@ -249,13 +248,12 @@ void initializeClerkArrays() {
 
 	for ( i = 0; i < MAX_PASS_CLERKS; i++) {
 		if (i < numPassClerks) {
-			lockName[0] = 'p';
-			lockName[1] = 'p';			
-			lockName[2] = i;
-			lockName[3] = '\0';
 			passClerkStatuses[i] = CLERK_AVAILABLE;
-			passClerkLocks[i] = CreateLock("",0);
-			passClerkCVs[i] = CreateCondition("",0);
+			itoa(i, intbuf);
+			strcpy(buf, "passClerk");
+			strcat(buf, intbuf);
+			passClerkLocks[i] = CreateLock(buf, strlen(buf));
+			passClerkCVs[i] = CreateCondition(buf, strlen(buf));
 			passClerkSSNs[i] = -1;
 			passClerkMoney[i] = 0;
 			passClerkBribed[i] = FALSE;
@@ -267,13 +265,12 @@ void initializeClerkArrays() {
 
 	for ( i = 0; i < MAX_CASH_CLERKS; i++) {
 		if (i < numCashClerks) {
-			lockName[0] = 'c';
-			lockName[1] = 'c';			
-			lockName[2] = i;
-			lockName[3] = '\0';
 			cashClerkStatuses[i] = CLERK_AVAILABLE;
-			cashClerkLocks[i] = CreateLock("",0);
-			cashClerkCVs[i] = CreateCondition("",0);
+			itoa(i, intbuf);
+			strcpy(buf, "cashClerk");
+			strcat(buf, intbuf);
+			cashClerkLocks[i] = CreateLock(buf, strlen(buf));
+			cashClerkCVs[i] = CreateCondition(buf, strlen(buf));
 			cashClerkSSNs[i] = -1;
 			cashClerkMoney[i] = 0;
 			cashPunish[i] = TRUE;
