@@ -150,7 +150,7 @@ void initOfficeLocks(){
 	customerWaitingRoomLock = CreateLock("customerWaitingRoomLock",23);
 	customerWaitingRoomCV = CreateCondition("customerWaitingRoomCV",21);	
 
-	managerWaitForCustomerCV = CreateCondition("managerWaitForCustomerCV", 24);
+	managerWaitForCustomersCV = CreateCondition("managerWaitForCustomersCV", 25);
 
 	entryLock = CreateLock("entryLock", 9);
 
