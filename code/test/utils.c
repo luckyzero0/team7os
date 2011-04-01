@@ -10,7 +10,7 @@ int strlen(char* str){
 	return i;
 }
 
-void strcpy(char[] dest, char[] source) {
+void strcpy(char dest[], char source[]) {
 	int i = 0;
 	while (source[i] != '\0') {
 		dest[i] = source[i];
@@ -19,7 +19,7 @@ void strcpy(char[] dest, char[] source) {
 	dest[i] = '\0';
 }
 
-void strcat(char[] dest, char[] source) {
+void strcat(char dest[], char source[]) {
 	int i = 0;
 	int len = strlen(dest);
 	while (source[i] != '\0') {
