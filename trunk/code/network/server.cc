@@ -453,7 +453,7 @@ void Acquire_Syscall_Server(LockID id){
         //the server to lock up.        
         serverLocks[id].lock->Acquire(serverLocks[id].clientID, atoi(args[2].c_str()));
         serverLocks[id].aboutToBeAcquired--;    
-        sprintf(ack,"Lock [%d] acquired", id);        
+        sprintf(ack,"Lock [%d] acquired: %s", id, serverLocks[id].name);        
 }
 
 void Release_Syscall_Server(LockID id){        
@@ -470,7 +470,7 @@ void Release_Syscall_Server(LockID id){
         // it).
         printf("Releasing the lock.\n");
         serverLocks[id].lock->Release(serverLocks[id].clientID, atoi(args[2].c_str())); 
-        sprintf(ack, "Lock[%d] released.",id);
+        sprintf(ack, "Lock[%d] released: %s.",id, serverLocks[id].name);
         if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
                 && serverLocks[id].aboutToBeAcquired == 0) {                    
                         deleteServerLock(id);
