@@ -400,7 +400,7 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 	ClientThreadPair* ctp = (ClientThreadPair*) this->waitQueue->Remove();
 	printf("Signal received. Signalling [%d][%d]\n",ctp->clientID,ctp->threadID);
 	conditionServerLock->Acquire(ctp->clientID, ctp->threadID); //Try to acquire the lock using the IDs from the next CTP in the waiting queue
-	conditionServerLock->Release(conditionServerLock->client,conditionServerLock->thread);//we need to give up the lock so it can be acquired
+	//conditionServerLock->Release(conditionServerLock->client,conditionServerLock->thread);//we need to give up the lock so it can be acquired
 	/*signalledThread->setStatus(READY);
 	scheduler->ReadyToRun(signalledThread);*/
 	
@@ -412,9 +412,12 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 }
 
 void ServerCondition::Broadcast(ServerLock* conditionServerLock) {
-  while (!this->waitQueue->IsEmpty() ) {
-    this->Signal(conditionServerLock);
+  //int oClient = conditionServerLock->client;
+  //int oThread = conditionServerLock->thread;
+  while (!this->waitQueue->IsEmpty() ) {	
+    this->Signal(conditionServerLock);    
   }
+  //conditionServerLock->Acquire(oClient,oThread);
 }
 
 bool ServerCondition::HasThreadsWaiting() {
