@@ -69,6 +69,8 @@ LockID customerWaitingRoomLock;
 ConditionID customerWaitingRoomCV;
 int customersInWaitingRoom = 0;
 
+ConditionID managerWaitForCustomersCV;
+
 LockID entryLock;
 int customersInOffice = 0;
 
