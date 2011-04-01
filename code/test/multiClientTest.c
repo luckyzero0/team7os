@@ -22,6 +22,7 @@ int main(){
 	cvID = CreateCondition("CV",2);
 	printf("CVID = [%d]\n",cvID,0,0,"","");
 	
+	
 	printf("Creating a new MV on the network...\n",0,0,0,"","");
 	mvID = CreateMonitor("MV",2);
 	printf("MVID = [%d]\n",mvID,0,0,"","");
@@ -29,7 +30,7 @@ int main(){
 	printf("Acquiring Lock[%d].\n",lockID,0,0,"","");
 	Acquire(lockID);	
 	printf("Lock[%d] acquired.\n",lockID,0,0,"","");
-	
+		
 	printf("Modifying MV[%d].\n",mvID,0,0,"","");
 	for (x = 0; x < 20; x++)
 	{
@@ -37,26 +38,17 @@ int main(){
 	}
 	printf("Done modifying. MV[%d] = [%d]\n",mvID,GetMonitor(mvID),0,"","");
 	
+	
 	printf("Signalling CVID[%d].\n",cvID,0,0,"","");
 	Signal(cvID,lockID);
 	printf("CVID[%d] signaled.\n",cvID,0,0,"","");
 	
 	
-	/*printf("Destroying CVID[%d]...\n",cvID,0,0,"","");
-	DestroyCondition(cvID);
-	printf("CVID[%d] destroyed, verifying with a signal.\n",cvID,0,0,"","");
-	Signal(cvID,lockID);
-	*/
+	
 	printf("Releasing LockID[%d].\n",lockID,0,0,"","");
 	Release(lockID);
-	printf("LockID[%d] released",lockID,0,0,"","");
+	printf("LockID[%d] released",lockID,0,0,"","");		
 		
-	/*
-	printf("Destroying LockID[%d]...\n",lockID,0,0,"","");
-	DestroyLock(lockID);		
-	printf("LockID[%d] destroyed, verifying with an acquire.\n",lockID,0,0,"","");
-	Acquire(lockID);
-	*/
 		
 	printf("Done.\n",0,0,0,"","");
 	
