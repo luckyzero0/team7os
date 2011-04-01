@@ -218,7 +218,7 @@ void initializeClerkArrays() {
 			itoa(i, intbuf);
 			strcpy(buf, "appClerk");
 			strcat(buf, intbuf);
-			printf("%s", buf);
+			printf("appClerk: %s", buf);
 			appClerkLocks[i] = CreateLock(buf, strlen(buf));
 			appClerkCVs[i] = CreateCondition(buf, strlen(buf));
 			appClerkSSNs[i] = -1;
