@@ -143,13 +143,10 @@ void initOfficeLocks(){
 	regCashLineCV = CreateCondition("regCashLineCV",13);
 
 	/* Senators in office and waiting room */
-	senatorWaitingRoomLock = CreateLock("senatorWaitingRoomLock",22);
 	senatorWaitingRoomCV = CreateCondition("senatorWaitingRoomCV",20);
 
-	senatorOfficeLock = CreateLock("senatorOfficeLock",17);
 
 	/* Customers in office and waiting room */
-	customerWaitingRoomLock = CreateLock("customerWaitingRoomLock",23);
 	customerWaitingRoomCV = CreateCondition("customerWaitingRoomCV",21);	
 
 	managerWaitForCustomersCV = CreateCondition("managerWaitForCustomersCV", 25);
