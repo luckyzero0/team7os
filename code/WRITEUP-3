@@ -322,6 +322,11 @@ V. TESTING
 		/*	This runs the office with the default values of 3 of each clerk,
 		*	20 customers, and 3 senators.  Everything should escape the office,
 		*	and the sum of cashier money should be $2300. Works on the network.
+		*   Note that this does not halt at the moment because we do not have explicit shutdown code.
+		*   Also, you need to run a fresh version of the server every time you run this, because of
+		*   the same name issues.  Also, this doesn't work on some -rs values, because we made a quick change,
+		*   to our office.  This is not an RPC issue, this is a user code issue, the same values fail in 
+		*   the userprog directory.
 		*/
 		
 				/* officeMainDEBUG.c */
