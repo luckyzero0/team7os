@@ -79,6 +79,8 @@ extern int customersInWaitingRoom;
 extern LockID entryLock;
 extern int customersInOffice;
 
+extern ConditionID managerWaitForCustomersCV;
+
 
 
 extern LockID appClerkUIDLock;
