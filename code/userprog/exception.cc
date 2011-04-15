@@ -571,6 +571,7 @@ int getAvailableConditionID() {
 	return index;
 }
 
+
 ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 	char* buf;
 	if ( !(buf = new char[len]) ) {
@@ -1023,22 +1024,6 @@ int GetMonitor_Syscall(MonitorID monitorID){
 	return value;
 }
 
-MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int arrayLength) {
-
-}
-
-int GetMonitorArrayValue_Syscall(MonitorArrayID, int index) {
-
-}
-
-
-void SetMonitorArrayValue_Syscall(MonitorArrayID, int index, int value) {
-
-}
-
-void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
-
-}
 
 void SetMonitor_Syscall(MonitorID monitorID, int value){
 
@@ -1049,7 +1034,7 @@ void SetMonitor_Syscall(MonitorID monitorID, int value){
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d, %d, %d,*", SC_SetMonitor, monitorID, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,%d,%d,*", SC_SetMonitor, monitorID, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -1067,7 +1052,136 @@ void SetMonitor_Syscall(MonitorID monitorID, int value){
 	fflush(stdout);
 
 }
+
+MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int arrayLength) {
+	//Validating the desired name
+
+	char* buf;
+	if ( !(buf = new char[len]) ) {
+		printf("%s","Error allocating kernel buffer for write!\n");
+		return -1;
+	} else {		
+		if( copyin(vaddr,len,buf) != (signed int)strlen(buf) ) {
+			printf("%s","Bad string length, data not written.\n");
+			delete[] buf;
+			return -1;
+		}		
+		if ( copyin(vaddr,len,buf) == -1 ) {
+			printf("%s","Bad pointer passed to to write: data not written\n");
+			delete[] buf;
+			return -1;
+		}				
+	}
+
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%s,%d,%d,*",SC_CreateMonitorArray,buf,arrayLength,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+
+
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+	MonitorArrayID id = atoi(buffer);
+	return id;
+
+}
+
+int GetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index) {
+	//Validating the desired monitorID
+	if (monitorArrayID < 0 || monitorArrayID >= MAX_MONITOR_ARRAYS) {
+		printf("MonitorArrayID[%d] is out of range!\n", monitorArrayID);
+		return;
+	}
+
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d, %d, %d,*", SC_GetMonitorArrayValue, MonitorArrayID, index, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+
+
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+	int value = atoi(buffer);
+	return value;
+}
+
+
+void SetMonitorArrayValue_Syscall(MonitorArrayID, int index, int value) {
+	//Validating the desired monitorarrayID
+	if (MonitorArrayID < 0 || MonitorArrayID >= MAX_MONITOR_ARRAYS) {
+		printf("MonitorArrayID[%d] is out of range!\n", MonitorArrayID);
+		return;
+	}
+
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d,%d,%d,%d,*", SC_SetMonitorArrayValue, MonitorArrayID, index, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+
+
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+}
+
+void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
+	if (monitorArrayID < 0 || monitorArrayID >= MAX_MONITOR_ARRAYS) {
+		printf("MonitorArrayID[%d] is out of range!\n", monitorArrayID);
+		return;
+	}
+
+	// If Networking is enabled, send message to server asking it to destroy
+	// a MonitorArray. 
+
+	char msg[MaxMailSize];
+	sprintf(msg,"%d,%d,%d,*",SC_DestroyMonitorArray,monitorArrayID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.from = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if ( !success ) {
+		printf("The postOffice Send to Server failed.\n");
+		interrupt->Halt();      	      	       	      	 
+	} 
+	postOffice->Receive(currentThread->ID, &inPktHdr, &inMailHdr, buffer); //Check my mailbox, which corresponds to my threadID
+	DEBUG('a',"Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+	fflush(stdout);
+
+}
+
+
+
 #endif
+/*===========================================================================================================================
+==============================================================================================================================*/
 
 
 
