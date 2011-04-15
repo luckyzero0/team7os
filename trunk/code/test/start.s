@@ -263,6 +263,38 @@ CreateMonitor:
 	j	$31
 	.end CreateMonitor
 
+.globl CreateMonitorArray
+	.ent CreateMonitorArray
+CreateMonitorArray:
+	addiu $2,$0,SC_CreateMonitorArray
+	syscall
+	j	$31
+	.end CreateMonitorArray
+
+.globl GetMonitorArrayValue
+	.ent GetMonitorArrayValue
+GetMonitorArrayValue:
+	addiu $2,$0,SC_GetMonitorArrayValue
+	syscall
+	j	$31
+	.end GetMonitorArrayValue
+
+.globl SetMonitorArrayValue
+	.ent SetMonitorArrayValue
+SetMonitorArrayValue:
+	addiu $2,$0,SC_SetMonitorArrayValue
+	syscall
+	j	$31
+	.end SetMonitorArrayValue
+
+.globl DestroyMonitorArray
+	.ent DestroyMonitorArray
+DestroyMonitorArray:
+	addiu $2,$0,SC_DestroyMonitorArray
+	syscall
+	j	$31
+	.end DestroyMonitorArray
+
 
 /* dummy function to keep gcc happy */
         .globl  __main
