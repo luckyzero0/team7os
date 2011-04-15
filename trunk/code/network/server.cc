@@ -451,7 +451,7 @@ void Acquire_Syscall_Server(LockID id){
         //how lock ownership is transferred on the server, as the server cannot
         //acquire the lock itself, as trying to acquire a busy lock would cause
         //the server to lock up.        
-        serverLocks[id].lock->Acquire(serverLocks[id].clientID, atoi(args[2].c_str()));
+        serverLocks[id].lock->Acquire(serverInPktHdr.from, atoi(args[2].c_str()));
         serverLocks[id].aboutToBeAcquired--;    
         sprintf(ack,"Lock [%d] acquired", id);        
 }
