@@ -191,7 +191,7 @@ int GetMonitorArrayValue(MonitorArrayID monitorArrayID, int index);
 
 void SetMonitorArrayValue(MonitorArrayID monitorArrayID, int index, int value);
 
-void DestroyMonitorArrayValue(MonitorArrayID monitorArrayID);
+void DestroyMonitorArray(MonitorArrayID monitorArrayID);
 
 
 
