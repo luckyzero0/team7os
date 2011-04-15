@@ -46,6 +46,11 @@
 #define SC_SetMonitor       25
 #define SC_GetMonitor       26
 
+#define SC_CreateMonitorArray	28
+#define SC_GetMonitorArrayValue	29
+#define SC_SetMonitorArrayValue	30
+#define SC_DestroyMonitorArrayValue 31
+
 
 
 
@@ -179,6 +184,14 @@ MonitorID CreateMonitor(char* name, int len);
 int GetMonitor(MonitorID monitorID);
 
 void SetMonitor(MonitorID monitorID, int value);
+
+MonitorArrayID CreateMonitorArray(char* name, int len, int arrayLength);
+
+int GetMonitorArrayValue(MonitorArrayID monitorArrayID, int index);
+
+void SetMonitorArrayValue(MonitorArrayID monitorArrayID, int index, int value);
+
+void DestroyMonitorArrayValue(MonitorArrayID monitorArrayID);
 
 
 

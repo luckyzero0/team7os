@@ -1023,6 +1023,23 @@ int GetMonitor_Syscall(MonitorID monitorID){
 	return value;
 }
 
+MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int arrayLength) {
+
+}
+
+int GetMonitorArrayValue_Syscall(MonitorArrayID, int index) {
+
+}
+
+
+void SetMonitorArrayValue_Syscall(MonitorArrayID, int index, int value) {
+
+}
+
+void DestroyMonitorArray(MonitorArrayID, int index, int value) {
+
+}
+
 void SetMonitor_Syscall(MonitorID monitorID, int value){
 
 	//Validating the desired monitorID
@@ -1492,6 +1509,29 @@ void ExceptionHandler(ExceptionType which) {
 			DEBUG('a', "SetMonitor syscall.\n");
 			SetMonitor_Syscall(machine->ReadRegister(4),
 				machine->ReadRegister(5));							
+			break;
+
+		case SC_CreateMonitorArray:
+			DEBUG('a', "CreateMonitorArray syscall.\n");
+			rv = CreateMonitorArray_Syscall(machine->ReadRegister(4),
+				machine->ReadRegister(5), machine->ReadRegister(6));
+			break;
+
+		case SC_GetMonitorArrayValue:
+			DEBUG('a', "GetMonitorArrayValue syscall.\n");
+			rv = GetMonitorArrayValue_Syscall(machine->ReadRegister(4),
+				machine->ReadRegister(5));
+			break;
+
+		case SC_SetMonitorArrayValue:
+			DEBUG('a', "SetMonitorArrayValue syscall.\n");
+			SetMonitorArrayValue_Syscall(machine->ReadRegister(4),
+				machine->ReadRegister(5), machine->ReadRegister(6));
+			break;
+
+		case SC_DestroyMonitorArray:
+			DEBUG('a', "DestroyMonitorArray syscall.\n");
+			DestroyMonitorArray_Syscall(machine->ReadRegister(4));
 			break;
 #endif
 		case SC_Fork:
