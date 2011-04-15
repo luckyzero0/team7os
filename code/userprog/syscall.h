@@ -49,7 +49,7 @@
 #define SC_CreateMonitorArray	28
 #define SC_GetMonitorArrayValue	29
 #define SC_SetMonitorArrayValue	30
-#define SC_DestroyMonitorArrayValue 31
+#define SC_DestroyMonitorArray 31
 
 
 
