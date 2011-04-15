@@ -1,47 +1,53 @@
-
-#include "office.h"
 #include "utils.h"
+#include "officeData.h"
 
 static void doAppClerk(int* index, int* cashDollars, int needToAcquire);
 static void doPicClerk(int* index, int* cashDollars, int needToAcquire);
 static void doPassPortClerk(int* index, int* cashDollars);
 static void doCashierClerk(int* index, int* cashDollars);
+int waitAndRestart(LockID lineToExit, int index);
 
-int waitAndRestart(LockID lineToExit, int index){
-	tprintf("Customer [%d]: waitAndRestart entered\n", index,0,0,"","");
-	/*senatorWaitingRoomLock->Acquire();*/
-	Acquire(entryLock);
-	if (senatorsInWaitingRoom>0){
-		if(lineToExit > -1){
-			/*lineToExit->Release();*/
-			tprintf("Release Lock[%d]\n",lineToExit,0,0,"","");
-			Release(lineToExit);
-		}
-		tprintf("Customer [%d]: There are %d senators in waiting room\n", index, senatorsInWaitingRoom,0,"","");		
-		/*senatorWaitingRoomLock->Release();*/
-		customersInWaitingRoom++;
-		customersInOffice--;
-		if (customersInOffice == 0) {
-			Signal(managerWaitForCustomersCV, entryLock);
-		}
-		printf("Customer [%d] leaves the Passport Office as a senator arrives.\n",index,0,0,"","");
-		Wait(customerWaitingRoomCV, entryLock);
-		customersInWaitingRoom--;
-		customersInOffice++;
-		Release(entryLock);
-		if(lineToExit > -1){
-			/*lineToExit->Acquire();*/
-			Acquire(lineToExit);
-		}
-		return TRUE;
-	}else{
-		tprintf("Customer [%d]: There are no senators waiting.. carrying on\n", index,0,0,"","");
-		/*senatorWaitingRoomLock->Release();*/
-		Release(entryLock);
-		return FALSE;
-	}
 
-}
+
+
+
+
+void initServerData(){
+	
+	//make all the locks
+	appPicLineLock = CreateLock("appPicLineLock",14);
+	regAppLineCV = CreateCondition("regAppLineCV",12);
+	privAppLineCV = CreateCondition("privAppLineCV",13);
+	regPicLineCV = CreateCondition("regPicLineCV",12);
+	privPicLineCV = CreateCondition("privPicLineCV",13);
+
+	passLineLock = CreateLock("passLineLock",12);
+	regPassLineCV = CreateCondition("regPassLineCV",13);
+	privPassLineCV = CreateCondition("privPassLineCV",14);
+	
+	cashLineLock = CreateLock("cashLineLock",12);
+	regCashLineCV = CreateCondition("regCashLineCV",13);
+
+	/* Senators in office and waiting room */
+	senatorWaitingRoomCV = CreateCondition("senatorWaitingRoomCV",20);
+
+
+	/* Customers in office and waiting room */
+	customerWaitingRoomCV = CreateCondition("customerWaitingRoomCV",21);	
+
+	managerWaitForCustomersCV = CreateCondition("managerWaitForCustomersCV", 25);
+
+	entryLock = CreateLock("entryLock", 9);
+
+	appClerkUIDLock = CreateLock("appClerkUIDLock",15);
+	picClerkUIDLock = CreateLock("picClerkUIDLock",15);
+	passClerkUIDLock = CreateLock("passClerkUIDLock",16);
+	cashClerkUIDLock = CreateLock("cashClerkUIDLock",16);
+	customerSenatorUIDLock = CreateLock("customerSenatorUIDLock",22);
+
+
+
+
 
 void CustomerRun() {	
 
@@ -575,3 +581,40 @@ void CustomerCashTest(){
 	doCashierClerk(&index, &cashDollars);
 	Exit(0);
 }
+
+int waitAndRestart(LockID lineToExit, int index){
+	tprintf("Customer [%d]: waitAndRestart entered\n", index,0,0,"","");
+	/*senatorWaitingRoomLock->Acquire();*/
+	Acquire(entryLock);
+	if (senatorsInWaitingRoom>0){
+		if(lineToExit > -1){
+			/*lineToExit->Release();*/
+			tprintf("Release Lock[%d]\n",lineToExit,0,0,"","");
+			Release(lineToExit);
+		}
+		tprintf("Customer [%d]: There are %d senators in waiting room\n", index, senatorsInWaitingRoom,0,"","");		
+		/*senatorWaitingRoomLock->Release();*/
+		customersInWaitingRoom++;
+		customersInOffice--;
+		if (customersInOffice == 0) {
+			Signal(managerWaitForCustomersCV, entryLock);
+		}
+		printf("Customer [%d] leaves the Passport Office as a senator arrives.\n",index,0,0,"","");
+		Wait(customerWaitingRoomCV, entryLock);
+		customersInWaitingRoom--;
+		customersInOffice++;
+		Release(entryLock);
+		if(lineToExit > -1){
+			/*lineToExit->Acquire();*/
+			Acquire(lineToExit);
+		}
+		return TRUE;
+	}else{
+		tprintf("Customer [%d]: There are no senators waiting.. carrying on\n", index,0,0,"","");
+		/*senatorWaitingRoomLock->Release();*/
+		Release(entryLock);
+		return FALSE;
+	}
+
+}
+

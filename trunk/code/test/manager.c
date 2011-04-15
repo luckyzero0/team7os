@@ -44,7 +44,7 @@ void tryToWakeUpSenators() {
 			tprintf("Manager: I need to tell all %d customers to GTFO\n", customersInOffice,0,0,"","");
 			/*entryLock->Release();*/
 
-			tprintf("Manager: Acquiring appPicLineLock\n",0,0,0,"","");
+			tprintf("Manager: Acquiring appPicLineLock to wake up senators \n",0,0,0,"","");
 			/*appPicLineLock->Acquire();*/
 			Acquire(appPicLineLock);
 			tprintf("Manager: Acquiring passLineLock\n",0,0,0,"","");
