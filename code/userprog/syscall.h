@@ -43,8 +43,8 @@
 #define SC_GetForkArg		22
 #define SC_GetThreadID		23
 #define SC_CreateMonitor    24
-#define SC_SetMonitor       26
-#define SC_GetMonitor       27
+#define SC_SetMonitor       25
+#define SC_GetMonitor       26
 
 
 
@@ -57,6 +57,7 @@
 typedef int LockID;
 typedef int ConditionID;
 typedef int MonitorID;
+typedef int MonitorArrayID;
 
 
 /* The system call interface.  These are the operations the Nachos
