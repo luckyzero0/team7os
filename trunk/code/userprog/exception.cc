@@ -1036,7 +1036,7 @@ void SetMonitorArrayValue_Syscall(MonitorArrayID, int index, int value) {
 
 }
 
-void DestroyMonitorArray(MonitorArrayID monitorArrayID) {
+void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 
 }
 
