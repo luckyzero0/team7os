@@ -267,5 +267,17 @@ multiClientTest: multiClientTest.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o multiClientTest.o utils.o -o multiClientTest.coff
 	../bin/coff2noff multiClientTest.coff multiClientTest
 
+netCustomer.o: netCustomer.c
+	$(CC) $(CFLAGS) -c netCustomer.c utils.c
+netCustomer: netCustomer.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o netCustomer.o utils.o -o netCustomer.coff
+	../bin/coff2noff netCustomer.coff netCustomer
+
+netSenator.o: netSenator.c
+	$(CC) $(CFLAGS) -c netSenator.c utils.c
+netSenator: netSenator.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o netSenator.o utils.o -o netSenator.coff
+	../bin/coff2noff netSenator.coff netSenator
+
 clean:
 	rm -f *.o *.coff

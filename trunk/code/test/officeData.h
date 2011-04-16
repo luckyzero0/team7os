@@ -25,7 +25,7 @@ LockID customerSenatorUIDLock;
 #define NUM_SENATORS 3
 
 enum ClerkStatus {CLERK_INVALID, CLERK_AVAILABLE, CLERK_ON_BREAK, CLERK_BUSY, CLERK_COMING_BACK};
-
+typedef int bool;
 /*
 MonitorID numAppClerks; //= 3; 
 MonitorID numPicClerks; //= 3;
