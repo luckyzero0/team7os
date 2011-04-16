@@ -512,3 +512,8 @@ void tryToWakeUpClerks(){
 		Yield();
 	}
 }
+
+int main() {
+	ManagerRun();
+	Exit(0);
+}
