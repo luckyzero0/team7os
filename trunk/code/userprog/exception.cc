@@ -1053,7 +1053,7 @@ void SetMonitor_Syscall(MonitorID monitorID, int value){
 
 }
 
-MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int arrayLength, int initialValue /*HACK NEED TO DEAL WITH THIS*/) {
+MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int arrayLength, int initialValue) {
 	//Validating the desired name
 
 	// TODO: deal with sending initialValue as well on the front and back end
@@ -1075,7 +1075,7 @@ MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int array
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%s,%d,%d,*",SC_CreateMonitorArray,buf,arrayLength,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%s,%d,%d,%d,*",SC_CreateMonitorArray,buf,arrayLength, initialValue, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
