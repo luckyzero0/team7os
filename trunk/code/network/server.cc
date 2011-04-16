@@ -15,6 +15,9 @@
 #define MAX_LOCKS 100 
 #define MAX_CONDITIONS 200
 #define MAX_MONITORS 200
+#define MAX_MONITOR_ARRAYS 50
+#define MAX_MONITOR_ARRAY_VALUES 50
+
 //#define ServerLock Lock
 
 extern "C" {
@@ -52,6 +55,19 @@ struct MonitorEntry {
 };
 MonitorEntry serverMVs[MAX_MONITORS];
 
+typedef MonitorArray int[MAX_MONITOR_ARRAY_VALUES];
+struct MonitorArrayEntry{
+	MonitorArray monitorArray;
+	bool free;
+	char* name;
+	int clientID;
+	int threadID;
+}
+MonitorArrayEntry serverMVAs[MAX_MONITOR_ARRAYS];
+
+
+
+
 
 void initServerData();
 void parsePacket(char*);
@@ -68,6 +84,10 @@ void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID);
 MonitorID CreateMonitor_Syscall_Server(char* name);
 int GetMonitor_Syscall_Server(MonitorID monitorID);
 void SetMonitor_Syscall_Server(MonitorID monitorID, int value);
+MonitorArrayID CreateMonitorArray_Syscall_Server(char* name, int length, int initValue);
+int GetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index);
+void SetMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value);
+void DestroyMonitorArray(MonitorArrayID monitorArrayID);
 
 
 void handleIncomingRequests();
@@ -191,6 +211,33 @@ void handleIncomingRequests(){
                         sprintf(ack,"%d",GetMonitor_Syscall_Server(atoi(args[1].c_str())));     
                         threadBox = atoi(args[2].c_str());
                 break;
+
+				case SC_CreateMonitorArray:
+						printf("Request from Client[%d], ThreadID[%s]. Create Monitor Array.\n", serverInPktHdr.from, args[4].c_str());
+						sprintf(ack,"%d",CreateMonitorArray_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str()));
+						threadBox = atoi(args[4].c_str());
+				break;
+
+				case SC_GetMonitorArrayValue:
+						printf("Request from Client[%d], ThreadID[%s]. Get Monitor Array Value.\n", serverInPktHdr.from, args[3].c_str());
+						sprintf(ack,"%d",GetMonitorArray_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));
+						threadBox = atoi(args[3].c_str());
+				break;
+
+				case SC_SetMonitorArrayValue:
+						printf("Request from Client[%d], ThreadID[%s]. Set Monitor Array Value.\n", serverInPktHdr.from, args[4].c_str());
+						SetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str());
+						threadBox = atoi(args[4].c_str());
+				break;
+
+				case SC_DestroyMonitorArray:
+						printf("Request from Client[%d], ThreadID[%s]. Destroy Monitor Array.\n", serverInPktHdr.from, args[2].c_str());
+						CreateMonitorArray_Syscall_Server(atoi(args[1].c_str());
+						threadBox = atoi(args[2].c_str());
+				break;
+						
+
+
                         
         }
         /* If a request could not be completed, as in the case of
@@ -292,6 +339,17 @@ void initServerData(){
                 serverMVs[i].threadID = -1;    
                 serverMVs[i].name = "";
         }
+
+		//initialize monitor arrays
+		for (int i=0; i < MAX_MONITOR_ARRAYS; i++){
+				for (int j=0; j<MAX_MONITOR_ARRAY_VALUES; j++){
+					serverMVAs[i].monitorArray[j] = NULL;
+				}
+				serverMVAs[i].free = true;
+				serverMVAs[i].clientID = -1;
+				serverMVAs[i].threadID = -1;
+				serverMVAs[i].name = "";
+		}
         
         
         
@@ -335,6 +393,41 @@ int getAvailableServerConditionID(char* name) {
 }
 // Except this one. I had to write this one. ========================================
 //             -J
+
+int getAvailableServerMonitorArrayID(char* name){
+	int index = -1;
+	for (int i = 0; i < MAX_MONITOR_ARRAYS; i++) {	        
+		if(serverMVAs[i].monitorArray != NULL)
+		{		       		       
+			if(!strcmp(name, serverMVAs[i].name))
+			{
+				recycle = true;
+				printf("MV Array already exists. Reusing.\n");
+				index = i;
+				return index;
+			}	       
+		}
+		else
+		{
+			recycle = false;
+			printf("MV Array [%d] is unused.\n",i);		       
+			index = i;
+			break;
+		}        	       
+	}
+	return index;       
+}
+
+void deleteServerMonitorArray(int id) { 
+        
+        serverMVAs[id].monitorArray = NULL;
+        serverMVAs[id].clientID = -1;
+        serverMVAs[id].threadID = -1;
+        serverMVAs[id].name = "";
+}
+
+
+
 int getAvailableServerMonitorID(char* name) {
         int index = -1;
         for (int i = 0; i < MAX_MONITORS; i++) {	        
@@ -392,6 +485,8 @@ int getAvailableServerLockID(char* name) {
          }
          return index;       
 }
+
+
 
 // "Server" Syscalls. Client's syscall should send a message to server,
 // telling it to do one of these things.
@@ -655,7 +750,21 @@ void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID){
 
 void DestroyCondition_Syscall_Server(ConditionID id){
         //conditionsLock->Acquire();        
-        
+          if(serverCVs[id].condition == NULL){
+                        ack = "CV ID does not exist.";
+                        requestCompleted = true;
+                }
+                else if (serverCVs[id].condition->HasThreadsWaiting() || serverCVs[id].aboutToBeWaited > 0) {
+                        serverCVs[id].needsToBeDeleted = true;
+                        ack = "CV will be deleted when possible.";
+                        DEBUG('a', "CV[%d] will be deleted when possible.\n",id); //DEBUG
+                        requestCompleted = true;
+                } else {
+                        deleteServerCV(id);                   
+                        DEBUG('a', "CV[%d] has been deleted.\n",id);//DEBUG
+                        sprintf(ack,"CV [%d] has been deleted.", id); //DEBUG
+                        requestCompleted = true;
+                }        
         printf("CV[%d] destroyed successfully.\n",id);
         requestCompleted = true;
         //conditionsLock->Release();
@@ -670,7 +779,7 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
  	                	return index;
                 }
                 if (index == -1) {
-                        printf("No locks available!\n");
+                        printf("No Monitors available!\n");
                 } else {
                         serverMVs[index].monitor = 0; // monitors default to Zero now
 						serverMVs[index].free = false;
@@ -693,4 +802,45 @@ int GetMonitor_Syscall_Server(MonitorID monitorID){
 void SetMonitor_Syscall_Server(MonitorID monitorID, int value){
         serverMVs[monitorID].monitor = value;
         sprintf(ack,"MVar[%d]set.",monitorID);
+}
+
+MonitorArrayID CreateMonitorArray_Syscall_Server(char* name, int length, int initValue){
+	int index = getAvailableServerMonitorArrayID(name);
+	if(recycle)
+	{
+		requestCompleted = true;
+		return index;
+	}
+	if (index == -1) {
+		printf("No Monitor Arrays available!\n");
+	} else {
+		for(int i=0; i<MAX_MONITOR_ARRAYS; i++){
+			serverMVAs[index].monitorArray[i] = initValue;
+		}
+		serverMVAs[index].free = false;
+		serverMVAs[index].clientID = serverInPktHdr.from;
+		serverMVAs[index].threadID = atoi(args[4].c_str());
+		serverMVAs[index].name = new char[strlen(name)];
+		strcpy(serverMVAs[index].name,name);                   
+	}
+
+	printf("Returning monitorArray index: %d\n", index); //DEBUG 
+	requestCompleted = true;        
+	return index;
+}
+
+int GetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index){
+	return serverMVAs[monitorArrayID].monitorArray[index];
+
+}
+
+void SetMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value){
+	serverMVAs[monitorArrayID].monitorArray[index] = value;
+	sprintf(ack, "Index [%d] in MV Array [%d] has been set to [%d]\n", index, monitorArrayID, value);
+}
+
+void DestroyMonitorArray(MonitorArrayID monitorArrayID){
+	deleteServerMonitorArray(monitorArrayID);
+	printf("MV Array [%d] destroyed successfully.\n",id);
+	requestCompleted = true;
 }
