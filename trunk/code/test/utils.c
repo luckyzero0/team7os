@@ -1,6 +1,9 @@
 /*utils.c */
 
 #include "syscall.h"
+
+#define DEBUG_PRINT 0 /* flip to 1 if you want to printout debug crap */
+
 int strlen(char* str){
 
 	int i = 0;
@@ -155,3 +158,9 @@ void reverse(char s[])
          s[j] = c;
      }
  }
+
+void tprintf(char* formatString, int arg1, int arg2, int arg3, char* arg4, char* arg5) {
+	if (DEBUG_PRINT) {
+		printf(formatString, arg1, arg2, arg3, arg4, arg5);
+	}
+}
