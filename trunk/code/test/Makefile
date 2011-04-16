@@ -160,6 +160,12 @@ netCashClerk: netCashClerk.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o netCashClerk.o utils.o -o netCashClerk.coff
 	../bin/coff2noff netCashClerk.coff netCashClerk
 	
+netManager.o: netManager.c utils.h officeData.h
+	$(CC) $(CFLAGS) -c netManager.c utils.c
+netManager: netManager.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o netManager.o utils.o -o netManager.coff
+	../bin/coff2noff netManager.coff netManager
+	
 customer.o: customer.c
 	$(CC) $(CFLAGS) -c customer.c utils.c
 	
