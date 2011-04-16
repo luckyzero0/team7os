@@ -185,7 +185,7 @@ int GetMonitor(MonitorID monitorID);
 
 void SetMonitor(MonitorID monitorID, int value);
 
-MonitorArrayID CreateMonitorArray(char* name, int len, int arrayLength);
+MonitorArrayID CreateMonitorArray(char* name, int len, int arrayLength, int initialValue);
 
 int GetMonitorArrayValue(MonitorArrayID monitorArrayID, int index);
 

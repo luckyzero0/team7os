@@ -1053,9 +1053,10 @@ void SetMonitor_Syscall(MonitorID monitorID, int value){
 
 }
 
-MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int arrayLength) {
+MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int arrayLength, int initialValue /*HACK NEED TO DEAL WITH THIS*/) {
 	//Validating the desired name
 
+	// TODO: deal with sending initialValue as well on the front and back end
 	char* buf;
 	if ( !(buf = new char[len]) ) {
 		printf("%s","Error allocating kernel buffer for write!\n");
@@ -1628,7 +1629,8 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_CreateMonitorArray:
 			DEBUG('a', "CreateMonitorArray syscall.\n");
 			rv = CreateMonitorArray_Syscall(machine->ReadRegister(4),
-				machine->ReadRegister(5), machine->ReadRegister(6));
+				machine->ReadRegister(5), machine->ReadRegister(6),
+				machine->ReadRegister(7));
 			break;
 
 		case SC_GetMonitorArrayValue:

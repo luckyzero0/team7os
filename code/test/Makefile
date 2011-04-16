@@ -136,6 +136,9 @@ office.o: office.c
 clerks.o: clerks.c
 	$(CC) $(CFLAGS) -c clerks.c utils.c
 	
+netAppClerk.o: netAppClerk.c utils.h officeData.h
+	$(CC) $(CFLAGS) -c netAppClerk.c utils.c
+	
 customer.o: customer.c
 	$(CC) $(CFLAGS) -c customer.c utils.c
 	
