@@ -154,6 +154,12 @@ netPassClerk: netPassClerk.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o netPassClerk.o utils.o -o netPassClerk.coff
 	../bin/coff2noff netPassClerk.coff netPassClerk
 	
+netCashClerk.o: netCashClerk.c utils.h officeData.h
+	$(CC) $(CFLAGS) -c netCashClerk.c utils.c
+netCashClerk: netCashClerk.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o netCashClerk.o utils.o -o netCashClerk.coff
+	../bin/coff2noff netCashClerk.coff netCashClerk
+	
 customer.o: customer.c
 	$(CC) $(CFLAGS) -c customer.c utils.c
 	
