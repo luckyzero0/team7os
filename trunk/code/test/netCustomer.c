@@ -10,7 +10,8 @@ int waitAndRestart(int lineToExit, int index);
 
 
 int main(){
-	printf("LOL!\n",0,0,0,"","");
+	CustomerRun();
+	Exit(0);
 }
 
 void initServerData(){
@@ -90,14 +91,6 @@ void initServerData(){
 	picFiled = CreateMonitorArray("picFiled",8,NUM_CUSTOMERS,FALSE);
 	passFiled = CreateMonitorArray("passFiled",9,NUM_CUSTOMERS,FALSE);
 	cashFiled = CreateMonitorArray("cashFiled",9,NUM_CUSTOMERS,FALSE);
-
-
-
-	
-	
-	
-	SetMonitor(customersInOffice,GetMonitor(customersInOffice)+1); /*NEEDS A CHECK*/
-	
 }
 
 
@@ -200,8 +193,6 @@ void CustomerRun() {
 
 	/*proceed to cashier*/
 	doCashierClerk(&index, &cashDollars);
-
-	Exit(0);
 }
 
 static void doAppClerk(int* index, int* cashDollars, int needToAcquire)
