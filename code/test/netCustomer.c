@@ -9,11 +9,10 @@ int waitAndRestart(int lineToExit, int index);
 void initServerData();
 void CustomerRun();
 
-int main(){
-	CustomerRun();
-	Exit(0);
+int main(){	
 	initServerData();
 	CustomerRun();
+	Exit(0);
 }
 
 void initServerData(){

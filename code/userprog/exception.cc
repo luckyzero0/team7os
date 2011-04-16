@@ -1107,11 +1107,11 @@ int GetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index) {
 	//Validating the desired monitorID
 	if (monitorArrayID < 0 || monitorArrayID >= MAX_MONITOR_ARRAYS) {
 		printf("MonitorArrayID[%d] is out of range!\n", monitorArrayID);
-		return;
+		return -1;
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d, %d, %d,*", SC_GetMonitorArrayValue, MonitorArrayID, index, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,%d,%d,*", SC_GetMonitorArrayValue, monitorArrayID, index, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -1134,13 +1134,13 @@ int GetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index) {
 
 void SetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index, int value) {
 	//Validating the desired monitorarrayID
-	if (MonitorArrayID < 0 || MonitorArrayID >= MAX_MONITOR_ARRAYS) {
-		printf("MonitorArrayID[%d] is out of range!\n", MonitorArrayID);
+	if (monitorArrayID < 0 || monitorArrayID >= MAX_MONITOR_ARRAYS) {
+		printf("MonitorArrayID[%d] is out of range!\n", monitorArrayID);
 		return;
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,%d,*", SC_SetMonitorArrayValue, MonitorArrayID, index, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,%d,%d,%d,*", SC_SetMonitorArrayValue, monitorArrayID, index, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
