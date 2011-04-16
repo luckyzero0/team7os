@@ -142,6 +142,12 @@ netAppClerk: netAppClerk.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o netAppClerk.o utils.o -o netAppClerk.coff
 	../bin/coff2noff netAppClerk.coff netAppClerk
 	
+netPicClerk.o: netPicClerk.c utils.h officeData.h
+	$(CC) $(CFLAGS) -c netPicClerk.c utils.c
+netPicClerk: netPicClerk.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o netPicClerk.o utils.o -o netPicClerk.coff
+	../bin/coff2noff netPicClerk.coff netPicClerk
+	
 customer.o: customer.c
 	$(CC) $(CFLAGS) -c customer.c utils.c
 	
