@@ -46,6 +46,7 @@ int initPicClerkData() {
 	picClerkSSNs = CreateMonitorArray("picClerkSSNs", 12, NUM_OF_EACH_TYPE_OF_CLERK, -1);/* of monitors, default to -1*/
 	picClerkMoney = CreateMonitorArray("picClerkMoney", 13, NUM_OF_EACH_TYPE_OF_CLERK, 0);/* of monitors, default to 0*/
 	picClerkBribed = CreateMonitorArray("picClerkBribed", 14, NUM_OF_EACH_TYPE_OF_CLERK, FALSE);/* of monitors, default to 0 */
+	happyWithPhoto = CreateMonitorArray("happyWithPhoto", 14, NUM_OF_EACH_TYPE_OF_CLERK, FALSE); /* of monitors, default to false */
 
 	/* obtain SSN */
 	Acquire(picClerkUIDLock);
@@ -72,6 +73,7 @@ void PicClerkRun(){
 	int index;
 	LockID myLockID;
 	ConditionID myConditionID;
+	int count;
 
 	index = initPicClerkData();
 
@@ -105,7 +107,7 @@ void PicClerkRun(){
 			/*Customer/Senator - Clerk interaction*/
 			tprintf("PicClerk %d: Acquiring my own lock\n",index,0,0,"","");
 			/*picClerkLocks[index]->Acquire();*/
-			
+
 			myLockID = GetMonitorArrayValue(picClerkLocks, index);
 			myConditionID = GetMonitorArrayValue(picClerkCVs, index);
 			Acquire(myLockID);
@@ -116,36 +118,41 @@ void PicClerkRun(){
 			/*picClerkCVs[index]->Wait(picClerkLocks[index]);*/
 			Wait(myConditionID, myLockID);
 			tprintf("PicClerk %d: Just woke up!\n",index,0,0,"","");
-			
+
 			SSN = GetMonitorArrayValue(picClerkSSNs, index); /* use this locally instead of calling get on the array all the time */
 			tprintf("PicClerk %d: Just receieved %s's SSN: %d\n",index, SSN, 0, getCustomerType(),"");
 
 			if (GetMonitorArrayValue(picClerkBribed, index) == TRUE){
-				printf("PiclicationClerk [%d] accepts money = 500 from %s with SSN %d\n", index, SSN, 0,getCustomerType(),"");
+				printf("PictureClerk [%d] accepts money = 500 from %s with SSN %d\n", index, SSN, 0,getCustomerType(),"");
 				SetMonitorArrayValue(picClerkBribed, index, FALSE);
 			}
 
-			printf("PiclicationClerk [%d] informs %s with SSN %d that the procedure has been completed.\n", index, SSN, 0, getCustomerType(),""); 
-			
-			/*Thread* newThread = new Thread("Filing Thread");
-			newThread->Fork((VoidFunctionPtr)picClerkFileData, SSN);
-			
-			NEED TO CONVERT THIS*/
-			/*
-			ForkWithArg(picClerkFileData, SSN);*/
+			count = 1;
+			do {
+				if (count == 1) {
+					printf("PictureClerk [%d] takes picture of %s with SSN %d\n", index, SSN, 0, getCustomerType(),"");
+				} else {
+					printf("PictureClerk [%d] takes picture of %s with SSN %d again\n", index, SSN, 0, getCustomerType(),"");
+				}
+				tprintf("PicClerk %d: Taking picture of %s for the %dst/nd/rd/th time (Signaling my CV)!\n",index, count, 0, getCustomerType(),"");
+				Signal(myConditionID, myLockID);
+				tprintf("PicClerk %d: Going to sleep...\n",index,0,0,"","");
+				Wait(myConditionID, myLockID);
 
-			SetMonitorArrayValue(picFiled, SSN, TRUE);
-			/* picFiled[SSN] = TRUE; GET RID OF THIS ONCE WE FIX SHIT*/
-			
-			/*for (i=0; i<10; i++){
-				tprintf("PicFiled: %d,    PicFiled: %d\n",picFiled[i],picFiled[i]);
-			}*/
-			
-			tprintf("PicClerk %d: Signaling my picClerkCV\n", index,0,0,"","");
-			/*picClerkCVs[index]->Signal(picClerkLocks[index]);*/
+				if (GetMonitorArrayValue(happyWithPhoto, index) == TRUE) {
+					SetMonitorArrayValue(picFiled, SSN, TRUE);
+					
+					/*ForkWithArg(picClerkFileData, SSN);*/
+					tprintf("PicClerk %d: Just woke up, %s with SSN %d liked their picture!\n",index, SSN, 0,getCustomerType(),"");
+				} else {
+					tprintf("PicClerk %d: Just woke up, %s did not like their picture.\n",index, 0, 0,getCustomerType(),"");
+				}
+				count++;
+			} while (GetMonitorArrayValue(happyWithPhoto, index) == FALSE);
+
+			printf("PictureClerk [%d] informs %s with SSN %d that the procedure has been completed.\n", index, SSN, 0, getCustomerType(),""); 
 			Signal(myConditionID, myLockID);
 			tprintf("PicClerk %d: Releasing my own lock\n", index,0,0,"","");
-			/*picClerkLocks[index]->Release();*/
 			Release(myLockID);
 
 		}
@@ -153,13 +160,13 @@ void PicClerkRun(){
 			/*appPicLineLock->Release();*/
 			Release(appPicLineLock);
 			/*picClerkLocks[index]->Acquire();*/
-			/*tprintf("PiclicationClerk [%d] acquiring his own lock\n", index,0,0,"","");*/
+			/*tprintf("PictureClerk [%d] acquiring his own lock\n", index,0,0,"","");*/
 			Acquire(myLockID);
-			printf("PiclicationClerk [%d] is going on break\n", index,0,0,"","");
+			printf("PictureClerk [%d] is going on break\n", index,0,0,"","");
 			SetMonitorArrayValue(picClerkStatuses, index, CLERK_ON_BREAK);
 			/*picClerkCVs[index]->Wait(picClerkLocks[index]);*/
 			Wait(myConditionID, myLockID);
-			printf("PiclicationClerk [%d] returned from break\n", index,0,0,"","");
+			printf("PictureClerk [%d] returned from break\n", index,0,0,"","");
 			/*picClerkLocks[index]->Release();*/
 			Release(myLockID);
 		}
