@@ -138,6 +138,9 @@ clerks.o: clerks.c
 	
 netAppClerk.o: netAppClerk.c utils.h officeData.h
 	$(CC) $(CFLAGS) -c netAppClerk.c utils.c
+netAppClerk: netAppClerk.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o netAppClerk.o utils.o -o netAppClerk.coff
+	../bin/coff2noff netAppClerk.coff netAppClerk
 	
 customer.o: customer.c
 	$(CC) $(CFLAGS) -c customer.c utils.c
