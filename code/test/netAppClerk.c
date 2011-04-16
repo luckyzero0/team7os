@@ -15,7 +15,7 @@ char* getCustomerType() {
 	return result;
 }
 
-int initAppClerkData() { //return id;
+int initAppClerkData() {
 	int myUID;
 	char* name;
 	int id;
