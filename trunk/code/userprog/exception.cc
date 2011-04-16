@@ -41,6 +41,8 @@
 #define MAX_LOCKS 100
 #define MAX_CONDITIONS 200
 #define MAX_MONITORS 200
+#define MAX_MONITOR_ARRAYS 50
+#define MAX_MONITOR_ARRAY_VALUES 50
 #define MAX_THREADS 1000
 #define SERVER_ID 0
 
@@ -1073,6 +1075,11 @@ MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int array
 			return -1;
 		}				
 	}
+	if (arrayLength > MAX_MONITOR_ARRAY_VALUES || arrayLength < 0){
+		printf("Invalid array length!\n");
+		delete[] buf;
+		return -1;
+	}
 
 	char msg[MaxMailSize];
 	sprintf(msg,"%d,%s,%d,%d,%d,*",SC_CreateMonitorArray,buf,arrayLength, initialValue, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
@@ -1125,7 +1132,7 @@ int GetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index) {
 }
 
 
-void SetMonitorArrayValue_Syscall(MonitorArrayID, int index, int value) {
+void SetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index, int value) {
 	//Validating the desired monitorarrayID
 	if (MonitorArrayID < 0 || MonitorArrayID >= MAX_MONITOR_ARRAYS) {
 		printf("MonitorArrayID[%d] is out of range!\n", MonitorArrayID);
