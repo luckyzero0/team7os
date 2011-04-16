@@ -78,32 +78,21 @@ void CashClerkRun(){
 		Acquire(cashLineLock);		
 
 		/*Checking if anyone is in line*/
-		if (GetMonitor(privCashLineLength) + GetMonitor(regCashLineLength) > 0){
+		if (GetMonitor(regCashLineLength) > 0){
 			tprintf("CashClerk %d: there are people in line.\n", index,0,0,"","");
-			if (GetMonitor(privCashLineLength) > 0){ /*Checking if anyone is in priv line*/
-				tprintf("CashClerk %d: people in my priv line.\n", index,0,0,"","");
-				tprintf("CashClerk %d: has spotted %s in privCashLine(length = %d)\n",index, GetMonitor(privCashLineLength), 0,getCustomerType(),""); 
-				SetMonitor(privCashLineLength, GetMonitor(privCashLineLength) - 1);
-				tprintf("CashClerk %d: Becoming Available!\n",index,0,0,"","");
-				SetMonitorArrayValue(cashClerkStatuses, index, CLERK_AVAILABLE);
-				tprintf("CashClerk %d: Signaling Condition variable (length of priv line is now %d)\n", index, GetMonitor(privCashLineLength),0,"","");
-				/*privCashLineCV->Signal(cashLineLock);*/
-				Signal(privCashLineCV, cashLineLock);
-			}
-			else{ /*Check if anyone is in reg line*/
-				tprintf("CashClerk %d: has spotted %s in regCashLine (length = %d)\n",index, GetMonitor(regCashLineLength), 0, getCustomerType(),"");
-				SetMonitor(regCashLineLength, GetMonitor(regCashLineLength) - 1);
-				tprintf("CashClerk %d: Becoming Available!\n",index,0,0,"","");
-				SetMonitorArrayValue(cashClerkStatuses, index, CLERK_AVAILABLE);
-				tprintf("CashClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,GetMonitor(regCashLineLength),0,"","");
-				/*regCashLineCV->Signal(cashLineLock);*/
-				Signal(regCashLineCV, cashLineLock);
-			}
+
+			tprintf("CashClerk %d: has spotted %s in regCashLine (length = %d)\n",index, GetMonitor(regCashLineLength), 0, getCustomerType(),"");
+			SetMonitor(regCashLineLength, GetMonitor(regCashLineLength) - 1);
+			tprintf("CashClerk %d: Becoming Available!\n",index,0,0,"","");
+			SetMonitorArrayValue(cashClerkStatuses, index, CLERK_AVAILABLE);
+			tprintf("CashClerk %d: Signaling Condition variable (length of reg line is now %d)\n", index,GetMonitor(regCashLineLength),0,"","");
+			/*regCashLineCV->Signal(cashLineLock);*/
+			Signal(regCashLineCV, cashLineLock);
 
 			/*Customer/Senator - Clerk interaction*/
 			tprintf("CashClerk %d: Acquiring my own lock\n",index,0,0,"","");
 			/*cashClerkLocks[index]->Acquire();*/
-			
+
 			myLockID = GetMonitorArrayValue(cashClerkLocks, index);
 			myConditionID = GetMonitorArrayValue(cashClerkCVs, index);
 			Acquire(myLockID);
@@ -114,7 +103,7 @@ void CashClerkRun(){
 			/*cashClerkCVs[index]->Wait(cashClerkLocks[index]);*/
 			Wait(myConditionID, myLockID);
 			tprintf("CashClerk %d: Just woke up!\n",index,0,0,"","");
-			
+
 			SSN = GetMonitorArrayValue(cashClerkSSNs, index); /* use this locally instead of calling get on the array all the time */
 
 			if (GetMonitorArrayValue(passFiled, SSN) == FALSE){
@@ -135,7 +124,7 @@ void CashClerkRun(){
 				tprintf("CashClerk %d: Total money collected: $%d\n",index, GetMonitorArrayValue(cashClerkMoney, index),0,"","");
 
 			}
-			
+
 			tprintf("CashClerk %d: Signaling my cashClerkCV\n", index,0,0,"","");
 			Signal(myConditionID, myLockID);
 			tprintf("CashClerk %d: Releasing my own lock\n", index,0,0,"","");
