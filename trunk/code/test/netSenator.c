@@ -16,6 +16,7 @@ int main(){
 	printf("INT MAIN BITCHEZ\n",0,0,0,"","");
 	initServerData();
 	SenatorRun();
+	Exit(0);
 	
 }
 
