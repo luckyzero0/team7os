@@ -148,6 +148,12 @@ netPicClerk: netPicClerk.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o netPicClerk.o utils.o -o netPicClerk.coff
 	../bin/coff2noff netPicClerk.coff netPicClerk
 	
+netPassClerk.o: netPassClerk.c utils.h officeData.h
+	$(CC) $(CFLAGS) -c netPassClerk.c utils.c
+netPassClerk: netPassClerk.o start.o utils.o
+	$(LD) $(LDFLAGS) start.o netPassClerk.o utils.o -o netPassClerk.coff
+	../bin/coff2noff netPassClerk.coff netPassClerk
+	
 customer.o: customer.c
 	$(CC) $(CFLAGS) -c customer.c utils.c
 	
