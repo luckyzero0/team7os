@@ -55,14 +55,14 @@ struct MonitorEntry {
 };
 MonitorEntry serverMVs[MAX_MONITORS];
 
-typedef MonitorArray int[MAX_MONITOR_ARRAY_VALUES];
+//typedef int MonitorArray[MAX_MONITOR_ARRAY_VALUES];
 struct MonitorArrayEntry{
-	MonitorArray monitorArray;
+	Monitor monitorArray[MAX_MONITOR_ARRAY_VALUES];
 	bool free;
 	char* name;
 	int clientID;
 	int threadID;
-}
+};
 MonitorArrayEntry serverMVAs[MAX_MONITOR_ARRAYS];
 
 
@@ -86,10 +86,8 @@ int GetMonitor_Syscall_Server(MonitorID monitorID);
 void SetMonitor_Syscall_Server(MonitorID monitorID, int value);
 MonitorArrayID CreateMonitorArray_Syscall_Server(char* name, int length, int initValue);
 int GetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index);
-void SetMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value);
-void DestroyMonitorArray(MonitorArrayID monitorArrayID);
-
-
+void SetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value);
+void DestroyMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID);
 void handleIncomingRequests();
 
 
@@ -214,25 +212,25 @@ void handleIncomingRequests(){
 
 				case SC_CreateMonitorArray:
 						printf("Request from Client[%d], ThreadID[%s]. Create Monitor Array.\n", serverInPktHdr.from, args[4].c_str());
-						sprintf(ack,"%d",CreateMonitorArray_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str()));
+						sprintf(ack,"%d",CreateMonitorArray_Syscall_Server(const_cast<char *>(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str())));
 						threadBox = atoi(args[4].c_str());
 				break;
 
 				case SC_GetMonitorArrayValue:
 						printf("Request from Client[%d], ThreadID[%s]. Get Monitor Array Value.\n", serverInPktHdr.from, args[3].c_str());
-						sprintf(ack,"%d",GetMonitorArray_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));
+						sprintf(ack,"%d",GetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str())));
 						threadBox = atoi(args[3].c_str());
 				break;
 
 				case SC_SetMonitorArrayValue:
 						printf("Request from Client[%d], ThreadID[%s]. Set Monitor Array Value.\n", serverInPktHdr.from, args[4].c_str());
-						SetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str());
+						SetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str()));
 						threadBox = atoi(args[4].c_str());
 				break;
 
 				case SC_DestroyMonitorArray:
 						printf("Request from Client[%d], ThreadID[%s]. Destroy Monitor Array.\n", serverInPktHdr.from, args[2].c_str());
-						CreateMonitorArray_Syscall_Server(atoi(args[1].c_str());
+						DestroyMonitorArray_Syscall_Server(atoi(args[1].c_str()));
 						threadBox = atoi(args[2].c_str());
 				break;
 						
@@ -418,9 +416,8 @@ int getAvailableServerMonitorArrayID(char* name){
 	return index;       
 }
 
-void deleteServerMonitorArray(int id) { 
-        
-        serverMVAs[id].monitorArray = NULL;
+void deleteServerMonitorArray(int id) {         
+        memset(serverMVAs[id].monitorArray,NULL,sizeof(serverMVAs[id].monitorArray));
         serverMVAs[id].clientID = -1;
         serverMVAs[id].threadID = -1;
         serverMVAs[id].name = "";
@@ -760,7 +757,7 @@ void DestroyCondition_Syscall_Server(ConditionID id){
                         DEBUG('a', "CV[%d] will be deleted when possible.\n",id); //DEBUG
                         requestCompleted = true;
                 } else {
-                        deleteServerCV(id);                   
+                        deleteServerCondition(id);                   
                         DEBUG('a', "CV[%d] has been deleted.\n",id);//DEBUG
                         sprintf(ack,"CV [%d] has been deleted.", id); //DEBUG
                         requestCompleted = true;
@@ -834,13 +831,13 @@ int GetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index
 
 }
 
-void SetMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value){
+void SetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value){
 	serverMVAs[monitorArrayID].monitorArray[index] = value;
 	sprintf(ack, "Index [%d] in MV Array [%d] has been set to [%d]\n", index, monitorArrayID, value);
 }
 
-void DestroyMonitorArray(MonitorArrayID monitorArrayID){
+void DestroyMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID){
 	deleteServerMonitorArray(monitorArrayID);
-	printf("MV Array [%d] destroyed successfully.\n",id);
+	printf("MV Array [%d] destroyed successfully.\n",monitorArrayID);
 	requestCompleted = true;
 }
