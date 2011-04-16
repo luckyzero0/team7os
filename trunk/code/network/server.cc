@@ -672,7 +672,7 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
                 if (index == -1) {
                         printf("No locks available!\n");
                 } else {
-                        serverMVs[index].monitor = -1;
+                        serverMVs[index].monitor = 0; // monitors default to Zero now
 						serverMVs[index].free = false;
                         serverMVs[index].clientID = serverInPktHdr.from;
                         serverMVs[index].threadID = atoi(args[2].c_str());
