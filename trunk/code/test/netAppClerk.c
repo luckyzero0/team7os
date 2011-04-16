@@ -1,13 +1,26 @@
 #include "officeData.h"
 #include "utils.h"
 
+char* getCustomerType() {
+	char* result;
+
+	Acquire(entryLock);
+	if (GetMonitor(senatorsInOffice) > 0){
+		result = "Senator";
+	} else {
+		result = "Customer";
+	}
+	Release(entryLock);
+
+	return result;
+}
 
 int initAppClerkData() { //return id;
 	int myUID;
 	char* name;
 	int id;
 
-	// line locks, conditions, and monitors
+	/* line locks, conditions, and monitors */
 	appPicLineLock = CreateLock("appPicLineLock",14);
 	regAppLineCV = CreateCondition("regAppLineCV",12);
 	privAppLineCV = CreateCondition("privAppLineCV",13);
@@ -15,37 +28,41 @@ int initAppClerkData() { //return id;
 	regAppLineLength = CreateMonitor("regAppLineLength", 15);
 	privAppLineLength = CreateMonitor("privAppLineLength", 16);
 
-	// uid lock and monitors
+	/* uid lock and monitors */
 	appClerkUIDLock = CreateLock("appClerkUIDLock",15);
 	appClerkUID = CreateMonitor("appClerkUID", 11);
 
-	// app filed monitor array
+	/* app filed monitor array */
 	appFiled = CreateMonitorArray("appFiled", 8, NUM_CUSTOMERS, FALSE);
 
-	// all the arrays 
-	appClerkStatuses = CreateMonitorArray("appClerkStatuses", 16, NUM_OF_EACH_TYPE_OF_CLERK, 0);//[MAX_APP_CLERKS]; // of monitors, default to 0 == CLERK_NOT_AVAILABLE
-	appClerkLocks = CreateMonitorArray("appClerkLocks", 13, NUM_OF_EACH_TYPE_OF_CLERK, -1);//[MAX_APP_CLERKS]; // of lockIDs, default to -1
-	appClerkCVs = CreateMonitorArray("appClerkCVs", 11, NUM_OF_EACH_TYPE_OF_CLERK, -1);//[MAX_APP_CLERKS]; // of conditionIDs, default to -1
-	appClerkSSNs = CreateMonitorArray("appClerkSSNs", 12, NUM_OF_EACH_TYPE_OF_CLERK, -1);//[MAX_APP_CLERKS]; // of monitors, default to -1
-	appClerkMoney = CreateMonitorArray("appClerkMoney", 13, NUM_OF_EACH_TYPE_OF_CLERK, 0);//[MAX_APP_CLERKS]; // of monitors, default to 0
-	appClerkBribed = CreateMonitorArray("appClerkBribed", 14, NUM_OF_EACH_TYPE_OF_CLERK, FALSE);//[MAX_APP_CLERKS]; // of monitors, default to 0
+	/* entry lock so we can check whether current customres are customers or senators */
+	entryLock = CreateLock("entryLock", 9);
+	senatorsInOffice = CreateMonitor("senatorsInOffice", 16);
 
-	// obtain SSN
+	/* all the arrays */
+	appClerkStatuses = CreateMonitorArray("appClerkStatuses", 16, NUM_OF_EACH_TYPE_OF_CLERK, 0);/* of monitors, default to 0 == CLERK_NOT_AVAILABLE*/
+	appClerkLocks = CreateMonitorArray("appClerkLocks", 13, NUM_OF_EACH_TYPE_OF_CLERK, -1);/* of lockIDs, default to -1*/
+	appClerkCVs = CreateMonitorArray("appClerkCVs", 11, NUM_OF_EACH_TYPE_OF_CLERK, -1);/* of conditionIDs, default to -1*/
+	appClerkSSNs = CreateMonitorArray("appClerkSSNs", 12, NUM_OF_EACH_TYPE_OF_CLERK, -1);/* of monitors, default to -1*/
+	appClerkMoney = CreateMonitorArray("appClerkMoney", 13, NUM_OF_EACH_TYPE_OF_CLERK, 0);/* of monitors, default to 0*/
+	appClerkBribed = CreateMonitorArray("appClerkBribed", 14, NUM_OF_EACH_TYPE_OF_CLERK, FALSE);/* of monitors, default to 0 */
+
+	/* obtain SSN */
 	Acquire(appClerkUIDLock);
 	myUID = GetMonitor(appClerkUID);
 	SetMonitor(appClerkUID, myUID + 1);
 	Release(appClerkUIDLock);
 
-	// initialize necessary values for arrays at my index
+	/* initialize necessary values for arrays at my index */
 	name = "appClerk?Lock";
 	name[8] = myUID + '0';
 	id = CreateLock(name, 13);
-	SetMonitorArrayValue(appClerkLocks, myUID, id); // set the value at my index in the lock array, to the handle to my lock
+	SetMonitorArrayValue(appClerkLocks, myUID, id); /* set the value at my index in the lock array, to the handle to my lock */
 
 	name = "appClerk?Condition";
 	name[8] = myUID + '0';
 	id = CreateCondition(name, 18);
-	SetMonitorArrayValue(appClerkCVs, myUID, id); // now set the value for our condition in the condition array
+	SetMonitorArrayValue(appClerkCVs, myUID, id); /* now set the value for our condition in the condition array */
 
 	return myUID;
 }
@@ -100,7 +117,7 @@ void AppClerkRun(){
 			Wait(myConditionID, myLockID);
 			tprintf("AppClerk %d: Just woke up!\n",index,0,0,"","");
 			
-			SSN = GetMonitorArrayValue(appClerkSSNs, index); // use this locally instead of calling get on the array all the time
+			SSN = GetMonitorArrayValue(appClerkSSNs, index); /* use this locally instead of calling get on the array all the time */
 			tprintf("AppClerk %d: Just receieved %s's SSN: %d\n",index, SSN, 0, getCustomerType(),"");
 
 			if (GetMonitorArrayValue(appClerkBribed, index) == TRUE){
