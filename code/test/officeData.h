@@ -74,7 +74,7 @@ MonitorID customersInWaitingRoom;
 ConditionID managerWaitForCustomersCV;
 
 LockID entryLock;
-MonitorID customersInOffice; //= 0;
+MonitorID customersInOffice;
 
 
 

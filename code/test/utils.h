@@ -9,6 +9,8 @@
 #ifndef UTILS
 #define UTILS
 
+#define TRUE 1
+#define FALSE 0
 /*
  *	Calculates the length of a char* by counting chars
  *	to the first '\0'
