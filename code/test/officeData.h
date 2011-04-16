@@ -8,15 +8,11 @@
 #ifndef OFFICE_DATA_H
 #define OFFICE_DATA_H
 
-MonitorID TESTING; //= FALSE;
-MonitorID FINISHED_FORKING; //= FALSE;
-MonitorID needManager; //= FALSE;
-
-MonitorID appClerkUID; //= 0;
-MonitorID picClerkUID; //= 0;
-MonitorID passClerkUID; //= 0;
-MonitorID cashClerkUID; //= 0;
-MonitorID customerSenatorUID; //= 0;
+MonitorID appClerkUID;
+MonitorID picClerkUID;
+MonitorID passClerkUID;
+MonitorID cashClerkUID;
+MonitorID customerSenatorUID;
 
 LockID appClerkUIDLock;
 LockID picClerkUIDLock;
@@ -45,35 +41,35 @@ ConditionID regAppLineCV;
 ConditionID privAppLineCV;
 ConditionID regPicLineCV; 
 ConditionID privPicLineCV;
-MonitorID regAppLineLength;//; //= 0;
-MonitorID privAppLineLength;//; //= 0;
-MonitorID regPicLineLength;//; //= 0;
-MonitorID privPicLineLength;//; //= 0;
+MonitorID regAppLineLength;
+MonitorID privAppLineLength;
+MonitorID regPicLineLength;
+MonitorID privPicLineLength;
 
 LockID passLineLock;
 ConditionID regPassLineCV;
 ConditionID privPassLineCV;
-MonitorID regPassLineLength;//; //= 0;
-MonitorID privPassLineLength;//; //= 0;
+MonitorID regPassLineLength;
+MonitorID privPassLineLength;
 
 LockID cashLineLock;
 ConditionID regCashLineCV;
 
-MonitorID regCashLineLength;//; //= 0;
+MonitorID regCashLineLength;
 
 
 /* Senators in office and waiting room */
 
 ConditionID senatorWaitingRoomCV;
-MonitorID senatorsInWaitingRoom; //= 0;
+MonitorID senatorsInWaitingRoom;
 
 
-MonitorID senatorsInOffice; //= 0;
+MonitorID senatorsInOffice;
 
 /* Customers in office and waiting room */
 
 ConditionID customerWaitingRoomCV;
-MonitorID customersInWaitingRoom; //= 0;
+MonitorID customersInWaitingRoom;
 
 ConditionID managerWaitForCustomersCV;
 
@@ -83,40 +79,40 @@ MonitorID customersInOffice; //= 0;
 
 
 /* ApplicationClerk and PictureClerk States */
-MonitorArrayID appClerkStatuses;//[MAX_APP_CLERKS];
-MonitorArrayID appClerkLocks;//[MAX_APP_CLERKS];
-MonitorArrayID appClerkCVs;//[MAX_APP_CLERKS];
-MonitorArrayID appClerkSSNs;//[MAX_APP_CLERKS];
-MonitorArrayID appClerkMoney;//[MAX_APP_CLERKS];
-MonitorArrayID appClerkBribed;//[MAX_APP_CLERKS];
+MonitorArrayID appClerkStatuses;
+MonitorArrayID appClerkLocks;
+MonitorArrayID appClerkCVs;
+MonitorArrayID appClerkSSNs;
+MonitorArrayID appClerkMoney;
+MonitorArrayID appClerkBribed;
 
-MonitorArrayID picClerkStatuses;//[MAX_PIC_CLERKS];
-MonitorArrayID picClerkLocks;//[MAX_PIC_CLERKS];
-MonitorArrayID picClerkCVs;//[MAX_PIC_CLERKS];
-MonitorArrayID picClerkSSNs;//[MAX_PIC_CLERKS];
-MonitorArrayID picClerkMoney;//[MAX_PIC_CLERKS];
-MonitorArrayID picClerkBribed;//[MAX_PIC_CLERKS];
-MonitorArrayID happyWithPhoto;//[MAX_PIC_CLERKS];
+MonitorArrayID picClerkStatuses;
+MonitorArrayID picClerkLocks;
+MonitorArrayID picClerkCVs;
+MonitorArrayID picClerkSSNs;
+MonitorArrayID picClerkMoney;
+MonitorArrayID picClerkBribed;
+MonitorArrayID happyWithPhoto;
 
-MonitorArrayID passClerkStatuses;//[MAX_PASS_CLERKS];
-MonitorArrayID passClerkLocks;//[MAX_PASS_CLERKS];
-MonitorArrayID passClerkCVs;//[MAX_PASS_CLERKS];
-MonitorArrayID passClerkSSNs;//[MAX_PASS_CLERKS];
-MonitorArrayID passClerkMoney;//[MAX_PASS_CLERKS];
-MonitorArrayID passClerkBribed;//[MAX_PASS_CLERKS];
-MonitorArrayID passPunish;//[MAX_PASS_CLERKS];
+MonitorArrayID passClerkStatuses;
+MonitorArrayID passClerkLocks;
+MonitorArrayID passClerkCVs;
+MonitorArrayID passClerkSSNs;
+MonitorArrayID passClerkMoney;
+MonitorArrayID passClerkBribed;
+MonitorArrayID passPunish;
 
-MonitorArrayID cashClerkStatuses;//[MAX_CASH_CLERKS];
-MonitorArrayID cashClerkLocks;//[MAX_CASH_CLERKS];
-MonitorArrayID cashClerkCVs;//[MAX_CASH_CLERKS];
-MonitorArrayID cashClerkSSNs;//[MAX_CASH_CLERKS];
-MonitorArrayID cashClerkMoney;//[MAX_CASH_CLERKS];
-MonitorArrayID cashPunish;//[MAX_CASH_CLERKS];
+MonitorArrayID cashClerkStatuses;
+MonitorArrayID cashClerkLocks;
+MonitorArrayID cashClerkCVs;
+MonitorArrayID cashClerkSSNs;
+MonitorArrayID cashClerkMoney;
+MonitorArrayID cashPunish;
 
-MonitorArrayID appFiled;//[MAX_CUSTOMERS];
-MonitorArrayID picFiled;//[MAX_CUSTOMERS];
-MonitorArrayID passFiled;//[MAX_CUSTOMERS];
-MonitorArrayID cashFiled;//[MAX_CUSTOMERS];
+MonitorArrayID appFiled; /* based on NUM_CUSTOMERS */
+MonitorArrayID picFiled;
+MonitorArrayID passFiled;
+MonitorArrayID cashFiled;
 
 
 

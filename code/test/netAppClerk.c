@@ -19,13 +19,16 @@ int initAppClerkData() { //return id;
 	appClerkUIDLock = CreateLock("appClerkUIDLock",15);
 	appClerkUID = CreateMonitor("appClerkUID", 11);
 
+	// app filed monitor array
+	appFiled = CreateMonitorArray("appFiled", 8, NUM_CUSTOMERS, FALSE);
+
 	// all the arrays 
 	appClerkStatuses = CreateMonitorArray("appClerkStatuses", 16, NUM_OF_EACH_TYPE_OF_CLERK, 0);//[MAX_APP_CLERKS]; // of monitors, default to 0 == CLERK_NOT_AVAILABLE
 	appClerkLocks = CreateMonitorArray("appClerkLocks", 13, NUM_OF_EACH_TYPE_OF_CLERK, -1);//[MAX_APP_CLERKS]; // of lockIDs, default to -1
 	appClerkCVs = CreateMonitorArray("appClerkCVs", 11, NUM_OF_EACH_TYPE_OF_CLERK, -1);//[MAX_APP_CLERKS]; // of conditionIDs, default to -1
 	appClerkSSNs = CreateMonitorArray("appClerkSSNs", 12, NUM_OF_EACH_TYPE_OF_CLERK, -1);//[MAX_APP_CLERKS]; // of monitors, default to -1
 	appClerkMoney = CreateMonitorArray("appClerkMoney", 13, NUM_OF_EACH_TYPE_OF_CLERK, 0);//[MAX_APP_CLERKS]; // of monitors, default to 0
-	appClerkBribed = CreateMonitorArray("appClerkBribed", 14, NUM_OF_EACH_TYPE_OF_CLERK, 0);//[MAX_APP_CLERKS]; // of monitors, default to 0
+	appClerkBribed = CreateMonitorArray("appClerkBribed", 14, NUM_OF_EACH_TYPE_OF_CLERK, FALSE);//[MAX_APP_CLERKS]; // of monitors, default to 0
 
 	// obtain SSN
 	Acquire(appClerkUIDLock);
@@ -43,10 +46,6 @@ int initAppClerkData() { //return id;
 	name[8] = myUID + '0';
 	id = CreateCondition(name, 18);
 	SetMonitorArrayValue(appClerkCVs, myUID, id); // now set the value for our condition in the condition array
-
-
-
-
 
 	return myUID;
 }
