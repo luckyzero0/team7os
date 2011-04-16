@@ -3,6 +3,7 @@
 
 void tryToWakeUpSenators();
 void tryToWakeUpCustomers();
+void tryToWakeUpClerks();
 
 void initManagerData() {
 	appPicLineLock = CreateLock("appPicLineLock",14);
@@ -189,7 +190,7 @@ void ManagerRun(){
 				totalCashCollected += GetMonitorArrayValue(picClerkMoney, i);
 			}
 			for (i = 0; i < NUM_OF_EACH_TYPE_OF_CLERK; i++) {
-				printf("Total money received from PassportClerk[%d] = %d\n",i, GetMonitorArrayValue(passClerkMoney, i),,0,"","");
+				printf("Total money received from PassportClerk[%d] = %d\n",i, GetMonitorArrayValue(passClerkMoney, i),0,"","");
 				totalCashCollected += GetMonitorArrayValue(passClerkMoney, i);
 			}
 			for (i = 0; i < NUM_OF_EACH_TYPE_OF_CLERK; i++) {
@@ -226,8 +227,8 @@ void tryToWakeUpClerks(){
 			{	
 				tprintf("Manager: Whipping AppClerk[%d] back to work\n",i,0,0,"","");
 				/*appClerkLocks[i]->Acquire();		*/
-				Acquire(GetMonitor(appClerkLocks, i));
-				SetMonitor(appClerkStatuses, i, CLERK_COMING_BACK);
+				Acquire(GetMonitorArrayValue(appClerkLocks, i));
+				SetMonitorArrayValue(appClerkStatuses, i, CLERK_COMING_BACK);
 				/*appClerkCVs[i]->Signal(appClerkLocks[i]);*/
 				Signal(GetMonitorArrayValue(appClerkCVs, i), GetMonitorArrayValue(appClerkLocks, i));
 				printf("Manager calls an ApplicationClerk back from break\n",0,0,0,"","");
@@ -360,7 +361,7 @@ void tryToWakeUpClerks(){
 
 	/*passLineLock->Acquire();*/
 	Acquire(passLineLock);
-	printf("Manager: I spy [%d] customers in the PassLine\n", GetMonitor(regPassLineLength)+GetMonitor(privPassLineLength)),0,0,"","");
+	printf("Manager: I spy [%d] customers in the PassLine\n", GetMonitor(regPassLineLength)+GetMonitor(privPassLineLength),0,0,"","");
 	if(GetMonitor(regPassLineLength) + GetMonitor(privPassLineLength) > 3)
 	{	
 		tprintf("Manager: Making sure the PassClerks are working\n",0,0,0,"","");
@@ -371,8 +372,8 @@ void tryToWakeUpClerks(){
 			{	
 				tprintf("Manager: Whipping PassClerk[%d] back to work\n",i,0,0,"","");
 				/*passClerkLocks[i]->Acquire();		*/
-				Acquire(GetMonitor(passClerkLocks, i));
-				SetMonitor(passClerkStatuses, i, CLERK_COMING_BACK);
+				Acquire(GetMonitorArrayValue(passClerkLocks, i));
+				SetMonitorArrayValue(passClerkStatuses, i, CLERK_COMING_BACK);
 				/*passClerkCVs[i]->Signal(passClerkLocks[i]);*/
 				Signal(GetMonitorArrayValue(passClerkCVs, i), GetMonitorArrayValue(passClerkLocks, i));
 				printf("Manager calls an PassportClerk back from break\n",0,0,0,"","");
@@ -445,8 +446,8 @@ void tryToWakeUpClerks(){
 			{	
 				tprintf("Manager: Whipping CashClerk[%d] back to work\n",i,0,0,"","");
 				/*cashClerkLocks[i]->Acquire();		*/
-				Acquire(GetMonitor(cashClerkLocks, i));
-				SetMonitor(cashClerkStatuses, i, CLERK_COMING_BACK);
+				Acquire(GetMonitorArrayValue(cashClerkLocks, i));
+				SetMonitorArrayValue(cashClerkStatuses, i, CLERK_COMING_BACK);
 				/*cashClerkCVs[i]->Signal(cashClerkLocks[i]);*/
 				Signal(GetMonitorArrayValue(cashClerkCVs, i), GetMonitorArrayValue(cashClerkLocks, i));
 				printf("Manager calls an CashierClerk back from break\n",0,0,0,"","");
@@ -457,7 +458,7 @@ void tryToWakeUpClerks(){
 		}
 		tprintf("Manager: Checking next line...\n",0,0,0,"","");
 	}	
-	else if(GetMonitor(regCashLineLength)+GetMonitor(privCashLineLength) > 0)
+	else if(GetMonitor(regCashLineLength) > 0)
 	{
 		wakeup = -1;
 		tprintf("Manager: Making sure at least one CashClerk is working\n",0,0,0,"","");
