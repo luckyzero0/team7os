@@ -284,6 +284,24 @@ netSenator.o: netSenator.c
 netSenator: netSenator.o start.o utils.o
 	$(LD) $(LDFLAGS) start.o netSenator.o utils.o -o netSenator.coff
 	../bin/coff2noff netSenator.coff netSenator
+	
+net10Cust.o: net10Cust.c
+	$(CC) $(CFLAGS) -c net10Cust.c
+net10Cust: net10Cust.o start.o
+	$(LD) $(LDFLAGS) start.o net10Cust.o -o net10Cust.coff
+	../bin/coff2noff net10Cust.coff net10Cust
+	
+netAPPM.o: netAPPM.c
+	$(CC) $(CFLAGS) -c netAPPM.c
+netAPPM: netAPPM.o start.o
+	$(LD) $(LDFLAGS) start.o netAPPM.o -o netAPPM.coff
+	../bin/coff2noff netAPPM.coff netAPPM
+
+netCashSen.o: netCashSen.c
+	$(CC) $(CFLAGS) -c netCashSen.c
+netCashSen: netCashSen.o start.o
+	$(LD) $(LDFLAGS) start.o netCashSen.o -o netCashSen.coff
+	../bin/coff2noff netCashSen.coff netCashSen
 
 clean:
 	rm -f *.o *.coff
