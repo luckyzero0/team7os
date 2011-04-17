@@ -25,8 +25,8 @@ int initAppClerkData() {
 	regAppLineCV = CreateCondition("regAppLineCV",12);
 	privAppLineCV = CreateCondition("privAppLineCV",13);
 
-	regAppLineLength = CreateMonitor("regAppLineLength", 15);
-	privAppLineLength = CreateMonitor("privAppLineLength", 16);
+	regAppLineLength = CreateMonitor("regAppLineLength", 16);
+	privAppLineLength = CreateMonitor("privAppLineLength", 17);
 
 	/* uid lock and monitors */
 	appClerkUIDLock = CreateLock("appClerkUIDLock",15);
