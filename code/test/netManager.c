@@ -206,6 +206,7 @@ void ManagerRun(){
 
 		tprintf("Manager: Time to slavedrive my clerks. Checking the lines...\n",0,0,0,"","");
 		tryToWakeUpClerks();
+		USleep(2000000);
 	}		
 	Exit(0);
 }
