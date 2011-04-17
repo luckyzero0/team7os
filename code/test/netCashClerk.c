@@ -31,6 +31,7 @@ int initCashClerkData() {
 	cashClerkUID = CreateMonitor("cashClerkUID", 11);
 
 	/* cash filed monitor array */
+	passFiled = CreateMonitorArray("passFiled", 9, NUM_CUSTOMERS, FALSE);
 	cashFiled = CreateMonitorArray("cashFiled", 9, NUM_CUSTOMERS, FALSE);
 
 	/* entry lock so we can check whether current customres are customers or senators */
