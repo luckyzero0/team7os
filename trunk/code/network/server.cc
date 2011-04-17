@@ -833,11 +833,12 @@ int GetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index
 
 void SetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value){
 	serverMVAs[monitorArrayID].monitorArray[index] = value;
-	sprintf(ack, "Index [%d] in MV Array [%d] has been set to [%d]\n", index, monitorArrayID, value);
+	sprintf(ack, "Index in MVA has been set\n");
 }
 
 void DestroyMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID){
 	deleteServerMonitorArray(monitorArrayID);
 	printf("MV Array [%d] destroyed successfully.\n",monitorArrayID);
+	sprintf(ack, "MVA has been deleted\n");
 	requestCompleted = true;
 }
