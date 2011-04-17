@@ -25,8 +25,8 @@ int initPicClerkData() {
 	regPicLineCV = CreateCondition("regPicLineCV",12);
 	privPicLineCV = CreateCondition("privPicLineCV",13);
 
-	regPicLineLength = CreateMonitor("regPicLineLength", 15);
-	privPicLineLength = CreateMonitor("privPicLineLength", 16);
+	regPicLineLength = CreateMonitor("regPicLineLength", 16);
+	privPicLineLength = CreateMonitor("privPicLineLength", 17);
 
 	/* uid lock and monitors */
 	picClerkUIDLock = CreateLock("picClerkUIDLock",15);
