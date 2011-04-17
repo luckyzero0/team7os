@@ -33,6 +33,8 @@ int initPassClerkData() {
 	passClerkUID = CreateMonitor("passClerkUID", 11);
 
 	/* pass filed monitor array */
+	appFiled = CreateMonitorArray("appFiled", 8, NUM_CUSTOMERS, FALSE);
+	picFiled = CreateMonitorArray("picFiled", 8, NUM_CUSTOMERS, FALSE);
 	passFiled = CreateMonitorArray("passFiled", 9, NUM_CUSTOMERS, FALSE);
 
 	/* entry lock so we can check whether current customres are customers or senators */
