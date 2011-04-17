@@ -41,9 +41,7 @@ Thread::Thread(char* threadName)
 #ifdef USER_PROGRAM
     space = NULL;
     startVPN = 0;
-    bigLock->Acquire();
 	ID = threadCount++;
-	bigLock->Release();
 #endif
 }
 
