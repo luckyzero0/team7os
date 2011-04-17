@@ -793,12 +793,15 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
 }
 
 int GetMonitor_Syscall_Server(MonitorID monitorID){
-	return serverMVs[monitorID].monitor;
+		printf("ServerMVs[%d] = [%d]\n",monitorID,serverMVs[monitorID].monitor);
+		requestCompleted = true;
+        return serverMVs[monitorID].monitor;
 }
 
 
 void SetMonitor_Syscall_Server(MonitorID monitorID, int value){
 	serverMVs[monitorID].monitor = value;
+	requestCompleted = true;
 	sprintf(ack,"MVar[%d]set.",monitorID);
 }
 
@@ -828,12 +831,14 @@ MonitorArrayID CreateMonitorArray_Syscall_Server(char* name, int length, int ini
 }
 
 int GetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index){
+	requestCompleted = true;
 	return serverMVAs[monitorArrayID].monitorArray[index];
 
 }
 
-void SetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value){
+void SetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value){	
 	serverMVAs[monitorArrayID].monitorArray[index] = value;
+	requestCompleted = true;
 	sprintf(ack, "Index in MVA has been set\n");
 }
 
