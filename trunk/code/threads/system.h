@@ -38,7 +38,7 @@ extern int threadCount;
 extern BitMap *physPageBitMap;
 extern Lock *bigLock;
 
-#define PROCESS_TABLE_SIZE 10
+#define PROCESS_TABLE_SIZE 11
 extern AddrSpace *processTable[PROCESS_TABLE_SIZE];
 extern int getSpaceID(AddrSpace* space);
 
