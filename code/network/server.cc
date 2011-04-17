@@ -48,7 +48,7 @@ ConditionEntry serverCVs[MAX_CONDITIONS];
 typedef int Monitor; //monitors are just ints.
 struct MonitorEntry {
         Monitor monitor;
-		bool free;
+		bool used;
         int clientID;
         int threadID;
         char* name;
@@ -428,7 +428,7 @@ void deleteServerMonitorArray(int id) {
 int getAvailableServerMonitorID(char* name) {
         int index = -1;
         for (int i = 0; i < MAX_MONITORS; i++) {	        
-	       if(serverMVs[i].monitor != NULL)
+	       if(serverMVs[i].used)
 	       {		       		       
 	        	if(!strcmp(name, serverMVs[i].name))
 	        	{
@@ -440,6 +440,7 @@ int getAvailableServerMonitorID(char* name) {
 	       }
 	       else
 	       {
+			   serverMVs[i].used = true;
 		       recycle = false;
 		       printf("MV[%d] is unused.\n",i);		       
 		       index = i;
