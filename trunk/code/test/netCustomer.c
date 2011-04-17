@@ -682,23 +682,23 @@ static void doCashierClerk(int* index, int* cashDollars)
 	Exit(0);
 }*/
 
-int waitAndRestart(int lineToExit, int index){
+int waitAndRestart(LockID lineToExit, int index){
 	tprintf("Customer [%d]: waitAndRestart entered\n", index,0,0,"","");
 	/*senatorWaitingRoomLock->Acquire();*/
 	Acquire(entryLock);
-	if (senatorsInWaitingRoom>0){
+	if (GetMonitor(senatorsInWaitingRoom) >0){
 		if(lineToExit > -1){
 			/*lineToExit->Release();*/
 			tprintf("Release Lock[%d]\n",lineToExit,0,0,"","");
 			Release(lineToExit);
 		}
-		tprintf("Customer [%d]: There are %d senators in waiting room\n", index, senatorsInWaitingRoom,0,"","");		
+		tprintf("Customer [%d]: There are %d senators in waiting room\n", index, GetMonitor(senatorsInWaitingRoom),0,"","");		
 		/*senatorWaitingRoomLock->Release();*/
 		/*customersInWaitingRoom++;*/
 		SetMonitor(customersInWaitingRoom,GetMonitor(customersInWaitingRoom)+1);
 		/*customersInOffice--;*/
 		SetMonitor(customersInOffice,GetMonitor(customersInOffice)-1);
-		if (customersInOffice == 0) {
+		if (GetMonitor(customersInOffice) == 0) {
 			Signal(managerWaitForCustomersCV, entryLock);
 		}
 		printf("Customer [%d] leaves the Passport Office as a senator arrives.\n",index,0,0,"","");
