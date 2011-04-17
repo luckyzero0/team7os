@@ -77,7 +77,9 @@ void PassClerkRun(){
 	ConditionID myConditionID;
 
 	index = initPassClerkData();
-
+	myLockID = GetMonitorArrayValue(passClerkLocks, index);
+	myConditionID = GetMonitorArrayValue(passClerkCVs, index);
+	
 	while (TRUE){		
 		/*passLineLock->Acquire();*/
 		Acquire(passLineLock);		
@@ -109,8 +111,7 @@ void PassClerkRun(){
 			tprintf("PassClerk %d: Acquiring my own lock\n",index,0,0,"","");
 			/*passClerkLocks[index]->Acquire();*/
 			
-			myLockID = GetMonitorArrayValue(passClerkLocks, index);
-			myConditionID = GetMonitorArrayValue(passClerkCVs, index);
+			
 			Acquire(myLockID);
 			tprintf("PassClerk %d: Releasing passLineLock\n",index,0,0,"","");
 			/*passLineLock->Release();*/

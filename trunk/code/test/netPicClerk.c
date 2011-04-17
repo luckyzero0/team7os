@@ -76,6 +76,8 @@ void PicClerkRun(){
 	int count;
 
 	index = initPicClerkData();
+	myLockID = GetMonitorArrayValue(picClerkLocks, index);
+	myConditionID = GetMonitorArrayValue(picClerkCVs, index);
 
 	while (TRUE){		
 		/*appPicLineLock->Acquire();*/
@@ -108,8 +110,7 @@ void PicClerkRun(){
 			tprintf("PicClerk %d: Acquiring my own lock\n",index,0,0,"","");
 			/*picClerkLocks[index]->Acquire();*/
 
-			myLockID = GetMonitorArrayValue(picClerkLocks, index);
-			myConditionID = GetMonitorArrayValue(picClerkCVs, index);
+			
 			Acquire(myLockID);
 			tprintf("PicClerk %d: Releasing appPicLineLock\n",index,0,0,"","");
 			/*appPicLineLock->Release();*/
