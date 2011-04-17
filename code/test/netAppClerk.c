@@ -74,10 +74,14 @@ void AppClerkRun(){
 	ConditionID myConditionID;
 
 	index = initAppClerkData();
+	myLockID = GetMonitorArrayValue(appClerkLocks, index);
+	myConditionID = GetMonitorArrayValue(appClerkCVs, index);
+
+	printf("index:%d myLockID:%d myConditionID:%d", index, myLockID, myConditionID, "","");
 
 	while (TRUE){		
 		/*appPicLineLock->Acquire();*/
-		Acquire(appPicLineLock);		
+		Acquire(appPicLineLock);	
 
 		/*Checking if anyone is in line*/
 		if (GetMonitor(privAppLineLength) + GetMonitor(regAppLineLength) > 0){
@@ -106,8 +110,7 @@ void AppClerkRun(){
 			tprintf("AppClerk %d: Acquiring my own lock\n",index,0,0,"","");
 			/*appClerkLocks[index]->Acquire();*/
 			
-			myLockID = GetMonitorArrayValue(appClerkLocks, index);
-			myConditionID = GetMonitorArrayValue(appClerkCVs, index);
+			
 			Acquire(myLockID);
 			tprintf("AppClerk %d: Releasing appPicLineLock\n",index,0,0,"","");
 			/*appPicLineLock->Release();*/

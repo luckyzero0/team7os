@@ -72,7 +72,11 @@ void CashClerkRun(){
 	LockID myLockID;
 	ConditionID myConditionID;
 
+	
+
 	index = initCashClerkData();
+	myLockID = GetMonitorArrayValue(cashClerkLocks, index);
+	myConditionID = GetMonitorArrayValue(cashClerkCVs, index);
 
 	while (TRUE){		
 		/*cashLineLock->Acquire();*/
@@ -94,8 +98,7 @@ void CashClerkRun(){
 			tprintf("CashClerk %d: Acquiring my own lock\n",index,0,0,"","");
 			/*cashClerkLocks[index]->Acquire();*/
 
-			myLockID = GetMonitorArrayValue(cashClerkLocks, index);
-			myConditionID = GetMonitorArrayValue(cashClerkCVs, index);
+			
 			Acquire(myLockID);
 			tprintf("CashClerk %d: Releasing cashLineLock\n",index,0,0,"","");
 			/*cashLineLock->Release();*/
