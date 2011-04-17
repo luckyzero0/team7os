@@ -780,7 +780,7 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
                         printf("No Monitors available!\n");
                 } else {
                         serverMVs[index].monitor = 0; // monitors default to Zero now
-						serverMVs[index].free = false;
+						serverMVs[index].used = true;
                         serverMVs[index].clientID = serverInPktHdr.from;
                         serverMVs[index].threadID = atoi(args[2].c_str());
                         serverMVs[index].name = new char[strlen(name)];
