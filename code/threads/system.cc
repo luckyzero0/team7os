@@ -189,7 +189,7 @@ Initialize(int argc, char **argv)
 #ifdef NETWORK
 	//setup SERVAR
     //postOffice = new PostOffice(netname, rely, 1000); //old network config
-    postOffice = new PostOffice(netname, rely, 10); //new network config
+    postOffice = new PostOffice(netname, rely, 11); //new network config
 #endif
 
 #ifdef USE_TLB
