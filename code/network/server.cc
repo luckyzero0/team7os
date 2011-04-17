@@ -97,7 +97,7 @@ PacketHeader serverOutPktHdr, serverInPktHdr;
 MailHeader serverOutMailHdr, serverInMailHdr;
 int fnCall = 0;
 int numLocks = 0;
-string args[4];
+string args[5];
 int sender; //the clientID of received msg
 int threadBox; //the ThreadID making the syscall within the client. ThreadID = MailBox#
 char serverBuffer[MaxMailSize];
@@ -278,18 +278,18 @@ void parsePacket(char* serverBuffer){
         int readback = 0;
         char temp[100];
         
-        //printf("Parsing packet.\n");
+        printf("Parsing packet.\n");
         while(serverBuffer[i] != '*') //we chose * as our terminating character
         {
-                //printf("Packet[%d] = [%c]\n",i,serverBuffer[i]);              
+                printf("Packet[%d] = [%c]\n",i,serverBuffer[i]);              
                 if(serverBuffer[i] == ',')
                 {
-                        //printf("Found new argument. Parsing.\n");
+                        printf("Found new argument. Parsing.\n");
                         i -= readback;
                         readback = -1;
                         while(serverBuffer[i] != ',')
                         {
-                                //printf("ParsedArg[%d] = [%c]\n", i, serverBuffer[i]);
+                                printf("ParsedArg[%d] = [%c]\n", i, serverBuffer[i]);
                                 temp[j] = serverBuffer[i];
                                 j++;
                                 i++;
@@ -297,7 +297,7 @@ void parsePacket(char* serverBuffer){
                         temp[j] = '\0';
                         j=0;                    
                         args[arg] = temp;                       
-                        //printf("Args[%d] = [%s]\n", arg, args[arg].c_str());
+                        printf("Args[%d] = [%s]\n", arg, args[arg].c_str());
                         arg++;
                 }
                 readback++;
@@ -801,7 +801,7 @@ void SetMonitor_Syscall_Server(MonitorID monitorID, int value){
         sprintf(ack,"MVar[%d]set.",monitorID);
 }
 
-MonitorArrayID CreateMonitorArray_Syscall_Server(char* name, int length, int initValue){
+MonitorArrayID CreateMonitorArray_Syscall_Server(char* name, int length, int initValue){	
 	int index = getAvailableServerMonitorArrayID(name);
 	if(recycle)
 	{

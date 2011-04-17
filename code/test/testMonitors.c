@@ -4,18 +4,18 @@
 #include "utils.h"
 
 int main(){
-	int myMV;
+	int myMVArr;
 	int result;
 	
-	printf("Creating a new monitor variable...\n",0,0,0,"","");
-	myMV = CreateMonitor("myMV",4);
+	printf("Creating a new monitor array variable...\n",0,0,0,"","");
+	myMVArr = CreateMonitorArray("myMV",4,10,0);
 	
-	printf("Setting myMV = 9001\n",0,0,0,"","");
-	SetMonitor(myMV,9001);
+	printf("Setting myMV[1] = 9001\n",0,0,0,"","");
+	SetMonitorArrayValue(myMVArr,1,9001);
 	
 	
 	printf("Getting myMV...\n",0,0,0,"","");	
-	printf("MyMV = [%d]\n",GetMonitor(myMV),0,0,"","");
+	printf("MyMV[1] = [%d]\n",GetMonitorArrayValue(myMVArr,1),0,0,"","");
 	
 	printf("Done!\n",0,0,0,"","");
 	
