@@ -395,7 +395,7 @@ int getAvailableServerConditionID(char* name) {
 int getAvailableServerMonitorArrayID(char* name){
 	int index = -1;
 	for (int i = 0; i < MAX_MONITOR_ARRAYS; i++) {	        
-		if(serverMVAs[i].monitorArray != NULL)
+		if(serverMVAs[i].monitorArray[0] != NULL)
 		{		       		       
 			if(!strcmp(name, serverMVAs[i].name))
 			{
