@@ -332,7 +332,7 @@ void initServerData(){
         //initialize monitorvars                
         for (int i = 0; i < MAX_MONITORS; i++) {
                 serverMVs[i].monitor = NULL;
-				serverMVs[i].free = true;
+				serverMVs[i].used = false;
                 serverMVs[i].clientID = -1;
                 serverMVs[i].threadID = -1;    
                 serverMVs[i].name = "";
