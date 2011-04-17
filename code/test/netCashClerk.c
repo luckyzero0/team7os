@@ -27,15 +27,15 @@ int initCashClerkData() {
 	regCashLineLength = CreateMonitor("regCashLineLength",17);
 
 	/* uid lock and monitors */
-	cashClerkUIDLock = CreateLock("cashClerkUIDLock",16);
-	cashClerkUID = CreateMonitor("cashClerkUID", 12);
+	cashClerkUIDLock = CreateLock("cashClerkUIDLock",15);
+	cashClerkUID = CreateMonitor("cashClerkUID", 11);
 
 	/* cash filed monitor array */
 	cashFiled = CreateMonitorArray("cashFiled", 9, NUM_CUSTOMERS, FALSE);
 
 	/* entry lock so we can check whether current customres are customers or senators */
-	entryLock = CreateLock("entryLock", 10);
-	senatorsInOffice = CreateMonitor("senatorsInOffice", 17);
+	entryLock = CreateLock("entryLock", 9);
+	senatorsInOffice = CreateMonitor("senatorsInOffice", 16);
 
 	/* all the arrays */
 	cashClerkStatuses = CreateMonitorArray("cashClerkStatuses", 17, NUM_OF_EACH_TYPE_OF_CLERK, 0);/* of monitors, default to 0 == CLERK_NOT_AVAILABLE*/
