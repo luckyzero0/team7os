@@ -16,7 +16,8 @@ int main(){
 }
 
 void initServerData(){
-	
+		
+	printf("Initializing servar dataz\n",0,0,0,"","");
 	/*make all the locks*/
 	appPicLineLock = CreateLock("appPicLineLock",14);
 	passLineLock = CreateLock("passLineLock",12);
