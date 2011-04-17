@@ -490,11 +490,7 @@ printf("\nNumber too big. Total Customers + Total Senators must be < %d", MAX_CU
 }
 */
 
-void tprintf(char* formatString, int arg1, int arg2, int arg3, char* arg4, char* arg5) {
-	if (TESTING) {
-		printf(formatString, arg1, arg2, arg3, arg4, arg5);
-	}
-}
+
 
 
 /*
