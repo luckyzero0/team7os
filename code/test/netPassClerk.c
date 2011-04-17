@@ -29,15 +29,15 @@ int initPassClerkData() {
 	privPassLineLength = CreateMonitor("privPassLineLength",18);
 
 	/* uid lock and monitors */
-	passClerkUIDLock = CreateLock("passClerkUIDLock",16);
-	passClerkUID = CreateMonitor("passClerkUID", 12);
+	passClerkUIDLock = CreateLock("passClerkUIDLock",15);
+	passClerkUID = CreateMonitor("passClerkUID", 11);
 
 	/* pass filed monitor array */
 	passFiled = CreateMonitorArray("passFiled", 9, NUM_CUSTOMERS, FALSE);
 
 	/* entry lock so we can check whether current customres are customers or senators */
-	entryLock = CreateLock("entryLock", 10);
-	senatorsInOffice = CreateMonitor("senatorsInOffice", 17);
+	entryLock = CreateLock("entryLock", 9);
+	senatorsInOffice = CreateMonitor("senatorsInOffice", 16);
 
 	/* all the arrays */
 	passClerkStatuses = CreateMonitorArray("passClerkStatuses", 17, NUM_OF_EACH_TYPE_OF_CLERK, 0);/* of monitors, default to 0 == CLERK_NOT_AVAILABLE*/
