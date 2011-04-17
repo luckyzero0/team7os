@@ -1687,6 +1687,11 @@ void ExceptionHandler(ExceptionType which) {
 			DEBUG('a', "GetThreadID syscall.\n");
 			rv = GetThreadID_Syscall();
 			break;
+
+		case SC_USleep:
+			DEBUG('a', "USleep syscall.\n");
+			usleep(machine->ReadRegister(4));
+			break;
 		}
 
 		// Put in the return value and increment the PC

@@ -295,6 +295,14 @@ DestroyMonitorArray:
 	j	$31
 	.end DestroyMonitorArray
 
+	.globl USleep
+	.ent USleep
+USleep:
+	addiu $2,$0,SC_USleep
+	syscall
+	j	$31
+	.end USleep
+
 
 /* dummy function to keep gcc happy */
         .globl  __main

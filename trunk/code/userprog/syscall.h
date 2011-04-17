@@ -51,7 +51,7 @@
 #define SC_SetMonitorArrayValue	30
 #define SC_DestroyMonitorArray 31
 
-
+#define SC_USleep			32
 
 
 #define MAXFILENAME 256
@@ -193,7 +193,7 @@ void SetMonitorArrayValue(MonitorArrayID monitorArrayID, int index, int value);
 
 void DestroyMonitorArray(MonitorArrayID monitorArrayID);
 
-
+void USleep(int microseconds);
 
 
 int Rand();
