@@ -234,7 +234,6 @@ void tryToWakeUpClerks(){
 				printf("Manager calls an ApplicationClerk back from break\n",0,0,0,"","");
 				/*appClerkLocks[i]->Release();*/
 				Release(GetMonitorArrayValue(appClerkLocks, i));
-				while(1); /* HACK */
 				break;
 			}
 		}
@@ -283,6 +282,7 @@ void tryToWakeUpClerks(){
 			printf("Manager calls back an ApplicationClerk from break\n",0,0,0,"","");
 			/*appClerkLocks[wakeup]->Release();	*/
 			Release(GetMonitorArrayValue(appClerkLocks, wakeup));
+			while (1); /* HACK */
 		}			
 		tprintf("Manager: Checking next line...\n",0,0,0,"","");
 	}
