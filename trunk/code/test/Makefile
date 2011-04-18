@@ -302,6 +302,8 @@ netCashSen.o: netCashSen.c
 netCashSen: netCashSen.o start.o
 	$(LD) $(LDFLAGS) start.o netCashSen.o -o netCashSen.coff
 	../bin/coff2noff netCashSen.coff netCashSen
+	
+netOffice: netCustomer netSenator netManager netAppClerk netPicClerk netPassClerk netCashClerk net10Cust netAPPM netCashSen
 
 clean:
 	rm -f *.o *.coff
