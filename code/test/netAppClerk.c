@@ -4,13 +4,13 @@
 char* getCustomerType() {
 	char* result;
 
-	Acquire(entryLock);
+/*	Acquire(entryLock);*/
 	if (GetMonitor(senatorsInOffice) > 0){
 		result = "Senator";
 	} else {
 		result = "Customer";
 	}
-	Release(entryLock);
+/*	Release(entryLock);*/
 
 	return result;
 }
