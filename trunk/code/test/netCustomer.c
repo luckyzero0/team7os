@@ -684,14 +684,18 @@ static void doCashierClerk(int* index, int* cashDollars)
 
 int waitAndRestart(LockID lineToExit, int index){
 	tprintf("Customer [%d]: waitAndRestart entered\n", index,0,0,"","");
-	/*senatorWaitingRoomLock->Acquire();*/
-	Acquire(entryLock);
-	if (GetMonitor(senatorsInWaitingRoom) >0){
-		if(lineToExit > -1){
+	if(lineToExit > -1){
 			/*lineToExit->Release();*/
 			tprintf("Release Lock[%d]\n",lineToExit,0,0,"","");
 			Release(lineToExit);
-		}
+	}
+	/*senatorWaitingRoomLock->Acquire();*/
+	Acquire(entryLock);
+	if (GetMonitor(senatorsInWaitingRoom) >0){
+	/*	if(lineToExit > -1){
+			tprintf("Release Lock[%d]\n",lineToExit,0,0,"","");
+			Release(lineToExit);
+		}*/
 		tprintf("Customer [%d]: There are %d senators in waiting room\n", index, GetMonitor(senatorsInWaitingRoom),0,"","");		
 		/*senatorWaitingRoomLock->Release();*/
 		/*customersInWaitingRoom++;*/
@@ -708,10 +712,9 @@ int waitAndRestart(LockID lineToExit, int index){
 		/*customersInOffice++;*/
 		SetMonitor(customersInOffice,GetMonitor(customersInOffice)+1);
 		Release(entryLock);
-		if(lineToExit > -1){
-			/*lineToExit->Acquire();*/
+	/*	if(lineToExit > -1){
 			Acquire(lineToExit);
-		}
+		}*/
 		return TRUE;
 	}else{
 		tprintf("Customer [%d]: There are no senators waiting.. carrying on\n", index,0,0,"","");
