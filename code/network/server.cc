@@ -531,7 +531,7 @@ void Acquire_Syscall_Server(LockID id){
 	//serverLocksLock->Release();
 	if(serverLocks[id].lock->IsBusy())
 	{                               
-		printf("Lock[%d] is busy. Request Failed.\n",id);
+		printf("Lock[%d] is busy, current owner [%d][%d]. Request Failed.\n",id, serverLocks[id].clientID, serverLocks[id].threadID);
 		requestCompleted = false;
 	}
 	else
