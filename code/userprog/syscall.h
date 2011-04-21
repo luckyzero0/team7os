@@ -15,6 +15,7 @@
 
 #include "copyright.h"
 
+
 /* system call codes -- used by the stubs to tell the kernel which system call
  * is being asked for
  */
@@ -52,6 +53,7 @@
 #define SC_DestroyMonitorArray 31
 
 #define SC_USleep			32
+#define SC_TimedSetMonitorArrayValue  33
 
 
 #define MAXFILENAME 256
@@ -63,6 +65,8 @@ typedef int LockID;
 typedef int ConditionID;
 typedef int MonitorID;
 typedef int MonitorArrayID;
+typedef int ClerkType;
+
 
 
 /* The system call interface.  These are the operations the Nachos
@@ -195,6 +199,7 @@ void DestroyMonitorArray(MonitorArrayID monitorArrayID);
 
 void USleep(int microseconds);
 
+void TimedSetMonitorArrayValue(MonitorArrayID monitorArrayID, int index, int value, int numYields);
 
 int Rand();
 
