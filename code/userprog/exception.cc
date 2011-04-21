@@ -68,7 +68,7 @@ bool success; //where send was successful
 struct TimerData{
 	MonitorArrayID monitorArrayID;
 	int index, value, numYields;
-}
+};
 
 //TimerData timerDatas[MAX_TIMER_INFOS];
 TimerData timerData;
