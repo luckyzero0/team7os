@@ -91,6 +91,7 @@ int GetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index
 void SetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value);
 void DestroyMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID);
 void handleIncomingRequests();
+int extractServer(char*);
 
 
 char *ack = "";
@@ -151,7 +152,7 @@ void handleIncomingRequests(){
 		 */
 		// Step 1: Extract stuff
 		if (sender < NUM_SERVERS) { //process the forwarded request, strip out forwarding shit
-			int newStart = serverExtract(serverBuffer);
+			int newStart = extractServer(serverBuffer);
 			strcpy(serverBuffer, &serverBuffer[newStart]);
 		} else { // not forwarded
 			timestamp = getTimestamp();
