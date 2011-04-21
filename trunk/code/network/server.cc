@@ -106,7 +106,7 @@ char serverBuffer[MaxMailSize];
 bool requestCompleted; //determines whether a message is sent back immediately
 bool recycle; //used to determine whether we are re-using a resource
 
-int clientMachineD;
+int clientMachineID;
 int clientMailboxID;
 int forTimestamp;
 
