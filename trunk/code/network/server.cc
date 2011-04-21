@@ -108,7 +108,7 @@ bool recycle; //used to determine whether we are re-using a resource
 
 int clientMachineID;
 int clientMailboxID;
-int forTimestamp;
+int timestamp;
 
 unsigned int getTimestamp() {
 	struct timeval tv; 
@@ -154,7 +154,7 @@ void handleIncomingRequests(){
 			int newStart = serverExtract(serverBuffer);
 			strcpy(serverBuffer, &serverBuffer[newStart]);
 		} else { // not forwarded
-			forTimestamp = getTimestamp();
+			timestamp = getTimestamp();
 			clientMachineID = serverInPktHdr.from;
 			clientMailboxID = serverInMailHdr.from;
 		}
@@ -300,7 +300,7 @@ void handleIncomingRequests(){
 int extractServer(char* serverBuffer) {
 	int i, j, k;
 	for (i = 0; i < strlen(serverBuffer); i++) {
-		if ( serverBuffer[i] == "," ) {
+		if ( serverBuffer[i] == ',' ) {
 			serverBuffer[i] = '\0';
 			timestamp = atoi(serverBuffer);
 			i++;
@@ -309,7 +309,7 @@ int extractServer(char* serverBuffer) {
 	}
 
 	for (j = i; j < strlen(serverBuffer); j++) {
-		if ( serverBuffer[j] == "," ) {
+		if ( serverBuffer[j] == ',' ) {
 			serverBuffer[j] = '\0';
 			clientMachineID = atoi(&serverBuffer[i]);
 			j++;
@@ -318,7 +318,7 @@ int extractServer(char* serverBuffer) {
 	}
 
 	for (k = j; k < strlen(serverBuffer); k++) {
-		if ( serverBuffer[k] == "," ) {
+		if ( serverBuffer[k] == ',' ) {
 			serverBuffer[k] = '\0';
 			clientMachineID = atoi(&serverBuffer[j]);
 			k++;
