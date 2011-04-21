@@ -18,6 +18,8 @@
 #define MAX_MONITOR_ARRAYS 50
 #define MAX_MONITOR_ARRAY_VALUES 50
 
+#define NUM_SERVERS	2
+
 //#define ServerLock Lock
 
 extern "C" {
@@ -104,6 +106,18 @@ char serverBuffer[MaxMailSize];
 bool requestCompleted; //determines whether a message is sent back immediately
 bool recycle; //used to determine whether we are re-using a resource
 
+int forMachineID;
+int forMailboxID;
+int forTimestamp;
+
+unsigned int getTimestamp() {
+	struct timeval tv; 
+	struct timezone tz; 
+	struct tm *tm; 
+	gettimeofday(&tv, &tz); 
+	tm=localtime(&tv.tv_sec); 
+	return ((unsigned int)(tv.tv_usec + tv.tv_sec*1000000)); 
+}
 
 void RunServer(void){
 	printf("Server coming online...\n");            
@@ -129,11 +143,17 @@ void handleIncomingRequests(){
 	//requestLock->Acquire();
 	while(true){                                            
 		postOffice->Receive(0, &serverInPktHdr, &serverInMailHdr, serverBuffer);
+
+		unsigned int currentTime = getTimestamp();
 		printf("Got \"%s\" from %d, box %d\n",serverBuffer,serverInPktHdr.from,serverInMailHdr.from);
+		sender = serverInPktHdr.from; //store this to be used outside of the main loop
 		/*if(serverInPktHdr.from is a SERVER)
 		 *	construct a new pkt
 		 */
-		sender = serverInPktHdr.from; //store this to be used outside of the main loop
+		if (sender < NUM_SERVERS) { //process the forwarded request, strip out forwarding shit
+			serverExtract(serverBuffer);
+		}
+		
 		fflush(stdout);             
 		parsePacket(serverBuffer);                              
 
@@ -270,6 +290,10 @@ void handleIncomingRequests(){
 	}
 
 	interrupt->Halt();
+}
+
+void extractServer(char* serverBuffer) {
+	
 }
 
 
