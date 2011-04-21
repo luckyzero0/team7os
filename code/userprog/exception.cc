@@ -43,6 +43,7 @@
 #define MAX_MONITORS 200
 #define MAX_MONITOR_ARRAYS 50
 #define MAX_MONITOR_ARRAY_VALUES 50
+#define MAX_TIMER_DATA 50
 #define MAX_THREADS 1000
 #define SERVER_ID 0
 
@@ -62,6 +63,26 @@ MailHeader outMailHdr, inMailHdr;
 char buffer[MaxMailSize]; //Data sent in message
 bool success; //where send was successful
 #endif
+
+//For TimedSetMonitorArrayValue
+struct TimerData{
+	MonitorArrayID monitorArrayID;
+	int index, value, numYields;
+}
+
+//TimerData timerDatas[MAX_TIMER_INFOS];
+TimerData timerData;
+Lock* timerLock = new Lock("timerLock");
+/*void initializeTimerDatas(){
+	for(int i=0; i<MAX_TIMER_DATA; i++){
+		timerDatas[i].monitorArrayID = 0;
+		timerDatas[i].index = 0;
+		timerDatas[i].value = 0;
+		timerDatas[i].numYields = 0;
+	}
+}*/
+
+
 
 struct LockEntry {
 	Lock* lock;
@@ -1191,6 +1212,42 @@ void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 /*===========================================================================================================================
 ==============================================================================================================================*/
 
+void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index, int value, int numYields)
+{
+	timerLock->Acquire();
+	timerData.monitorArrayID = monitorArrayID;
+	timerData.index = index;
+	timerData.value= value;
+	timerData.numYields = numYields;
+	Thread* thread = new Thread("TimerThread");
+	//Not sure if I should do all this
+	thread->space = currentThread->space; //put it in the same addrspace
+
+	//allocate space for new thread	
+	thread->ID = threadCount++;
+	threadArgs[thread->ID] = arg;
+	thread->space->AddNewThread(thread);
+
+	//thread->space->RestoreState();
+
+	//fork the thread, somehow
+	thread->Fork((VoidFunctionPtr)HandleTimer, 0);
+
+
+}
+
+void HandleTimer(void* arg){
+	MonitorArrayID monitorArrayID = timerData.monitorArrayID;
+    int index = timerData.index;
+	int value = timerData.value;
+	int numYields = timerData.numYields;
+	timerLock->Release();
+
+	for (int i=0; i<numYields; i++){
+		currentThread->Yield();
+	}
+	SetMonitorArrayValue_Syscall(monitorArrayID, index, value);
+}
 
 
 
@@ -1691,6 +1748,14 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_USleep:
 			DEBUG('a', "USleep syscall.\n");
 			usleep(machine->ReadRegister(4));
+			break;
+		}
+
+		case SC_TimedSetMonitorArrayValue:
+			DEBUG('a',"TimedSetMonitorArrayValue syscall\n");
+			TimedSetMonitorArrayValue_(machine->ReadRegister(4),
+			machine->ReadRegister(5),machine->ReadRegister(6),
+			machine->ReadRegister(7));
 			break;
 		}
 
