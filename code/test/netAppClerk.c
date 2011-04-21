@@ -137,7 +137,8 @@ void AppClerkRun(){
 			/*
 			ForkWithArg(appClerkFileData, SSN);*/
 
-			SetMonitorArrayValue(appFiled, SSN, TRUE);
+			/*SetMonitorArrayValue(appFiled, SSN, TRUE);*/
+			TimedSetMonitorArrayValue(appFiled, SSN, TRUE, Rand()%80 + 20);
 			/* appFiled[SSN] = TRUE; GET RID OF THIS ONCE WE FIX SHIT*/
 			
 			/*for (i=0; i<10; i++){

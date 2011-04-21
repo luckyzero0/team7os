@@ -138,7 +138,8 @@ void PassClerkRun(){
 				SetMonitorArrayValue(passPunish, index, FALSE);
 
 				/*ForkWithArg(passClerkFileData, SSN);*/
-				SetMonitorArrayValue(passFiled, SSN, TRUE);
+				/*SetMonitorArrayValue(passFiled, SSN, TRUE);*/
+				TimedSetMonitorArrayValue(passFiled, SSN, TRUE, Rand()%80 + 20);
 				printf("PassportClerk [%d] informs %s with SSN %d that the procedure has completed.\n", index, SSN, 0, getCustomerType(),""); 
 			}
 			
