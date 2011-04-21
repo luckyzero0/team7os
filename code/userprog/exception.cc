@@ -1212,29 +1212,6 @@ void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 /*===========================================================================================================================
 ==============================================================================================================================*/
 
-void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index, int value, int numYields)
-{
-	timerLock->Acquire();
-	timerData.monitorArrayID = monitorArrayID;
-	timerData.index = index;
-	timerData.value= value;
-	timerData.numYields = numYields;
-	Thread* thread = new Thread("TimerThread");
-	//Not sure if I should do all this
-	thread->space = currentThread->space; //put it in the same addrspace
-
-	//allocate space for new thread	
-	thread->ID = threadCount++;
-	threadArgs[thread->ID] = arg;
-	thread->space->AddNewThread(thread);
-
-	//thread->space->RestoreState();
-
-	//fork the thread, somehow
-	thread->Fork((VoidFunctionPtr)HandleTimer, 0);
-
-
-}
 
 void HandleTimer(void* arg){
 	MonitorArrayID monitorArrayID = timerData.monitorArrayID;
@@ -1248,6 +1225,31 @@ void HandleTimer(void* arg){
 	}
 	SetMonitorArrayValue_Syscall(monitorArrayID, index, value);
 }
+
+void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index, int value, int numYields)
+{
+	timerLock->Acquire();
+	timerData.monitorArrayID = monitorArrayID;
+	timerData.index = index;
+	timerData.value= value;
+	timerData.numYields = numYields;
+	Thread* thread = new Thread("TimerThread");
+	//Not sure if I should do all this
+	thread->space = currentThread->space; //put it in the same addrspace
+
+	//allocate space for new thread	
+	thread->ID = threadCount++;
+	//threadArgs[thread->ID] = arg;
+	thread->space->AddNewThread(thread);
+
+	//thread->space->RestoreState();
+
+	//fork the thread, somehow
+	thread->Fork((VoidFunctionPtr)HandleTimer, 0);
+
+
+}
+
 
 
 
@@ -1749,11 +1751,11 @@ void ExceptionHandler(ExceptionType which) {
 			DEBUG('a', "USleep syscall.\n");
 			usleep(machine->ReadRegister(4));
 			break;
-		}
+	
 
 		case SC_TimedSetMonitorArrayValue:
 			DEBUG('a',"TimedSetMonitorArrayValue syscall\n");
-			TimedSetMonitorArrayValue_(machine->ReadRegister(4),
+			TimedSetMonitorArrayValue_Syscall(machine->ReadRegister(4),
 			machine->ReadRegister(5),machine->ReadRegister(6),
 			machine->ReadRegister(7));
 			break;
