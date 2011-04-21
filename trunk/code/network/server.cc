@@ -130,6 +130,9 @@ void handleIncomingRequests(){
 	while(true){                                            
 		postOffice->Receive(0, &serverInPktHdr, &serverInMailHdr, serverBuffer);
 		printf("Got \"%s\" from %d, box %d\n",serverBuffer,serverInPktHdr.from,serverInMailHdr.from);
+		/*if(serverInPktHdr.from is a SERVER)
+		 *	construct a new pkt
+		 */
 		sender = serverInPktHdr.from; //store this to be used outside of the main loop
 		fflush(stdout);             
 		parsePacket(serverBuffer);                              
@@ -139,99 +142,99 @@ void handleIncomingRequests(){
 		switch(fnCall){
 
 		case SC_CreateLock:
-			printf("Request from Client[%d], ThreadID[%s]. Creating a new ServerLock.\n", serverInPktHdr.from, args[2].c_str());                                                            
+			printf("Request from Client[%d], ThreadID[%d]. Creating a new ServerLock.\n", serverInPktHdr.from, serverInMailHdr.from);                                                            
 			sprintf(ack,"%d",CreateLock_Syscall_Server(const_cast<char *>(args[1].c_str()))); //create response to client from return value         
-			threadBox = atoi(args[2].c_str()); //ensure that we send our reply to the proper client mailbox/threadID
+			threadBox = serverInMailHdr.from; //ensure that we send our reply to the proper client mailbox/threadID
 			break;
 
 		case SC_Acquire:
-			printf("Request from Client[%d], ThreadID[%s]. Acquiring ServerLock[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));                        
+			printf("Request from Client[%d], ThreadID[%d]. Acquiring ServerLock[%d]\n",serverInPktHdr.from,serverInMailHdr.from, atoi(args[1].c_str()));                        
 			Acquire_Syscall_Server(atoi(args[1].c_str())); //value of ack is set inside the function, as it does not return a value
-			threadBox = atoi(args[2].c_str());              
+			threadBox = serverInMailHdr.from;              
 			break;
 
 		case SC_Release:          
-			printf("Request from Client[%d], ThreadID[%s]. Releasing ServerLock[%d]\n",serverInPktHdr.from, args[2].c_str(), atoi(args[1].c_str()));
+			printf("Request from Client[%d], ThreadID[%d]. Releasing ServerLock[%d]\n",serverInPktHdr.from, serverInMailHdr.from, atoi(args[1].c_str()));
 			Release_Syscall_Server(atoi(args[1].c_str()));          
-			threadBox = atoi(args[2].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_DestroyLock:
-			printf("Request from Client[%d], ThreadID[%s]. Destroying ServerLock[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));
+			printf("Request from Client[%d], ThreadID[%d]. Destroying ServerLock[%d]\n",serverInPktHdr.from,serverInMailHdr.from, atoi(args[1].c_str()));
 			DestroyLock_Syscall_Server(atoi(args[1].c_str())); 
-			threadBox = atoi(args[2].c_str());      
+			threadBox = serverInMailHdr.from;      
 			break;
 
 		case SC_CreateCondition:
-			printf("Request from Client[%d], ThreadID[%s]. Creating a new ServerCV.\n", serverInPktHdr.from, args[2].c_str());
+			printf("Request from Client[%d], ThreadID[%d]. Creating a new ServerCV.\n", serverInPktHdr.from, serverInMailHdr.from);
 			sprintf(ack,"%d",CreateCondition_Syscall_Server(const_cast<char *>(args[1].c_str())));          
-			threadBox = atoi(args[2].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_Signal:    
-			printf("Request from Client[%d], ThreadID[%s]. Signaling ServerCV[%d] with ServerLock[%d]\n",serverInPktHdr.from, args[3].c_str(), atoi(args[1].c_str()),atoi(args[2].c_str()));
+			printf("Request from Client[%d], ThreadID[%d]. Signaling ServerCV[%d] with ServerLock[%d]\n",serverInPktHdr.from, serverInMailHdr.from, atoi(args[1].c_str()),atoi(args[2].c_str()));
 			Signal_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));      
-			threadBox = atoi(args[3].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_Wait:       
-			printf("Request from Client[%d], ThreadID[%s]. Waiting on ServerCV[%d] with ServerLock[%d]\n",serverInPktHdr.from, args[3].c_str(), atoi(args[1].c_str()),atoi(args[2].c_str()));
+			printf("Request from Client[%d], ThreadID[%d]. Waiting on ServerCV[%d] with ServerLock[%d]\n",serverInPktHdr.from, serverInMailHdr.from, atoi(args[1].c_str()),atoi(args[2].c_str()));
 			Wait_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));       
-			threadBox = atoi(args[3].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_Broadcast:        
-			printf("Request from Client[%d], ThreadID[%s]. Broadcasting ServerCV[%d] with ServerLock[%d]\n",serverInPktHdr.from, args[3].c_str(), atoi(args[1].c_str()),atoi(args[2].c_str()));
+			printf("Request from Client[%d], ThreadID[%d]. Broadcasting ServerCV[%d] with ServerLock[%d]\n",serverInPktHdr.from, serverInMailHdr.from, atoi(args[1].c_str()),atoi(args[2].c_str()));
 			Broadcast_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));          
-			threadBox = atoi(args[3].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_DestroyCondition:
-			printf("Request from Client[%d], ThreadID[%s]. Destroying ServerCV[%d]\n",serverInPktHdr.from,args[2].c_str(), atoi(args[1].c_str()));
+			printf("Request from Client[%d], ThreadID[%d]. Destroying ServerCV[%d]\n",serverInPktHdr.from,serverInMailHdr.from, atoi(args[1].c_str()));
 			DestroyCondition_Syscall_Server(atoi(args[1].c_str())); 
-			threadBox = atoi(args[3].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_CreateMonitor:
-			printf("Request from Client[%d], ThreadID[%s]. Creating a new Monitor.\n", serverInPktHdr.from, args[2].c_str());                                                               
+			printf("Request from Client[%d], ThreadID[%d]. Creating a new Monitor.\n", serverInPktHdr.from, serverInMailHdr.from);                                                               
 			sprintf(ack,"%d",CreateMonitor_Syscall_Server(const_cast<char *>(args[1].c_str())));            
-			threadBox = atoi(args[2].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_SetMonitor:
-			printf("Request from Client[%d], ThreadID[%s]. Set Monitor.\n", serverInPktHdr.from, args[3].c_str());                                                               
+			printf("Request from Client[%d], ThreadID[%d]. Set Monitor.\n", serverInPktHdr.from, serverInMailHdr.from);                                                               
 			SetMonitor_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));
-			threadBox = atoi(args[3].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_GetMonitor:
-			printf("Request from Client[%d], ThreadID[%s]. Get Monitor.\n", serverInPktHdr.from, args[2].c_str());                                                               
+			printf("Request from Client[%d], ThreadID[%d]. Get Monitor.\n", serverInPktHdr.from, serverInMailHdr.from);                                                               
 			sprintf(ack,"%d",GetMonitor_Syscall_Server(atoi(args[1].c_str())));     
-			threadBox = atoi(args[2].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_CreateMonitorArray:
-			printf("Request from Client[%d], ThreadID[%s]. Create Monitor Array.\n", serverInPktHdr.from, args[4].c_str());
+			printf("Request from Client[%d], ThreadID[%d]. Create Monitor Array.\n", serverInPktHdr.from, serverInMailHdr.from);
 			sprintf(ack,"%d",CreateMonitorArray_Syscall_Server(const_cast<char *>(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str())));
-			threadBox = atoi(args[4].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_GetMonitorArrayValue:
-			printf("Request from Client[%d], ThreadID[%s]. Get Monitor Array Value.\n", serverInPktHdr.from, args[3].c_str());
+			printf("Request from Client[%d], ThreadID[%d]. Get Monitor Array Value.\n", serverInPktHdr.from, serverInMailHdr.from);
 			sprintf(ack,"%d",GetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str())));
-			threadBox = atoi(args[3].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_SetMonitorArrayValue:
-			printf("Request from Client[%d], ThreadID[%s]. Set Monitor Array Value.\n", serverInPktHdr.from, args[4].c_str());
+			printf("Request from Client[%d], ThreadID[%d]. Set Monitor Array Value.\n", serverInPktHdr.from, serverInMailHdr.from);
 			SetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str()));
-			threadBox = atoi(args[4].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 		case SC_DestroyMonitorArray:
-			printf("Request from Client[%d], ThreadID[%s]. Destroy Monitor Array.\n", serverInPktHdr.from, args[2].c_str());
+			printf("Request from Client[%d], ThreadID[%d]. Destroy Monitor Array.\n", serverInPktHdr.from, serverInMailHdr.from);
 			DestroyMonitorArray_Syscall_Server(atoi(args[1].c_str()));
-			threadBox = atoi(args[2].c_str());
+			threadBox = serverInMailHdr.from;
 			break;
 
 
@@ -507,7 +510,7 @@ LockID CreateLock_Syscall_Server(char* name){
 	} else {	                	
 		serverLocks[index].lock = new ServerLock(name);
 		serverLocks[index].clientID = serverInPktHdr.from;
-		serverLocks[index].threadID = atoi(args[2].c_str());  
+		serverLocks[index].threadID = serverInMailHdr.from;
 		serverLocks[index].name = new char[strlen(name)];
 		strcpy(serverLocks[index].name, name);
 		numLocks++;
@@ -544,7 +547,7 @@ void Acquire_Syscall_Server(LockID id){
 	//how lock ownership is transferred on the server, as the server cannot
 	//acquire the lock itself, as trying to acquire a busy lock would cause
 	//the server to lock up.        
-	serverLocks[id].lock->Acquire(serverInPktHdr.from, atoi(args[2].c_str()));
+	serverLocks[id].lock->Acquire(serverInPktHdr.from, serverInMailHdr.from);
 	serverLocks[id].aboutToBeAcquired--;    
 	sprintf(ack,"Lock [%d] acquired", id);        
 }
@@ -562,7 +565,7 @@ void Release_Syscall_Server(LockID id){
 	//above (the way we handle transferring lock ownership requires
 	// it).
 	printf("Releasing the lock: %s.\n", serverLocks[id].name);
-	serverLocks[id].lock->Release(serverInPktHdr.from, atoi(args[2].c_str())); 
+	serverLocks[id].lock->Release(serverInPktHdr.from, serverInMailHdr.from); 
 	sprintf(ack, "Lock[%d] released.",id);
 	if (serverLocks[id].needsToBeDeleted && !serverLocks[id].lock->IsBusy() 
 		&& serverLocks[id].aboutToBeAcquired == 0) {                    
@@ -608,7 +611,7 @@ ConditionID CreateCondition_Syscall_Server(char* name){
 	} else {
 		serverCVs[index].condition = new ServerCondition(name);
 		serverCVs[index].clientID = serverInPktHdr.from;                
-		serverCVs[index].threadID = atoi(args[2].c_str());
+		serverCVs[index].threadID = serverInMailHdr.from;
 		serverCVs[index].name = new char[strlen(name)];
 		strcpy(serverCVs[index].name, name);                  
 
@@ -782,7 +785,7 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
 		serverMVs[index].monitor = 0; // monitors default to Zero now
 		serverMVs[index].used = true;
 		serverMVs[index].clientID = serverInPktHdr.from;
-		serverMVs[index].threadID = atoi(args[2].c_str());
+		serverMVs[index].threadID = serverInMailHdr.from;
 		serverMVs[index].name = new char[strlen(name)];
 		strcpy(serverMVs[index].name,name);                   
 	}
@@ -820,7 +823,7 @@ MonitorArrayID CreateMonitorArray_Syscall_Server(char* name, int length, int ini
 		}
 		serverMVAs[index].free = false;
 		serverMVAs[index].clientID = serverInPktHdr.from;
-		serverMVAs[index].threadID = atoi(args[4].c_str());
+		serverMVAs[index].threadID = serverInMailHdr.from;
 		serverMVAs[index].name = new char[strlen(name)];
 		strcpy(serverMVAs[index].name,name);                   
 	}
