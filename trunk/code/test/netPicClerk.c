@@ -141,8 +141,8 @@ void PicClerkRun(){
 				Wait(myConditionID, myLockID);
 
 				if (GetMonitorArrayValue(happyWithPhoto, index) == TRUE) {
-					SetMonitorArrayValue(picFiled, SSN, TRUE);
-					
+					/*SetMonitorArrayValue(picFiled, SSN, TRUE);*/
+					TimedSetMonitorArrayValue(picFiled, SSN, TRUE, Rand()%80 + 20);
 					/*ForkWithArg(picClerkFileData, SSN);*/
 					tprintf("PicClerk %d: Just woke up, %s with SSN %d liked their picture!\n",index, SSN, 0,getCustomerType(),"");
 				} else {
