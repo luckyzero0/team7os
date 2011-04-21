@@ -476,10 +476,10 @@ LockID CreateLock_Syscall(unsigned int vaddr, int len) {
 	// a lock. The LockID will be returned to the client.
 #ifdef NETWORK
 	char msg[MaxMailSize] = {""};	
-	sprintf(msg,"%d,%s,%d,*",SC_CreateLock,buf,currentThread->ID);	//Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%s,*",SC_CreateLock,buf);	//Message is in the form [<RequestType><data><ThreadID>]
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -530,11 +530,11 @@ void DestroyLock_Syscall(LockID id) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize] = {""};
-	sprintf(msg,"%d,%d,%d,*",SC_DestroyLock,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,*",SC_DestroyLock,id); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -597,11 +597,11 @@ ConditionID CreateCondition_Syscall(unsigned int vaddr, int len) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%s,%d,*",SC_CreateCondition,buf,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%s,*",SC_CreateCondition,buf); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -649,11 +649,11 @@ void DestroyCondition_Syscall(ConditionID id) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,*",SC_DestroyCondition,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,*",SC_DestroyCondition,id); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -689,11 +689,11 @@ void Acquire_Syscall(LockID id) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,*",SC_Acquire,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,*",SC_Acquire,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -732,11 +732,11 @@ void Release_Syscall(LockID id) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,*",SC_Release,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,*",SC_Release,id,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -782,11 +782,11 @@ void Signal_Syscall(ConditionID conditionID, LockID lockID) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,*",SC_Signal,conditionID, lockID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,%d,*",SC_Signal,conditionID, lockID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -841,11 +841,11 @@ void Wait_Syscall(ConditionID conditionID, LockID lockID) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,*",SC_Wait,conditionID, lockID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,%d,*",SC_Wait,conditionID, lockID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -905,11 +905,11 @@ void Broadcast_Syscall(ConditionID conditionID, LockID lockID) {
 
 #ifdef NETWORK
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,*",SC_Broadcast,conditionID, lockID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,%d,*",SC_Broadcast,conditionID, lockID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -977,11 +977,11 @@ MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len){
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%s,%d,*",SC_CreateMonitor,buf,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%s,*",SC_CreateMonitor,buf,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -1006,11 +1006,11 @@ int GetMonitor_Syscall(MonitorID monitorID){
 		return -1;
 	}
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,*",SC_GetMonitor,monitorID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,*",SC_GetMonitor,monitorID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -1036,11 +1036,11 @@ void SetMonitor_Syscall(MonitorID monitorID, int value){
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,*", SC_SetMonitor, monitorID, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,%d,*", SC_SetMonitor, monitorID, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -1082,11 +1082,11 @@ MonitorArrayID CreateMonitorArray_Syscall(unsigned int vaddr, int len, int array
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%s,%d,%d,%d,*",SC_CreateMonitorArray,buf,arrayLength, initialValue, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%s,%d,%d,*",SC_CreateMonitorArray,buf,arrayLength, initialValue, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -1111,11 +1111,11 @@ int GetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index) {
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,*", SC_GetMonitorArrayValue, monitorArrayID, index, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,%d,*", SC_GetMonitorArrayValue, monitorArrayID, index, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -1140,11 +1140,11 @@ void SetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index, int 
 	}
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,%d,%d,*", SC_SetMonitorArrayValue, monitorArrayID, index, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,%d,%d,*", SC_SetMonitorArrayValue, monitorArrayID, index, value, currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
@@ -1168,11 +1168,11 @@ void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 	// a MonitorArray. 
 
 	char msg[MaxMailSize];
-	sprintf(msg,"%d,%d,%d,*",SC_DestroyMonitorArray,monitorArrayID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
+	sprintf(msg,"%d,%d,*",SC_DestroyMonitorArray,monitorArrayID,currentThread->ID); //Message is in the form [<RequestType><data><ThreadID>]
 
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
-	outMailHdr.from = 0;
+	outMailHdr.from = currentThread->ID;
 	outMailHdr.length = strlen(msg) + 1;
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if ( !success ) {
