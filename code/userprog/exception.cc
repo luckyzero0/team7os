@@ -1722,7 +1722,7 @@ void ExceptionHandler(ExceptionType which) {
 			machine->ReadRegister(5),machine->ReadRegister(6),
 			machine->ReadRegister(7));
 			break;
-		}
+		
 #endif
 		case SC_Fork:
 			DEBUG('a', "Fork syscall.\n");
@@ -1759,7 +1759,7 @@ void ExceptionHandler(ExceptionType which) {
 			DEBUG('a', "USleep syscall.\n");
 			usleep(machine->ReadRegister(4));
 			break;
-	
+	}
 
 	
 
