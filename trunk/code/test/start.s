@@ -304,6 +304,15 @@ USleep:
 	.end USleep
 
 
+	.globl TimedSetMonitorArrayValue
+	.ent TimedSetMonitorArrayValue
+TimedSetMonitorArrayValue:
+	addiu $2,$0,SC_TimedSetMonitorArrayValue
+	syscall
+	j	$31
+	.end TimedSetMonitorArrayValue
+
+
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main
