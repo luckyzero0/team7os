@@ -1715,6 +1715,14 @@ void ExceptionHandler(ExceptionType which) {
 			DEBUG('a', "DestroyMonitorArray syscall.\n");
 			DestroyMonitorArray_Syscall(machine->ReadRegister(4));
 			break;
+
+		case SC_TimedSetMonitorArrayValue:
+			DEBUG('a',"TimedSetMonitorArrayValue syscall\n");
+			TimedSetMonitorArrayValue_Syscall(machine->ReadRegister(4),
+			machine->ReadRegister(5),machine->ReadRegister(6),
+			machine->ReadRegister(7));
+			break;
+		}
 #endif
 		case SC_Fork:
 			DEBUG('a', "Fork syscall.\n");
@@ -1753,13 +1761,7 @@ void ExceptionHandler(ExceptionType which) {
 			break;
 	
 
-		case SC_TimedSetMonitorArrayValue:
-			DEBUG('a',"TimedSetMonitorArrayValue syscall\n");
-			TimedSetMonitorArrayValue_Syscall(machine->ReadRegister(4),
-			machine->ReadRegister(5),machine->ReadRegister(6),
-			machine->ReadRegister(7));
-			break;
-		}
+	
 
 		// Put in the return value and increment the PC
 		machine->WriteRegister(2,rv);
