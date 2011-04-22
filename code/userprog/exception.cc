@@ -1221,7 +1221,7 @@ void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 void HandleTimer(int timerIndex){
 	printf("In HandleTimer\n");
 	TimerData* timerData = &timerDatas[timerIndex];
-	MonitorArrayID monitorArrayID = timerData.monitorArrayID;
+	MonitorArrayID monitorArrayID = timerData->monitorArrayID;
     int index = timerData->index;
 	int value = timerData->value;
 	int numYields = timerData->numYields;
