@@ -1209,37 +1209,47 @@ void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 
 
 void HandleTimer(void* arg){
+	printf("In HandleTimer\n");
 	MonitorArrayID monitorArrayID = timerData.monitorArrayID;
     int index = timerData.index;
 	int value = timerData.value;
 	int numYields = timerData.numYields;
+	printf("Releasing timerLock\n");
 	timerLock->Release();
 
 	for (int i=0; i<numYields; i++){
+		printf("Yielding: [%d/%d]\n",i,numYields);
 		currentThread->Yield();
 	}
+	printf("Calling SetMonitorArrayValue syscall!\n");
 	SetMonitorArrayValue_Syscall(monitorArrayID, index, value);
 }
 
 void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index, int value, int numYields)
 {
+	printf("Entered the TimedSetMonitorArrayValue syscall, trying to acquire timerLock..\n");
 	timerLock->Acquire();
+	printf("timerLock has been acquired\n");
 	timerData.monitorArrayID = monitorArrayID;
 	timerData.index = index;
 	timerData.value= value;
 	timerData.numYields = numYields;
+	printf("Creating new timer thread\n");
 	Thread* thread = new Thread("TimerThread");
 	//Not sure if I should do all this
+	printf("Setting timerThread's space to currentThread's space\n");
 	thread->space = currentThread->space; //put it in the same addrspace
 
 	//allocate space for new thread	
 	thread->ID = threadCount++;
 	//threadArgs[thread->ID] = arg;
+	printf("Adding this thread to addrspace's list of threads\n");
 	thread->space->AddNewThread(thread);
 
 	//thread->space->RestoreState();
 
 	//fork the thread, somehow
+	printf("Forking the timerThread\n");
 	thread->Fork((VoidFunctionPtr)HandleTimer, 0);
 
 
