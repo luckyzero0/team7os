@@ -1250,7 +1250,7 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 
 	//fork the thread, somehow
 	printf("Forking the timerThread\n");
-	thread->Fork((VoidFunctionPtr)HandleTimer, 0);
+	thread->Fork(HandleTimer, 0);
 
 
 }
