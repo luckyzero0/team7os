@@ -145,7 +145,7 @@ void AppClerkRun(){
 				tprintf("AppFiled: %d,    PicFiled: %d\n",appFiled[i],picFiled[i]);
 			}*/
 			
-			tprintf("AppClerk %d: Signaling my appClerkCV\n", index,0,0,"","");
+			printf("AppClerk %d: Signaling my appClerkCV\n", index,0,0,"","");
 			/*appClerkCVs[index]->Signal(appClerkLocks[index]);*/
 			Signal(myConditionID, myLockID);
 			tprintf("AppClerk %d: Releasing my own lock\n", index,0,0,"","");

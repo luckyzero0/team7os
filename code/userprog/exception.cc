@@ -1225,10 +1225,16 @@ void HandleTimer(int timerIndex){
     int index = timerData.index;
 	int value = timerData.value;
 	int numYields = timerData.numYields;
+	printf("DEBUG Index[%d] -- Value[%d] -- numYields[%d]\n",index,value,numYields); 
+
+	printf("DEBUG: Acquiring lock in HandleTimer\n");
 	timerLock->Acquire();
+	printf("DEBUG: Lock acquired in HandleTimer\n");
 	timerDatas[timerIndex].isTaken = false;
 	timerLock->Release();
+	printf("DEBUG: Lock released in HandleTimer\n");
 	
+	printf("DEBUG: Yielding for [%d] yields.\n",numYields);
 	for (int i=0; i<numYields; i++){
 		printf("Yielding: [%d/%d]\n",i,numYields);
 		currentThread->Yield();
