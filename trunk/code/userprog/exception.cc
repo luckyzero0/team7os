@@ -1220,17 +1220,17 @@ void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 
 void HandleTimer(int timerIndex){
 	printf("In HandleTimer\n");
-	TimerData timerData = timerDatas[timerIndex];
+	TimerData* timerData = timerDatas[timerIndex];
 	MonitorArrayID monitorArrayID = timerData.monitorArrayID;
-    int index = timerData.index;
-	int value = timerData.value;
-	int numYields = timerData.numYields;
+    int index = timerData->index;
+	int value = timerData->value;
+	int numYields = timerData->numYields;
 	printf("DEBUG Index[%d] -- Value[%d] -- numYields[%d]\n",index,value,numYields); 
 
 	printf("DEBUG: Acquiring lock in HandleTimer\n");
 	timerLock->Acquire();
 	printf("DEBUG: Lock acquired in HandleTimer\n");
-	timerDatas[timerIndex].isTaken = false;
+	timerData->isTaken = false;
 	timerLock->Release();
 	printf("DEBUG: Lock released in HandleTimer\n");
 	
@@ -1253,13 +1253,13 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 		printf("Error: No available Timer Datas\n");
 		return;
 	}
-	TimerData timerData = timerDatas[index];
-	timerDatas[index].isTaken = true;
+	TimerData* timerData = timerDatas[timerIndex];
+	timerData->isTaken = true;
 	timerLock->Release();
-	timerData.monitorArrayID = monitorArrayID;
-	timerData.index = index;
-	timerData.value= value;
-	timerData.numYields = numYields;
+	timerData->monitorArrayID = monitorArrayID;
+	timerData->index = index;
+	timerData->value= value;
+	timerData->numYields = numYields;
 	printf("Creating new timer thread\n");
 	Thread* thread = new Thread("TimerThread");
 	//Not sure if I should do all this
