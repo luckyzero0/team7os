@@ -43,7 +43,7 @@
 #define MAX_MONITORS 200
 #define MAX_MONITOR_ARRAYS 50
 #define MAX_MONITOR_ARRAY_VALUES 50
-#define MAX_TIMER_DATA 50
+#define MAX_TIMER_DATAS 50
 #define MAX_THREADS 1000
 #define SERVER_ID 0
 
@@ -68,11 +68,20 @@ bool success; //where send was successful
 struct TimerData{
 	MonitorArrayID monitorArrayID;
 	int index, value, numYields;
+	bool isFree = true;
 };
 
 //TimerData timerDatas[MAX_TIMER_INFOS];
-TimerData timerData;
+TimerData timerDatas[MAX_TIMER_DATAS];
 Lock* timerLock = new Lock("timerLock");
+int getAvailableTimerData(){
+	for(int i=0; i<MAX_TIMER_DATA; i++){
+		if (timerDatas[i].isFree == true){
+			return i;
+		}
+	}
+	return -1;
+}
 /*void initializeTimerDatas(){
 	for(int i=0; i<MAX_TIMER_DATA; i++){
 		timerDatas[i].monitorArrayID = 0;
@@ -1208,15 +1217,17 @@ void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 
 
 
-void HandleTimer(int arg){
+void HandleTimer(int index){
 	printf("In HandleTimer\n");
+	TimerData timerData = timerDatas[index];
 	MonitorArrayID monitorArrayID = timerData.monitorArrayID;
     int index = timerData.index;
 	int value = timerData.value;
 	int numYields = timerData.numYields;
-	printf("Releasing timerLock\n");
-	timerLock->Release();
-
+	timerLocks->Acquire();
+	timerDatas[index].isFree = true;
+	timerLocks->Release();
+	
 	for (int i=0; i<numYields; i++){
 		printf("Yielding: [%d/%d]\n",i,numYields);
 		currentThread->Yield();
@@ -1230,6 +1241,13 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 	printf("Entered the TimedSetMonitorArrayValue syscall, trying to acquire timerLock..\n");
 	timerLock->Acquire();
 	printf("timerLock has been acquired\n");
+	int index = getAvailableTimerData();
+	if (index < 0){
+		printf("Error: No available Timer Datas\n");'
+		return;
+	}
+	TimerData timerData = timerDatas[index];
+	timerLock->Release();
 	timerData.monitorArrayID = monitorArrayID;
 	timerData.index = index;
 	timerData.value= value;
@@ -1250,7 +1268,7 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 
 	//fork the thread, somehow
 	printf("Forking the timerThread\n");
-	thread->Fork(HandleTimer, 0);
+	thread->Fork(HandleTimer, index);
 
 
 }
