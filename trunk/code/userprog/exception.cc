@@ -1220,7 +1220,7 @@ void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 
 void HandleTimer(int timerIndex){
 	printf("In HandleTimer\n");
-	TimerData* timerData = timerDatas[timerIndex];
+	TimerData* timerData = &timerDatas[timerIndex];
 	MonitorArrayID monitorArrayID = timerData.monitorArrayID;
     int index = timerData->index;
 	int value = timerData->value;
@@ -1253,7 +1253,7 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 		printf("Error: No available Timer Datas\n");
 		return;
 	}
-	TimerData* timerData = timerDatas[timerIndex];
+	TimerData* timerData = &timerDatas[timerIndex];
 	timerData->isTaken = true;
 	timerLock->Release();
 	timerData->monitorArrayID = monitorArrayID;
