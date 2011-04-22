@@ -1237,14 +1237,14 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 	printf("Creating new timer thread\n");
 	Thread* thread = new Thread("TimerThread");
 	//Not sure if I should do all this
-	printf("Setting timerThread's space to currentThread's space\n");
-	thread->space = currentThread->space; //put it in the same addrspace
+	//printf("Setting timerThread's space to currentThread's space\n");
+	//thread->space = currentThread->space; //put it in the same addrspace
 
 	//allocate space for new thread	
 	thread->ID = threadCount++;
 	//threadArgs[thread->ID] = arg;
-	printf("Adding this thread to addrspace's list of threads\n");
-	thread->space->AddNewThread(thread);
+	//printf("Adding this thread to addrspace's list of threads\n");
+	//thread->space->AddNewThread(thread);
 
 	//thread->space->RestoreState();
 
