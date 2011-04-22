@@ -1224,9 +1224,9 @@ void HandleTimer(int index){
     int index = timerData.index;
 	int value = timerData.value;
 	int numYields = timerData.numYields;
-	timerLocks->Acquire();
+	timerLock->Acquire();
 	timerDatas[index].isFree = true;
-	timerLocks->Release();
+	timerLock->Release();
 	
 	for (int i=0; i<numYields; i++){
 		printf("Yielding: [%d/%d]\n",i,numYields);
