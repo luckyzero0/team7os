@@ -66,9 +66,10 @@ bool success; //where send was successful
 
 //For TimedSetMonitorArrayValue
 struct TimerData{
+	TimerData():monitorArrayID(),index(),value(),numYields(),isFree(){}
 	MonitorArrayID monitorArrayID;
 	int index, value, numYields;
-	bool isFree;
+	bool isTaken;
 };
 
 //TimerData timerDatas[MAX_TIMER_INFOS];
@@ -76,7 +77,7 @@ TimerData timerDatas[MAX_TIMER_DATAS];
 Lock* timerLock = new Lock("timerLock");
 int getAvailableTimerData(){
 	for(int i=0; i<MAX_TIMER_DATAS; i++){
-		if (timerDatas[i].isFree == true){
+		if (timerDatas[i].isTaken == false){
 			return i;
 		}
 	}
@@ -1225,7 +1226,7 @@ void HandleTimer(int timerIndex){
 	int value = timerData.value;
 	int numYields = timerData.numYields;
 	timerLock->Acquire();
-	timerDatas[timerIndex].isFree = true;
+	timerDatas[timerIndex].isTaken = false;
 	timerLock->Release();
 	
 	for (int i=0; i<numYields; i++){
@@ -1247,6 +1248,7 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 		return;
 	}
 	TimerData timerData = timerDatas[index];
+	timerDatas[index].isTaken = true;
 	timerLock->Release();
 	timerData.monitorArrayID = monitorArrayID;
 	timerData.index = index;
