@@ -66,7 +66,7 @@ bool success; //where send was successful
 
 //For TimedSetMonitorArrayValue
 struct TimerData{
-	TimerData():monitorArrayID(),index(),value(),numYields(),isFree(){}
+	TimerData():monitorArrayID(),index(),value(),numYields(),isTaken(){}
 	MonitorArrayID monitorArrayID;
 	int index, value, numYields;
 	bool isTaken;
