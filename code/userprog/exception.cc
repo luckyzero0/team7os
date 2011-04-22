@@ -1217,15 +1217,15 @@ void DestroyMonitorArray_Syscall(MonitorArrayID monitorArrayID) {
 
 
 
-void HandleTimer(int index){
+void HandleTimer(int timerIndex){
 	printf("In HandleTimer\n");
-	TimerData timerData = timerDatas[index];
+	TimerData timerData = timerDatas[timerIndex];
 	MonitorArrayID monitorArrayID = timerData.monitorArrayID;
     int index = timerData.index;
 	int value = timerData.value;
 	int numYields = timerData.numYields;
 	timerLock->Acquire();
-	timerDatas[index].isFree = true;
+	timerDatas[timerIndex].isFree = true;
 	timerLock->Release();
 	
 	for (int i=0; i<numYields; i++){
