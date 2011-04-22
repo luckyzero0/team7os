@@ -1241,8 +1241,8 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 	printf("Entered the TimedSetMonitorArrayValue syscall, trying to acquire timerLock..\n");
 	timerLock->Acquire();
 	printf("timerLock has been acquired\n");
-	int index = getAvailableTimerData();
-	if (index < 0){
+	int timerIndex = getAvailableTimerData();
+	if (timerIndex < 0){
 		printf("Error: No available Timer Datas\n");
 		return;
 	}
@@ -1268,7 +1268,7 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 
 	//fork the thread, somehow
 	printf("Forking the timerThread\n");
-	thread->Fork(HandleTimer, index);
+	thread->Fork(HandleTimer, timerIndex);
 
 
 }
