@@ -1243,7 +1243,7 @@ void TimedSetMonitorArrayValue_Syscall(MonitorArrayID monitorArrayID, int index,
 	printf("timerLock has been acquired\n");
 	int index = getAvailableTimerData();
 	if (index < 0){
-		printf("Error: No available Timer Datas\n");'
+		printf("Error: No available Timer Datas\n");
 		return;
 	}
 	TimerData timerData = timerDatas[index];
