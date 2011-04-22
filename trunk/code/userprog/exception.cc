@@ -75,7 +75,7 @@ struct TimerData{
 TimerData timerDatas[MAX_TIMER_DATAS];
 Lock* timerLock = new Lock("timerLock");
 int getAvailableTimerData(){
-	for(int i=0; i<MAX_TIMER_DATA; i++){
+	for(int i=0; i<MAX_TIMER_DATAS; i++){
 		if (timerDatas[i].isFree == true){
 			return i;
 		}
