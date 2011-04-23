@@ -140,19 +140,8 @@ void RunServer(void){
 	handleIncomingRequests();                       
 }
 
-void 
 
-	/* Main loop for handling incoming requests
-	* We receive a packet/request to mailbox 0,
-	* and parse the packet to determine the 
-	* request:
-	* A packet sent from exception.cc will contain
-	*      1.) syscall enum
-	*      2.) parameters required to complete the syscall
-	* the packet is parsed and then stored and then processed.
-	* If the request completes, a msg is sent back to the client.
-	* Otherwise, we listen for the next request.
-	*/
+	
 
 
 
@@ -219,6 +208,17 @@ void forwardMsg() {
 	}
 }
 
+/* Main loop for handling incoming requests
+	* We receive a packet/request to mailbox 0,
+	* and parse the packet to determine the 
+	* request:
+	* A packet sent from exception.cc will contain
+	*      1.) syscall enum
+	*      2.) parameters required to complete the syscall
+	* the packet is parsed and then stored and then processed.
+	* If the request completes, a msg is sent back to the client.
+	* Otherwise, we listen for the next request.
+	*/
 void handleIncomingRequests(){
 
 	for (int i = 0; i < NUM_SERVERS; i++) {
