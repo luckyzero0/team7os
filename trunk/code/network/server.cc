@@ -95,7 +95,7 @@ void handleIncomingRequests();
 int extractServer(char*);
 
 struct Packet {
-	int timestamp;
+	unsigned int timestamp;
 	int clientMachineID;
 	int clientMailboxID;
 	int forwardingServerMachineID;
@@ -118,18 +118,18 @@ bool recycle; //used to determine whether we are re-using a resource
 
 int clientMachineID;
 int clientMailboxID;
-int timestamp;
+unsigned int timestamp;
 
 list<Packet*> packetList;
-int lastTimestampReceived[NUM_SERVERS];
+unsigned int lastTimestampReceived[NUM_SERVERS];
 
-int getTimestamp() {
+unsigned int getTimestamp() {
 	struct timeval tv; 
 	struct timezone tz; 
 	struct tm *tm; 
 	gettimeofday(&tv, &tz); 
 	tm=localtime(&tv.tv_sec); 
-	return ((int)(tv.tv_usec + tv.tv_sec*1000000)); 
+	return ((unsigned int)(tv.tv_usec + tv.tv_sec*1000000)); 
 }
 
 void RunServer(void){
@@ -166,7 +166,7 @@ void insertIntoPacketList(Packet* packet) {
 void broadcastTimestampMsg() {
 	char timestampMsg[50];
 	timestampMsg[0] = '\\';
-	sprintf(&timestampMsg[1], "%d", timestamp);
+	sprintf(&timestampMsg[1], "%u", timestamp);
 
 	for (int i = 0; i < NUM_SERVERS; i++) {
 		if (i != postOffice->getNetAddr()) {
@@ -185,7 +185,7 @@ void forwardMsg() {
 	char buf[100];
 	int index;
 
-	sprintf(buf, "%d", timestamp);
+	sprintf(buf, "%u", timestamp);
 	strcat(buf, ",");
 	index = strlen(buf);
 	sprintf(&buf[index], "%d", clientMachineID);
@@ -235,7 +235,7 @@ void handleIncomingRequests(){
 		*/
 		// Step 1: Extract stuff
 		if (serverBuffer[0] == '\\') { // we have a timestamp msg, so don't add the packet to the queue or anything like that
-			timestamp = atoi(&serverBuffer[1]);
+			timestamp = (unsigned int) atoi(&serverBuffer[1]);
 			lastTimestampReceived[serverInPktHdr.from] = timestamp;
 		} else { // we have a request from a client, or forwarded request from another server
 			if (sender < NUM_SERVERS) { //process the forwarded request, strip out forwarding shit
@@ -437,7 +437,7 @@ int extractServer(char* serverBuffer) {
 	for (i = 0; i < strlen(serverBuffer); i++) {
 		if ( serverBuffer[i] == ',' ) {
 			serverBuffer[i] = '\0';
-			timestamp = atoi(serverBuffer);
+			timestamp = (unsigned int) atoi(serverBuffer);
 			i++;
 			break;
 		}
