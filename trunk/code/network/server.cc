@@ -10,6 +10,7 @@
 #include "post.h"
 #include "interrupt.h"
 #include "syscall.h"
+#include <stdlib.h>
 #include <list>
 
 #define MAX_LOCKS 100 
@@ -160,17 +161,17 @@ bool comparePacket (const Packet* first, const Packet* second) {
 }
 
 void insertIntoPacketList(Packet* packet) {
-	list.push_back(packet);
-	list.sort(comparePacket);
+	packetList.push_back(packet);
+	packetList.sort(comparePacket);
 }
 
 void broadcastTimestampMsg() {
 	char timestampMsg[50];
-	timestampMsg[0] = "\\";
+	timestampMsg[0] = '\\';
 	itoa(timestamp, &timestampMsg[1], 10);
 
 	for (int i = 0; i < NUM_SERVERS; i++) {
-		if (i != postOffice->netAddr) {
+		if (i != postOffice->getNetAddr()) {
 			serverOutPktHdr.to = i;
 			serverOutMailHdr.to = 0;
 			serverOutMailHdr.length = strlen(timestampMsg) + 1;
@@ -197,7 +198,7 @@ void forwardMsg() {
 	strcat(buf, serverBuffer);
 
 	for (int i = 0; i < NUM_SERVERS; i++) {
-		if (i != postOffice->netAddr) {
+		if (i != postOffice->getNetAddr()) {
 			serverOutPktHdr.to = i;
 			serverOutMailHdr.to = 0;
 			serverOutMailHdr.length = strlen(timestampMsg) + 1;
@@ -257,7 +258,7 @@ void handleIncomingRequests(){
 			packet->timestamp = timestamp;
 			packet->clientMachineID = clientMachineID;
 			packet->clientMailboxID = clientMailboxID;
-			packet->forwardingServerMachineID = (sender < NUM_SERVERS) ? serverInPktHdr.from : postOffice->netAddr;
+			packet->forwardingServerMachineID = (sender < NUM_SERVERS) ? serverInPktHdr.from : postOffice->getNetAddr();
 			packet->forwardingServerMailboxID = (sender < NUM_SERVERS) ? serverInMailHdr.from : 0;
 			strcpy(packet->message, serverBuffer);
 
@@ -407,7 +408,7 @@ void handleIncomingRequests(){
 			serverOutMailHdr.length = strlen(ack) + 1;
 			serverOutMailHdr.from = 0;
 			printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",firstPacket->clientMachineID, firstPacket->clientMailboxID, ack);
-			if (firstPacket->forwardingMachineID == postOffice->netAddr) { //only send reply if we are the originally requested server
+			if (firstPacket->forwardingMachineID == postOffice->getNetAddr()) { //only send reply if we are the originally requested server
 				serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
 			}
 			
