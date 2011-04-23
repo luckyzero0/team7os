@@ -177,7 +177,7 @@ void broadcastTimestampMsg() {
 			serverOutMailHdr.length = strlen(timestampMsg) + 1;
 			serverOutMailHdr.from = 0;
 			printf("Sending timestamp to Server[%d], Box[%d] MSG = [%s]\n", i, 0, timestampMsg);
-			postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
+			postOffice->Send(serverOutPktHdr, serverOutMailHdr, timestampMsg);
 		}
 	}
 	
@@ -201,10 +201,10 @@ void forwardMsg() {
 		if (i != postOffice->getNetAddr()) {
 			serverOutPktHdr.to = i;
 			serverOutMailHdr.to = 0;
-			serverOutMailHdr.length = strlen(timestampMsg) + 1;
+			serverOutMailHdr.length = strlen(buf) + 1;
 			serverOutMailHdr.from = 0;
 			printf("Sending timestamp to Server[%d], Box[%d] MSG = [%s]\n", i, 0, buf);
-			postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
+			postOffice->Send(serverOutPktHdr, serverOutMailHdr, buf);
 		}
 	}
 }
