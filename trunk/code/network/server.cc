@@ -168,7 +168,7 @@ void insertIntoPacketList(Packet* packet) {
 void broadcastTimestampMsg() {
 	char timestampMsg[50];
 	timestampMsg[0] = '\\';
-	itoa(timestamp, &timestampMsg[1], 10);
+	sprintf(&timestampMsg[1], "%d", timestamp);
 
 	for (int i = 0; i < NUM_SERVERS; i++) {
 		if (i != postOffice->getNetAddr()) {
@@ -187,13 +187,13 @@ void forwardMsg() {
 	char buf[100];
 	int index;
 
-	atoi(timestamp, buf, 10);
+	sprintf(buf, "%d", timestamp);
 	strcat(buf, ",");
 	index = strlen(buf);
-	atoi(clientMachineID, &buf[index], 10);
+	sprintf(&buf[index], "%d", clientMachineID);
 	strcat(buf, ",");
 	index = strlen(buf);
-	atoi(clientMailboxID, &buf[index], 10);
+	sprintf(&buf[index], "%d", clientMailboxID);
 	strcat(buf, ",");
 	strcat(buf, serverBuffer);
 
