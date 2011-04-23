@@ -20,7 +20,7 @@
 
 #define NUM_SERVERS	1
 
-using namespace std::list;
+using std::list;
 
 //#define ServerLock Lock
 
@@ -95,6 +95,14 @@ void DestroyMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID);
 void handleIncomingRequests();
 int extractServer(char*);
 
+struct Packet {
+	unsigned int timestamp;
+	int clientMachineID;
+	int clientMailboxID;
+	int forwardingServerMachineID;
+	int forwardingServerMailboxID;
+	char message[MaxPacketSize];
+};
 
 char *ack = "";
 bool serverSuccess;
@@ -146,14 +154,7 @@ void
 	* Otherwise, we listen for the next request.
 	*/
 
-struct Packet {
-	unsigned int timestamp;
-	int clientMachineID;
-	int clientMailboxID;
-	int forwardingServerMachineID;
-	int forwardingServerMailboxID;
-	char message[MaxPacketSize];
-}
+
 
 bool comparePacket (const Packet* first, const Packet* second) {
 	if (first->timestamp < second->timestamp) {
