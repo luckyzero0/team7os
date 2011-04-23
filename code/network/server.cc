@@ -10,7 +10,7 @@
 #include "post.h"
 #include "interrupt.h"
 #include "syscall.h"
-#include "list.h"
+#include <list>
 
 #define MAX_LOCKS 100 
 #define MAX_CONDITIONS 200
@@ -19,6 +19,8 @@
 #define MAX_MONITOR_ARRAY_VALUES 50
 
 #define NUM_SERVERS	1
+
+using namespace std::list;
 
 //#define ServerLock Lock
 
@@ -111,6 +113,9 @@ int clientMachineID;
 int clientMailboxID;
 int timestamp;
 
+list<Packet*> packetList;
+unsigned int lastTimestampReceived[NUM_SERVERS];
+
 unsigned int getTimestamp() {
 	struct timeval tv; 
 	struct timezone tz; 
@@ -127,171 +132,300 @@ void RunServer(void){
 	handleIncomingRequests();                       
 }
 
-/* Main loop for handling incoming requests
-* We receive a packet/request to mailbox 0,
-* and parse the packet to determine the 
-* request:
-* A packet sent from exception.cc will contain
-*      1.) syscall enum
-*      2.) parameters required to complete the syscall
-* the packet is parsed and then stored and then processed.
-* If the request completes, a msg is sent back to the client.
-* Otherwise, we listen for the next request.
-*/
+void 
+
+	/* Main loop for handling incoming requests
+	* We receive a packet/request to mailbox 0,
+	* and parse the packet to determine the 
+	* request:
+	* A packet sent from exception.cc will contain
+	*      1.) syscall enum
+	*      2.) parameters required to complete the syscall
+	* the packet is parsed and then stored and then processed.
+	* If the request completes, a msg is sent back to the client.
+	* Otherwise, we listen for the next request.
+	*/
+
+struct Packet {
+	unsigned int timestamp;
+	int clientMachineID;
+	int clientMailboxID;
+	int forwardingServerMachineID;
+	int forwardingServerMailboxID;
+	char message[MaxPacketSize];
+}
+
+bool comparePacket (const Packet* first, const Packet* second) {
+	if (first->timestamp < second->timestamp) {
+		return true;
+	} else if (first->timestamp > second->timestamp) {
+		return false;
+	}
+
+	if (first->forwardingServerMachineID < second->forwardingServerMachineID) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+void insertIntoPacketList(Packet* packet) {
+	list.push_back(packet);
+	list.sort(comparePacket);
+}
+
+void broadcastTimestampMsg() {
+	char timestampMsg[50];
+	timestampMsg[0] = "\\";
+	itoa(timestamp, &timestampMsg[1], 10);
+
+	for (int i = 0; i < NUM_SERVERS; i++) {
+		if (i != postOffice->netAddr) {
+			serverOutPktHdr.to = i;
+			serverOutMailHdr.to = 0;
+			serverOutMailHdr.length = strlen(timestampMsg) + 1;
+			serverOutMailHdr.from = 0;
+			printf("Sending timestamp to Server[%d], Box[%d] MSG = [%s]\n", i, 0, timestampMsg);
+			postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
+		}
+	}
+	
+}
+
+void forwardMsg() {
+	char buf[100];
+	int index;
+
+	atoi(timestamp, buf, 10);
+	strcat(buf, ",");
+	index = strlen(buf);
+	atoi(clientMachineID, &buf[index], 10);
+	strcat(buf, ",");
+	index = strlen(buf);
+	atoi(clientMailboxID, &buf[index], 10);
+	strcat(buf, ",");
+	strcat(buf, serverBuffer);
+
+	for (int i = 0; i < NUM_SERVERS; i++) {
+		if (i != postOffice->netAddr) {
+			serverOutPktHdr.to = i;
+			serverOutMailHdr.to = 0;
+			serverOutMailHdr.length = strlen(timestampMsg) + 1;
+			serverOutMailHdr.from = 0;
+			printf("Sending timestamp to Server[%d], Box[%d] MSG = [%s]\n", i, 0, buf);
+			postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
+		}
+	}
+}
 
 void handleIncomingRequests(){
+
+	for (int i = 0; i < NUM_SERVERS; i++) {
+		lastTimestampReceived[i] = -1; // initialize LTR table to -1's
+	}
+
 	printf("Listening for clients on the network...\n");
-	//requestLock->Acquire();
 	while(true){                                            
 		postOffice->Receive(0, &serverInPktHdr, &serverInMailHdr, serverBuffer);
 
 		printf("Got \"%s\" from %d, box %d\n",serverBuffer,serverInPktHdr.from,serverInMailHdr.from);
 		sender = serverInPktHdr.from; //store this to be used outside of the main loop
 		/*if(serverInPktHdr.from is a SERVER)
-		 *	construct a new pkt
-		 */
-		// Step 1: Extract stuff
-		if (sender < NUM_SERVERS) { //process the forwarded request, strip out forwarding shit
-			int newStart = extractServer(serverBuffer);
-			strcpy(serverBuffer, &serverBuffer[newStart]);
-		} else { // not forwarded
-			timestamp = getTimestamp();
-			clientMachineID = serverInPktHdr.from;
-			clientMailboxID = serverInMailHdr.from;
-		}
-		
-		fflush(stdout);             
-		parsePacket(serverBuffer);                              
-
-		fnCall = atoi(args[0].c_str()); //the Syscall_Enum is the first argument parsed
-		printf("FnCall = [%d]\n",fnCall);
-		switch(fnCall){
-
-		case SC_CreateLock:
-			printf("Request from Client[%d], ThreadID[%d]. Creating a new ServerLock.\n", clientMachineID, clientMailboxID);                                                            
-			sprintf(ack,"%d",CreateLock_Syscall_Server(const_cast<char *>(args[1].c_str()))); //create response to client from return value         
-			threadBox = clientMailboxID; //ensure that we send our reply to the proper client mailbox/threadID
-			break;
-
-		case SC_Acquire:
-			printf("Request from Client[%d], ThreadID[%d]. Acquiring ServerLock[%d]\n",clientMachineID,clientMailboxID, atoi(args[1].c_str()));                        
-			Acquire_Syscall_Server(atoi(args[1].c_str())); //value of ack is set inside the function, as it does not return a value
-			threadBox = clientMailboxID;              
-			break;
-
-		case SC_Release:          
-			printf("Request from Client[%d], ThreadID[%d]. Releasing ServerLock[%d]\n",clientMachineID, clientMailboxID, atoi(args[1].c_str()));
-			Release_Syscall_Server(atoi(args[1].c_str()));          
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_DestroyLock:
-			printf("Request from Client[%d], ThreadID[%d]. Destroying ServerLock[%d]\n",clientMachineID,clientMailboxID, atoi(args[1].c_str()));
-			DestroyLock_Syscall_Server(atoi(args[1].c_str())); 
-			threadBox = clientMailboxID;      
-			break;
-
-		case SC_CreateCondition:
-			printf("Request from Client[%d], ThreadID[%d]. Creating a new ServerCV.\n", clientMachineID, clientMailboxID);
-			sprintf(ack,"%d",CreateCondition_Syscall_Server(const_cast<char *>(args[1].c_str())));          
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_Signal:    
-			printf("Request from Client[%d], ThreadID[%d]. Signaling ServerCV[%d] with ServerLock[%d]\n",clientMachineID, clientMailboxID, atoi(args[1].c_str()),atoi(args[2].c_str()));
-			Signal_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));      
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_Wait:       
-			printf("Request from Client[%d], ThreadID[%d]. Waiting on ServerCV[%d] with ServerLock[%d]\n",clientMachineID, clientMailboxID, atoi(args[1].c_str()),atoi(args[2].c_str()));
-			Wait_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));       
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_Broadcast:        
-			printf("Request from Client[%d], ThreadID[%d]. Broadcasting ServerCV[%d] with ServerLock[%d]\n",clientMachineID, clientMailboxID, atoi(args[1].c_str()),atoi(args[2].c_str()));
-			Broadcast_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));          
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_DestroyCondition:
-			printf("Request from Client[%d], ThreadID[%d]. Destroying ServerCV[%d]\n",clientMachineID,clientMailboxID, atoi(args[1].c_str()));
-			DestroyCondition_Syscall_Server(atoi(args[1].c_str())); 
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_CreateMonitor:
-			printf("Request from Client[%d], ThreadID[%d]. Creating a new Monitor.\n", clientMachineID, clientMailboxID);                                                               
-			sprintf(ack,"%d",CreateMonitor_Syscall_Server(const_cast<char *>(args[1].c_str())));            
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_SetMonitor:
-			printf("Request from Client[%d], ThreadID[%d]. Set Monitor.\n", clientMachineID, clientMailboxID);                                                               
-			SetMonitor_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_GetMonitor:
-			printf("Request from Client[%d], ThreadID[%d]. Get Monitor.\n", clientMachineID, clientMailboxID);                                                               
-			sprintf(ack,"%d",GetMonitor_Syscall_Server(atoi(args[1].c_str())));     
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_CreateMonitorArray:
-			printf("Request from Client[%d], ThreadID[%d]. Create Monitor Array.\n", clientMachineID, clientMailboxID);
-			sprintf(ack,"%d",CreateMonitorArray_Syscall_Server(const_cast<char *>(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str())));
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_GetMonitorArrayValue:
-			printf("Request from Client[%d], ThreadID[%d]. Get Monitor Array Value.\n", clientMachineID, clientMailboxID);
-			sprintf(ack,"%d",GetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str())));
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_SetMonitorArrayValue:
-			printf("Request from Client[%d], ThreadID[%d]. Set Monitor Array Value.\n", clientMachineID, clientMailboxID);
-			SetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str()));
-			threadBox = clientMailboxID;
-			break;
-
-		case SC_DestroyMonitorArray:
-			printf("Request from Client[%d], ThreadID[%d]. Destroy Monitor Array.\n", clientMachineID, clientMailboxID);
-			DestroyMonitorArray_Syscall_Server(atoi(args[1].c_str()));
-			threadBox = clientMailboxID;
-			break;
-
-
-
-
-		}
-		/* If a request could not be completed, as in the case of
-		* attempting to acquire a busy lock, we do not message the
-		* client back right away, as this would allow them to bypass
-		* the waitqueue of the lock.
+		*	construct a new pkt
 		*/
-		if(!requestCompleted)   
-			continue;                    
+		// Step 1: Extract stuff
+		if (serverBuffer[0] == '\\') { // we have a timestamp msg, so don't add the packet to the queue or anything like that
+			timestamp = atoi(&serverBuffer[1]);
+			lastTimestampReceived[serverInPktHdr.from] = timestamp;
+		} else { // we have a request from a client, or forwarded request from another server
+			if (sender < NUM_SERVERS) { //process the forwarded request, strip out forwarding shit
+				int newStart = extractServer(serverBuffer);
+				strcpy(serverBuffer, &serverBuffer[newStart]);
+				broadcastTimestampMsg();
+			} else { // not forwarded
+				// send to other people
+				timestamp = getTimestamp();
+				clientMachineID = serverInPktHdr.from;
+				clientMailboxID = serverInMailHdr.from;
 
-		//prepare the messsage and send it out.
-		serverOutPktHdr.to = sender;
-		serverOutMailHdr.to = threadBox;
-		serverOutMailHdr.length = strlen(ack) + 1;
-		serverOutMailHdr.from = 0;
-		printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",sender, threadBox, ack);
-		serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);                          		           
+				forwardMsg();
+			}
 
-		//clear everything out for the next message
-		ack = "";
-		for(int x = 0; x < 4; x++)
-			args[x] = "";
-		fflush(stdout);         
-		if ( !serverSuccess ) {
-			printf("The postOffice Send failed.\n");
-			break;           
-		}                                  
+			// populate packet object, and stuff 
+			Packet* packet = new Packet;
+			packet->timestamp = timestamp;
+			packet->clientMachineID = clientMachineID;
+			packet->clientMailboxID = clientMailboxID;
+			packet->forwardingServerMachineID = (sender < NUM_SERVERS) ? serverInPktHdr.from : postOffice->netAddr;
+			packet->forwardingServerMailboxID = (sender < NUM_SERVERS) ? serverInMailHdr.from : 0;
+			strcpy(packet->message, serverBuffer);
+
+			// step 2, put into queue
+			insertIntoPacketList(packet);
+
+			// step 3, update LTR table
+			lastTimestampReceived[packet->forwardingServerMachineID] = packet->timestamp;
+		}
+		// step 4, scan LTR and extract smallest timestamp
+		unsigned int smallestTimestamp = lastTimestampReceived[0];
+		for (int i = 0; i < NUM_SERVERS; i++) {
+			if (lastTimestampReceived[i] < smallestIndex) {
+				smallestTimestamp = lastTimestampReceived[i];
+			}
+		}
+
+		// step 5, see if we should be processing anything
+		if (packetList.isEmpty()) {
+			continue;
+		}
+		Packet* firstPacket = packetList.front();
+
+		while (firstPacket->timestamp <= smallestTimestamp) { //while the next packet in the list is <= smallestTimestamp
+
+			clientMachineID = firstPacket->clientMachineID;
+			clientMailboxID = firstPacket->clientMailboxID;
+
+			fflush(stdout);             
+			parsePacket(firstPacket->message);                              
+
+			fnCall = atoi(args[0].c_str()); //the Syscall_Enum is the first argument parsed
+			printf("FnCall = [%d]\n",fnCall);
+			switch(fnCall){
+
+			case SC_CreateLock:
+				printf("Request from Client[%d], ThreadID[%d]. Creating a new ServerLock.\n", clientMachineID, clientMailboxID);                                                            
+				sprintf(ack,"%d",CreateLock_Syscall_Server(const_cast<char *>(args[1].c_str()))); //create response to client from return value         
+				threadBox = clientMailboxID; //ensure that we send our reply to the proper client mailbox/threadID
+				break;
+
+			case SC_Acquire:
+				printf("Request from Client[%d], ThreadID[%d]. Acquiring ServerLock[%d]\n",clientMachineID,clientMailboxID, atoi(args[1].c_str()));                        
+				Acquire_Syscall_Server(atoi(args[1].c_str())); //value of ack is set inside the function, as it does not return a value
+				threadBox = clientMailboxID;              
+				break;
+
+			case SC_Release:          
+				printf("Request from Client[%d], ThreadID[%d]. Releasing ServerLock[%d]\n",clientMachineID, clientMailboxID, atoi(args[1].c_str()));
+				Release_Syscall_Server(atoi(args[1].c_str()));          
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_DestroyLock:
+				printf("Request from Client[%d], ThreadID[%d]. Destroying ServerLock[%d]\n",clientMachineID,clientMailboxID, atoi(args[1].c_str()));
+				DestroyLock_Syscall_Server(atoi(args[1].c_str())); 
+				threadBox = clientMailboxID;      
+				break;
+
+			case SC_CreateCondition:
+				printf("Request from Client[%d], ThreadID[%d]. Creating a new ServerCV.\n", clientMachineID, clientMailboxID);
+				sprintf(ack,"%d",CreateCondition_Syscall_Server(const_cast<char *>(args[1].c_str())));          
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_Signal:    
+				printf("Request from Client[%d], ThreadID[%d]. Signaling ServerCV[%d] with ServerLock[%d]\n",clientMachineID, clientMailboxID, atoi(args[1].c_str()),atoi(args[2].c_str()));
+				Signal_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));      
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_Wait:       
+				printf("Request from Client[%d], ThreadID[%d]. Waiting on ServerCV[%d] with ServerLock[%d]\n",clientMachineID, clientMailboxID, atoi(args[1].c_str()),atoi(args[2].c_str()));
+				Wait_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));       
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_Broadcast:        
+				printf("Request from Client[%d], ThreadID[%d]. Broadcasting ServerCV[%d] with ServerLock[%d]\n",clientMachineID, clientMailboxID, atoi(args[1].c_str()),atoi(args[2].c_str()));
+				Broadcast_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));          
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_DestroyCondition:
+				printf("Request from Client[%d], ThreadID[%d]. Destroying ServerCV[%d]\n",clientMachineID,clientMailboxID, atoi(args[1].c_str()));
+				DestroyCondition_Syscall_Server(atoi(args[1].c_str())); 
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_CreateMonitor:
+				printf("Request from Client[%d], ThreadID[%d]. Creating a new Monitor.\n", clientMachineID, clientMailboxID);                                                               
+				sprintf(ack,"%d",CreateMonitor_Syscall_Server(const_cast<char *>(args[1].c_str())));            
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_SetMonitor:
+				printf("Request from Client[%d], ThreadID[%d]. Set Monitor.\n", clientMachineID, clientMailboxID);                                                               
+				SetMonitor_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_GetMonitor:
+				printf("Request from Client[%d], ThreadID[%d]. Get Monitor.\n", clientMachineID, clientMailboxID);                                                               
+				sprintf(ack,"%d",GetMonitor_Syscall_Server(atoi(args[1].c_str())));     
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_CreateMonitorArray:
+				printf("Request from Client[%d], ThreadID[%d]. Create Monitor Array.\n", clientMachineID, clientMailboxID);
+				sprintf(ack,"%d",CreateMonitorArray_Syscall_Server(const_cast<char *>(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str())));
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_GetMonitorArrayValue:
+				printf("Request from Client[%d], ThreadID[%d]. Get Monitor Array Value.\n", clientMachineID, clientMailboxID);
+				sprintf(ack,"%d",GetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str())));
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_SetMonitorArrayValue:
+				printf("Request from Client[%d], ThreadID[%d]. Set Monitor Array Value.\n", clientMachineID, clientMailboxID);
+				SetMonitorArrayValue_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()),atoi(args[3].c_str()));
+				threadBox = clientMailboxID;
+				break;
+
+			case SC_DestroyMonitorArray:
+				printf("Request from Client[%d], ThreadID[%d]. Destroy Monitor Array.\n", clientMachineID, clientMailboxID);
+				DestroyMonitorArray_Syscall_Server(atoi(args[1].c_str()));
+				threadBox = clientMailboxID;
+				break;
+
+
+
+
+			}
+			/* If a request could not be completed, as in the case of
+			* attempting to acquire a busy lock, we do not message the
+			* client back right away, as this would allow them to bypass
+			* the waitqueue of the lock.
+			*/
+			if(!requestCompleted)   
+				continue;                    
+
+			//prepare the messsage and send it out.
+			serverOutPktHdr.to = firstPacket->clientMachineID;
+			serverOutMailHdr.to = firstPacket->clientMailboxID;
+			serverOutMailHdr.length = strlen(ack) + 1;
+			serverOutMailHdr.from = 0;
+			printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",firstPacket->clientMachineID, firstPacket->clientMailboxID, ack);
+			if (firstPacket->forwardingMachineID == postOffice->netAddr) { //only send reply if we are the originally requested server
+				serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
+			}
+			
+			//clear everything out for the next message
+			ack = "";
+			for(int x = 0; x < 4; x++)
+				args[x] = "";
+			fflush(stdout);         
+			if ( !serverSuccess ) {
+				printf("The postOffice Send failed.\n");
+				break;           
+			} 
+
+			packetList.pop_front(); // get rid of the element we just used
+			if (packetList.isEmpty()) {
+				break;
+			}
+			firstPacket = packetList.front(); //prepare for loop condition check
+		}
 
 	}
 
@@ -321,12 +455,12 @@ int extractServer(char* serverBuffer) {
 	for (k = j; k < strlen(serverBuffer); k++) {
 		if ( serverBuffer[k] == ',' ) {
 			serverBuffer[k] = '\0';
-			clientMachineID = atoi(&serverBuffer[j]);
+			clientMailboxID = atoi(&serverBuffer[j]);
 			k++;
 			break;
 		}
 	}
-	
+
 	return k;
 }
 
@@ -854,9 +988,9 @@ MonitorID CreateMonitor_Syscall_Server(char* name){
 }
 
 int GetMonitor_Syscall_Server(MonitorID monitorID){
-		printf("ServerMVs[%d] = [%d]\n",monitorID,serverMVs[monitorID].monitor);
-		requestCompleted = true;
-        return serverMVs[monitorID].monitor;
+	printf("ServerMVs[%d] = [%d]\n",monitorID,serverMVs[monitorID].monitor);
+	requestCompleted = true;
+	return serverMVs[monitorID].monitor;
 }
 
 
