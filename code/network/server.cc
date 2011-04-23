@@ -97,7 +97,7 @@ void handleIncomingRequests();
 int extractServer(char*);
 
 struct Packet {
-	unsigned int timestamp;
+	int timestamp;
 	int clientMachineID;
 	int clientMailboxID;
 	int forwardingServerMachineID;
@@ -123,15 +123,15 @@ int clientMailboxID;
 int timestamp;
 
 list<Packet*> packetList;
-unsigned int lastTimestampReceived[NUM_SERVERS];
+int lastTimestampReceived[NUM_SERVERS];
 
-unsigned int getTimestamp() {
+int getTimestamp() {
 	struct timeval tv; 
 	struct timezone tz; 
 	struct tm *tm; 
 	gettimeofday(&tv, &tz); 
 	tm=localtime(&tv.tv_sec); 
-	return ((unsigned int)(tv.tv_usec + tv.tv_sec*1000000)); 
+	return ((int)(tv.tv_usec + tv.tv_sec*1000000)); 
 }
 
 void RunServer(void){
@@ -269,15 +269,15 @@ void handleIncomingRequests(){
 			lastTimestampReceived[packet->forwardingServerMachineID] = packet->timestamp;
 		}
 		// step 4, scan LTR and extract smallest timestamp
-		unsigned int smallestTimestamp = lastTimestampReceived[0];
+		int smallestTimestamp = lastTimestampReceived[0];
 		for (int i = 0; i < NUM_SERVERS; i++) {
-			if (lastTimestampReceived[i] < smallestIndex) {
+			if (lastTimestampReceived[i] < smallestTimestamp) {
 				smallestTimestamp = lastTimestampReceived[i];
 			}
 		}
 
 		// step 5, see if we should be processing anything
-		if (packetList.isEmpty()) {
+		if (packetList.empty()) {
 			continue;
 		}
 		Packet* firstPacket = packetList.front();
@@ -408,7 +408,7 @@ void handleIncomingRequests(){
 			serverOutMailHdr.length = strlen(ack) + 1;
 			serverOutMailHdr.from = 0;
 			printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",firstPacket->clientMachineID, firstPacket->clientMailboxID, ack);
-			if (firstPacket->forwardingMachineID == postOffice->getNetAddr()) { //only send reply if we are the originally requested server
+			if (firstPacket->forwardingServerMachineID == postOffice->getNetAddr()) { //only send reply if we are the originally requested server
 				serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
 			}
 			
@@ -423,7 +423,7 @@ void handleIncomingRequests(){
 			} 
 
 			packetList.pop_front(); // get rid of the element we just used
-			if (packetList.isEmpty()) {
+			if (packetList.empty()) {
 				break;
 			}
 			firstPacket = packetList.front(); //prepare for loop condition check
