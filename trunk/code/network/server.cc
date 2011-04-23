@@ -19,8 +19,6 @@
 #define MAX_MONITOR_ARRAYS 50
 #define MAX_MONITOR_ARRAY_VALUES 50
 
-#define NUM_SERVERS	2
-
 using std::list;
 
 //#define ServerLock Lock
