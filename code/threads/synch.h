@@ -130,12 +130,13 @@ class ServerLock {
 //	at the correct postbox (threadID)
 #ifdef NETWORK
 struct ClientThreadPair{
-	ClientThreadPair(int cID, int tID){
+	ClientThreadPair(int cID, int tID, int rsID){
 		clientID = cID;
 		threadID = tID;
+		requestServerID = rsID;
 	}
 	public:
-		int clientID, threadID;
+		int clientID, threadID, requestServerID;
 };
 #endif
 

@@ -186,7 +186,7 @@ ServerLock::~ServerLock() {
 	delete waitQueue;
 }
 
-bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether lock has been acquired instantly or not
+bool ServerLock::Acquire(int clientID, int threadID, int requestServer) { //Bool indicates whether lock has been acquired instantly or not
 	PacketHeader lockOutPktHdr; 
 	MailHeader lockOutMailHdr;
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
@@ -210,7 +210,7 @@ bool ServerLock::Acquire(int clientID, int threadID) { //Bool indicates whether 
 	}
 	else {	
 		printf("Lock is busy. [%d][%d]Waiting...\n",clientID,threadID);
-		ClientThreadPair* ctp = new ClientThreadPair(clientID,threadID);
+		ClientThreadPair* ctp = new ClientThreadPair(clientID,threadID,requestServer);
 		this->waitQueue->Append(ctp); //instead of appending currentThread, append the CTP of currentThread
 		//currentThread->Sleep();   Server thread should NOT go to sleep, just dont message client
 		return false;
@@ -234,6 +234,7 @@ void ServerLock::Release(int clientID, int threadID) {
 	else if (!this->waitQueue->IsEmpty() ){	
 		DEBUG('a',"Transferring ownership of lock\n.");
 		ClientThreadPair* ctp = (ClientThreadPair*) waitQueue->Remove(); 
+		
 		lockOutPktHdr.to = ctp->clientID;	//get clientID from CTP, and set that as the client to message
     	lockOutMailHdr.to = ctp->threadID;   //get threadID from CTP, and set that as the destination mailbox    		
     	lockOutMailHdr.length = strlen(svrMsg) + 1;    	
@@ -242,7 +243,9 @@ void ServerLock::Release(int clientID, int threadID) {
     	DEBUG('a',"ServerLock was released. Transferring ownership to Client[%d]->Thread[%d].\n",lockOutPktHdr.to,lockOutMailHdr.to);    		
     	this->client = lockOutPktHdr.to; //transfering ownership to waiting thread
     	this->thread = lockOutMailHdr.to; //transfering ownership to waiting thread
-    	postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg);    	
+		if (ctp->requestServerID == postOffice->getNetAddr()) {
+    		postOffice->Send(lockOutPktHdr, lockOutMailHdr, svrMsg); 
+		}
 	}
 	else {	
 		DEBUG('a',"The lock is free now.\n");
