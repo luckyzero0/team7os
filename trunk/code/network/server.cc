@@ -79,7 +79,7 @@ LockID CreateLock_Syscall_Server(char* name);
 void DestroyLock_Syscall_Server(LockID id);
 ConditionID CreateCondition_Syscall_Server(char* name);
 void DestroyCondition_Syscall_Server(ConditionID id);
-void Acquire_Syscall_Server(LockID id);
+void Acquire_Syscall_Server(LockID id, int requestServer);
 void Release_Syscall_Server(LockID id);
 void Signal_Syscall_Server(ConditionID conditionID, LockID lockID);
 void Wait_Syscall_Server(ConditionID conditionID, LockID lockID, int requestServer);
