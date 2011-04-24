@@ -241,6 +241,8 @@ void handleIncomingRequests(){
 			if (sender < NUM_SERVERS) { //process the forwarded request, strip out forwarding shit
 				int newStart = extractServer(serverBuffer);
 				strcpy(serverBuffer, &serverBuffer[newStart]);
+				timestamp = getTimestamp();
+				lastTimestampRecevied[postOffice->getNetAddr()] = timestamp;
 				broadcastTimestampMsg();
 			} else { // not forwarded
 				// send to other people
