@@ -300,9 +300,9 @@ void handleIncomingRequests(){
 
 			list<Packet*>::iterator it;
 			for (it = packetList.begin(); it != packetList.end(); ++it) {
-				fprintf("%u,%d / ", (*it)->timestamp, (*it)->forwardingServerMachineID);
+				fprintf(file, "%u,%d / ", (*it)->timestamp, (*it)->forwardingServerMachineID);
 			}
-			fprintf(".\n");
+			fprintf(file, ".\n");
 			fprintf(file, "Processing message [%s].\n", firstPacket->message);
 			parsePacket(firstPacket->message);                              
 
