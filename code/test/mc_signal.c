@@ -13,6 +13,8 @@ int main() {
 	/*DestroyCondition(condition);
 	DestroyLock(lock);*/
 
+	Release(lock);
+
 	printf("Destroyed both in mc_signal.\n", 0, 0,0,"","");
 
 	Exit(0);
