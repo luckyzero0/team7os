@@ -227,7 +227,7 @@ void handleIncomingRequests(){
 
 	char* filename = "serverx";
 	filename[6] = postOffice->getNetAddr() + '0';
-	FILE* file = fopen(filename, "rw");
+	FILE* file = fopen(filename, "w");
 
 	printf("Listening for clients on the network...\n");
 	while(true){  
