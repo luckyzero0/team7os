@@ -144,7 +144,7 @@ Initialize(int argc, char **argv)
 	} else if (!strcmp(*argv, "-m")) {
 	    ASSERT(argc > 1);
 	    netname = atoi(*(argv + 1));
-	    if(netname < 4)
+	    if(netname < NUM_SERVERS)
 	    	server = true;
 	    argCount = 2;
 	}

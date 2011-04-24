@@ -79,7 +79,7 @@ extern SynchDisk   *synchDisk;
 #include "post.h"
 extern bool server;
 extern PostOffice* postOffice;
-#define NUM_SERVERS	3
+#define NUM_SERVERS	5
 #endif
 
 #endif // SYSTEM_H
