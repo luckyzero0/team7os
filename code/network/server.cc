@@ -286,6 +286,7 @@ void handleIncomingRequests(){
 			clientMailboxID = firstPacket->clientMailboxID;
 
 			fflush(stdout);             
+			printf("Processing message [%s].\n", firstPacket->message);
 			parsePacket(firstPacket->message);                              
 
 			fnCall = atoi(args[0].c_str()); //the Syscall_Enum is the first argument parsed
