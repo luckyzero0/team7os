@@ -22,7 +22,7 @@
 using std::list;
 
 //#define ServerLock Lock
-
+extern "C" { void bzero(void *s, int n); };
 extern "C" {
 	int bcopy(char *, char *, int);
 };
