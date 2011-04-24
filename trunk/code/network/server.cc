@@ -162,12 +162,6 @@ bool comparePacket (const Packet* first, const Packet* second) {
 void insertIntoPacketList(Packet* packet) {
 	packetList.push_back(packet);
 	packetList.sort(comparePacket);
-
-	list<Packet*>::iterator it;
-	for (it = packetList.begin(); it != packetList.end(); ++it) {
-		printf("%u,%d / ", (*it)->timestamp, (*it)->forwardingServerMachineID);
-	}
-	printf(".\n");
 }
 
 void broadcastTimestampMsg() {
@@ -303,6 +297,12 @@ void handleIncomingRequests(){
 
 			fflush(stdout);             
 			printf("Processing message [%s].\n", firstPacket->message);
+
+			list<Packet*>::iterator it;
+			for (it = packetList.begin(); it != packetList.end(); ++it) {
+				fprintf("%u,%d / ", (*it)->timestamp, (*it)->forwardingServerMachineID);
+			}
+			fprintf(".\n");
 			fprintf(file, "Processing message [%s].\n", firstPacket->message);
 			parsePacket(firstPacket->message);                              
 
