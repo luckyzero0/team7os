@@ -439,8 +439,11 @@ void handleIncomingRequests(){
 	interrupt->Halt();
 }
 
-int extractServer(char* serverBuffer) {
+int extractServer() {
 	int i, j, k;
+	timestamp = 99999;
+	clientMachineID = 99999;
+	clientMailboxID = 99999;
 	for (i = 0; i < strlen(serverBuffer); i++) {
 		if ( serverBuffer[i] == ',' ) {
 			serverBuffer[i] = '\0';
@@ -468,6 +471,7 @@ int extractServer(char* serverBuffer) {
 		}
 	}
 
+	printf("t: %u, mc: %d, mi: %d.\n", timestamp, clientMachineID, clientMailboxID);
 	return k;
 }
 
