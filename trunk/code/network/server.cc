@@ -306,7 +306,7 @@ void handleIncomingRequests(){
 
 			case SC_Acquire:
 				printf("Request from Client[%d], ThreadID[%d]. Acquiring ServerLock[%d]\n",clientMachineID,clientMailboxID, atoi(args[1].c_str()));                        
-				Acquire_Syscall_Server(atoi(args[1].c_str())); //value of ack is set inside the function, as it does not return a value
+				Acquire_Syscall_Server(atoi(args[1].c_str()), firstPacket->forwardingServerMachineID); //value of ack is set inside the function, as it does not return a value
 				threadBox = clientMailboxID;              
 				break;
 
@@ -745,7 +745,7 @@ LockID CreateLock_Syscall_Server(char* name){
 	return index;
 }
 
-void Acquire_Syscall_Server(LockID id){
+void Acquire_Syscall_Server(LockID id, int requestServerID){
 	//locksLock->Acquire();     
 	printf("Acquiring lock: %s.\n", serverLocks[id].name);         
 	if(serverLocks[id].lock == NULL){
@@ -771,7 +771,7 @@ void Acquire_Syscall_Server(LockID id){
 	//how lock ownership is transferred on the server, as the server cannot
 	//acquire the lock itself, as trying to acquire a busy lock would cause
 	//the server to lock up.        
-	serverLocks[id].lock->Acquire(clientMachineID, clientMailboxID);
+	serverLocks[id].lock->Acquire(clientMachineID, clientMailboxID, requestServerID);
 	serverLocks[id].aboutToBeAcquired--;    
 	sprintf(ack,"Lock [%d] acquired", id);        
 }
