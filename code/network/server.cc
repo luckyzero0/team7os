@@ -301,7 +301,7 @@ void handleIncomingRequests(){
 			for (int i = 0; i < NUM_SERVERS; i++) {
 				fprintf(file, "Server[%d] = %u | ", i, lastTimestampReceived[i]);
 			}
-			fprintf(".\n");
+			fprintf(file, ".\n");
 
 			list<Packet*>::iterator it;
 			for (it = packetList.begin(); it != packetList.end(); ++it) {
