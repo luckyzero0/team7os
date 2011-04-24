@@ -82,7 +82,7 @@ void DestroyCondition_Syscall_Server(ConditionID id);
 void Acquire_Syscall_Server(LockID id);
 void Release_Syscall_Server(LockID id);
 void Signal_Syscall_Server(ConditionID conditionID, LockID lockID);
-void Wait_Syscall_Server(ConditionID conditionID, LockID lockID);
+void Wait_Syscall_Server(ConditionID conditionID, LockID lockID, int requestServer);
 void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID);
 MonitorID CreateMonitor_Syscall_Server(char* name);
 int GetMonitor_Syscall_Server(MonitorID monitorID);
@@ -336,7 +336,7 @@ void handleIncomingRequests(){
 
 			case SC_Wait:       
 				printf("Request from Client[%d], ThreadID[%d]. Waiting on ServerCV[%d] with ServerLock[%d]\n",clientMachineID, clientMailboxID, atoi(args[1].c_str()),atoi(args[2].c_str()));
-				Wait_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()));       
+				Wait_Syscall_Server(atoi(args[1].c_str()),atoi(args[2].c_str()), firstPacket->forwardingServerMachineID);       
 				threadBox = clientMailboxID;
 				break;
 
@@ -889,7 +889,7 @@ void Signal_Syscall_Server(ConditionID conditionID, LockID lockID){
 	requestCompleted = true;
 }
 
-void Wait_Syscall_Server(ConditionID conditionID, LockID lockID){
+void Wait_Syscall_Server(ConditionID conditionID, LockID lockID, int requestServer){
 	//conditionsLock->Acquire();
 	//locksLock->Acquire();    
 	if(lockID < MAX_LOCKS && conditionID < MAX_CONDITIONS)
@@ -924,7 +924,7 @@ void Wait_Syscall_Server(ConditionID conditionID, LockID lockID){
 
 	//same as before, we take a serverLock to handle ownership 
 	//issues
-	serverCVs[conditionID].condition->Wait(serverLocks[lockID].lock);
+	serverCVs[conditionID].condition->Wait(serverLocks[lockID].lock, requestServer);
 
 	//conditionsLock->Acquire();
 	serverCVs[conditionID].aboutToBeWaited--;       

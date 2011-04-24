@@ -101,7 +101,7 @@ class ServerLock {
     ~ServerLock();				// deallocate lock
     char* getName() { return name; }	// debugging assist
 
-    bool Acquire(int clientID, int threadID); // these are the only operations on a lock
+    bool Acquire(int clientID, int threadID, int rsID); // these are the only operations on a lock
     void Release(int clientID, int threadID); // they are both *atomic*
 
     bool IsHeldByCurrentThread(int, int);	// true if the current thread
