@@ -457,7 +457,7 @@ int extractServer() {
 		}
 	}
 
-	printf("%s, strlen = %d.\n", &serverBuffer[i], strlen(&severBuffer[i]));
+	printf("%s, strlen = %d.\n", &serverBuffer[i], strlen(&serverBuffer[i]));
 	for (j = i; j < strlen(&serverBuffer[i]); j++) {
 		printf("serverBuffer[%d] = %c.\n", j, serverBuffer[j]);
 		if ( serverBuffer[j] == ',' ) {
