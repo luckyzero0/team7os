@@ -447,6 +447,7 @@ int extractServer() {
 	timestamp = 99999;
 	clientMachineID = 99999;
 	clientMailboxID = 99999;
+	printf("%s.\n", serverBuffer);
 	for (i = 0; i < strlen(serverBuffer); i++) {
 		if ( serverBuffer[i] == ',' ) {
 			serverBuffer[i] = '\0';
@@ -456,6 +457,7 @@ int extractServer() {
 		}
 	}
 
+	printf("%s.\n", &serverBuffer[i]);
 	for (j = i; j < strlen(&serverBuffer[i]); j++) {
 		printf("%c ", serverBuffer[j]);
 		if ( serverBuffer[j] == ',' ) {
@@ -466,6 +468,7 @@ int extractServer() {
 		}
 	}
 
+	printf("%s.\n", &serverBuffer[j]);
 	for (k = j; k < strlen(&serverBuffer[j]); k++) {
 		printf("%c ", serverBuffer[k]);
 		if ( serverBuffer[k] == ',' ) {
