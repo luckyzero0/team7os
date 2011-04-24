@@ -454,7 +454,7 @@ int extractServer() {
 	}
 
 	for (j = i; j < strlen(&serverBuffer[i]); j++) {
-		print("%c ", serverBuffer[j]);
+		printf("%c ", serverBuffer[j]);
 		if ( serverBuffer[j] == ',' ) {
 			serverBuffer[j] = '\0';
 			clientMachineID = atoi(&serverBuffer[i]);
