@@ -92,7 +92,7 @@ int GetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index
 void SetMonitorArrayValue_Syscall_Server(MonitorArrayID monitorArrayID, int index, int value);
 void DestroyMonitorArray_Syscall_Server(MonitorArrayID monitorArrayID);
 void handleIncomingRequests();
-int extractServer(char*);
+int extractServer();
 
 struct Packet {
 	unsigned int timestamp;
@@ -239,7 +239,7 @@ void handleIncomingRequests(){
 			lastTimestampReceived[serverInPktHdr.from] = timestamp;
 		} else { // we have a request from a client, or forwarded request from another server
 			if (sender < NUM_SERVERS) { //process the forwarded request, strip out forwarding shit
-				int newStart = extractServer(serverBuffer);
+				int newStart = extractServer();
 				strcpy(serverBuffer, &serverBuffer[newStart]);
 				timestamp = getTimestamp();
 				lastTimestampReceived[postOffice->getNetAddr()] = timestamp;
