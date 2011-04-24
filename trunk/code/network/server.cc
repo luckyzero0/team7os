@@ -10,6 +10,7 @@
 #include "post.h"
 #include "interrupt.h"
 #include "syscall.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <list>
 
@@ -224,6 +225,10 @@ void handleIncomingRequests(){
 		lastTimestampReceived[i] = 0; // initialize LTR table to 0's 
 	}
 
+	char* filename = "serverx";
+	filename[6] = postOffice->getNetAddr() + '0';
+	FILE* file = open(filename);
+
 	printf("Listening for clients on the network...\n");
 	while(true){  
 		bzero(serverBuffer, MaxMailSize);
@@ -292,6 +297,7 @@ void handleIncomingRequests(){
 
 			fflush(stdout);             
 			printf("Processing message [%s].\n", firstPacket->message);
+			fprintf(file, "Processing message [%s].\n", firstPacket->message);
 			parsePacket(firstPacket->message);                              
 
 			fnCall = atoi(args[0].c_str()); //the Syscall_Enum is the first argument parsed
