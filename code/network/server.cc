@@ -458,7 +458,7 @@ int extractServer() {
 		if ( serverBuffer[j] == ',' ) {
 			serverBuffer[j] = '\0';
 			clientMachineID = atoi(&serverBuffer[i]);
-			j++;
+	//		j++;
 			break;
 		}
 	}
@@ -468,7 +468,7 @@ int extractServer() {
 		if ( serverBuffer[k] == ',' ) {
 			serverBuffer[k] = '\0';
 			clientMailboxID = atoi(&serverBuffer[j]);
-			k++;
+	//		k++;
 			break;
 		}
 	}
