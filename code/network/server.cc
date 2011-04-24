@@ -447,39 +447,45 @@ int extractServer() {
 	timestamp = 99999;
 	clientMachineID = 99999;
 	clientMailboxID = 99999;
-	printf("%s.\n", serverBuffer);
+
 	for (i = 0; i < strlen(serverBuffer); i++) {
+		printf("[%c]",serverBuffer[i]);
 		if ( serverBuffer[i] == ',' ) {
 			serverBuffer[i] = '\0';
 			timestamp = (unsigned int) atoi(serverBuffer);
+			serverBuffer[i] = ',';
 			i++;
 			break;
 		}
 	}
+	printf("Timestamp = [%u]\n",timestamp);
 
-	printf("%s, strlen = %d.\n", &serverBuffer[i], strlen(&serverBuffer[i]));
-	for (j = i; j < strlen(&serverBuffer[i]); j++) {
-		printf("serverBuffer[%d] = %c.\n", j, serverBuffer[j]);
+	for (j = i; j < strlen(serverBuffer); j++) {
+		printf("[%c]",serverBuffer[j]);
 		if ( serverBuffer[j] == ',' ) {
 			serverBuffer[j] = '\0';
 			clientMachineID = atoi(&serverBuffer[i]);
+			serverBuffer[j] = ',';
 			j++;
 			break;
 		}
 	}
+	printf("ClientMachineID = [%d]\n",clientMachineID);
 
-	printf("%s, strlen = %d.\n", &serverBuffer[j], strlen(&serverBuffer[j]));
-	for (k = j; k < strlen(&serverBuffer[j]); k++) {
-		printf("serverBuffer[%d] = %c.\n", serverBuffer[k]);
+
+	
+	for (k = j; k < strlen(serverBuffer); k++) {
+		printf("[%c]",serverBuffer[k]);
 		if ( serverBuffer[k] == ',' ) {
 			serverBuffer[k] = '\0';
 			clientMailboxID = atoi(&serverBuffer[j]);
+			serverBuffer[k] = ',';
 			k++;
 			break;
 		}
 	}
-
-	printf("t: %u, mc: %d, mi: %d.\n", timestamp, clientMachineID, clientMailboxID);
+	printf("ClientMailboxID = [%d]\n",clientMailboxID);
+	
 	return k;
 }
 
