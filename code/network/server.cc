@@ -201,7 +201,7 @@ void forwardMsg() {
 			serverOutMailHdr.to = 0;
 			serverOutMailHdr.length = strlen(buf) + 1;
 			serverOutMailHdr.from = 0;
-			printf("Sending timestamp to Server[%d], Box[%d] MSG = [%s]\n", i, 0, buf);
+			printf("Sending forward request to Server[%d], Box[%d] MSG = [%s]\n", i, 0, buf);
 			postOffice->Send(serverOutPktHdr, serverOutMailHdr, buf);
 		}
 	}
