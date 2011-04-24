@@ -164,10 +164,10 @@ void insertIntoPacketList(Packet* packet) {
 	packetList.sort(comparePacket);
 }
 
-void broadcastTimestampMsg() {
+void broadcastTimestampMsg(int ourTimestamp) {
 	char timestampMsg[50];
 	timestampMsg[0] = '\\';
-	sprintf(&timestampMsg[1], "%u", timestamp);
+	sprintf(&timestampMsg[1], "%u", ourTimestamp);
 
 	for (int i = 0; i < NUM_SERVERS; i++) {
 		if (i != postOffice->getNetAddr()) {
@@ -249,9 +249,9 @@ void handleIncomingRequests(){
 				char tmp[MaxMailSize];
 				strcpy(tmp, &serverBuffer[newStart]);
 				strcpy(serverBuffer, tmp);
-				timestamp = getTimestamp();
-				lastTimestampReceived[postOffice->getNetAddr()] = timestamp;
-				broadcastTimestampMsg();
+				int ourTimestamp = getTimestamp();
+				lastTimestampReceived[postOffice->getNetAddr()] = ourTimestamp;
+				broadcastTimestampMsg(ourTimestamp);
 			} else { // not forwarded
 				// send to other people
 				timestamp = getTimestamp();
