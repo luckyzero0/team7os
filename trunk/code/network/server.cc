@@ -411,6 +411,8 @@ void handleIncomingRequests(){
 			printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",firstPacket->clientMachineID, firstPacket->clientMailboxID, ack);
 			if (firstPacket->forwardingServerMachineID == postOffice->getNetAddr()) { //only send reply if we are the originally requested server
 				serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
+			} else {
+				serverSuccess = true;
 			}
 			
 			//clear everything out for the next message
