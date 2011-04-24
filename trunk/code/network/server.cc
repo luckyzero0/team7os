@@ -221,7 +221,7 @@ void forwardMsg() {
 void handleIncomingRequests(){
 
 	for (int i = 0; i < NUM_SERVERS; i++) {
-		lastTimestampReceived[i] = -1; // initialize LTR table to -1's
+		lastTimestampReceived[i] = 0; // initialize LTR table to 0's 
 	}
 
 	printf("Listening for clients on the network...\n");
