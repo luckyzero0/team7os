@@ -165,7 +165,7 @@ void insertIntoPacketList(Packet* packet) {
 
 	list<Packet*>::iterator it;
 	for (it = packetList.begin(); it != packetList.end(); ++it) {
-		printf("%u,%d / ", it->timestamp, it->forwardingServerMachineID);
+		printf("%u,%d / ", (*it)->timestamp, (*it)->forwardingServerMachineID);
 	}
 	printf(".\n");
 }
