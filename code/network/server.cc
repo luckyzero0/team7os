@@ -267,7 +267,7 @@ void handleIncomingRequests(){
 			lastTimestampReceived[packet->forwardingServerMachineID] = packet->timestamp;
 		}
 		// step 4, scan LTR and extract smallest timestamp
-		int smallestTimestamp = lastTimestampReceived[0];
+		unsigned int smallestTimestamp = lastTimestampReceived[0];
 		for (int i = 0; i < NUM_SERVERS; i++) {
 			if (lastTimestampReceived[i] < smallestTimestamp) {
 				smallestTimestamp = lastTimestampReceived[i];
