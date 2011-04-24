@@ -359,7 +359,7 @@ ServerCondition::~ServerCondition() {
 	delete waitQueue;
 }
 
-void ServerCondition::Wait(ServerLock* conditionServerLock) { 
+void ServerCondition::Wait(ServerLock* conditionServerLock, int requestServerID) { 
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);
 	if (conditionServerLock == NULL) {
 		printf("Wait called on a condition with a NULL conditionServerLock!\n");
@@ -377,7 +377,7 @@ void ServerCondition::Wait(ServerLock* conditionServerLock) {
 	// okay to wait on CV
 	// Add client ID to CV wait queue
 	//currentThread->setStatus(BLOCKED);
-	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->client,conditionServerLock->thread);
+	ClientThreadPair* ctp = new ClientThreadPair(conditionServerLock->client,conditionServerLock->thread, requestServerID);
 	this->waitQueue->Append(ctp); //Add client and thread info to wait queue
 	DEBUG('a',"Appended Client[%d]Thread[%d] to CV WaitQ.\n",conditionServerLock->client,conditionServerLock->thread);
 	conditionServerLock->Release(conditionServerLock->client, conditionServerLock->thread); //Release the lock
@@ -402,7 +402,7 @@ void ServerCondition::Signal(ServerLock* conditionServerLock) {
 	
 	ClientThreadPair* ctp = (ClientThreadPair*) this->waitQueue->Remove();
 	printf("Signal received. Signalling [%d][%d]\n",ctp->clientID,ctp->threadID);
-	conditionServerLock->Acquire(ctp->clientID, ctp->threadID); //Try to acquire the lock using the IDs from the next CTP in the waiting queue
+	conditionServerLock->Acquire(ctp->clientID, ctp->threadID, ctp->requestServerID); //Try to acquire the lock using the IDs from the next CTP in the waiting queue
 	//conditionServerLock->Release(conditionServerLock->client,conditionServerLock->thread);//we need to give up the lock so it can be acquired
 	/*signalledThread->setStatus(READY);
 	scheduler->ReadyToRun(signalledThread);*/
