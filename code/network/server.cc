@@ -162,6 +162,12 @@ bool comparePacket (const Packet* first, const Packet* second) {
 void insertIntoPacketList(Packet* packet) {
 	packetList.push_back(packet);
 	packetList.sort(comparePacket);
+
+	list<Packet*>::iterator it;
+	for (it = packetList.begin(); it != packetList.end(); ++it) {
+		printf("%u,%d / ", it->timestamp, it->forwardingServerMachineID);
+	}
+	printf(".\n");
 }
 
 void broadcastTimestampMsg() {
