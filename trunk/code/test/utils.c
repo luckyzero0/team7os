@@ -2,7 +2,7 @@
 
 #include "syscall.h"
 
-#define DEBUG_PRINT 0 /* flip to 1 if you want to printout debug crap */
+#define DEBUG_PRINT 1 /* flip to 1 if you want to printout debug crap */
 
 int strlen(char* str){
 
