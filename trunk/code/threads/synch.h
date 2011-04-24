@@ -179,7 +179,7 @@ class Condition {
     ~Condition();			// deallocate the condition
     char* getName() { return (name); }
     
-    void Wait(Lock *conditionLock, int requestServer); 	// these are the 3 operations on 
+    void Wait(Lock *conditionLock); 	// these are the 3 operations on 
 					// condition variables; releasing the 
 					// lock and going to sleep are 
 					// *atomic* in Wait()
@@ -207,7 +207,7 @@ class Condition {
 		~ServerCondition();			// deallocate the condition
 		char* getName() { return (name); }
 	    
-		void Wait(ServerLock *conditionLock); 	// these are the 3 operations on 
+		void Wait(ServerLock *conditionLock, int requestServer); 	// these are the 3 operations on 
 						// condition variables; releasing the 
 						// lock and going to sleep are 
 						// *atomic* in Wait()
