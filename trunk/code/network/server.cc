@@ -454,6 +454,7 @@ int extractServer() {
 	}
 
 	for (j = i; j < strlen(&serverBuffer[i]); j++) {
+		print("%c ", serverBuffer[j]);
 		if ( serverBuffer[j] == ',' ) {
 			serverBuffer[j] = '\0';
 			clientMachineID = atoi(&serverBuffer[i]);
@@ -463,6 +464,7 @@ int extractServer() {
 	}
 
 	for (k = j; k < strlen(&serverBuffer[j]); k++) {
+		printf("%c ", serverBuffer[k]);
 		if ( serverBuffer[k] == ',' ) {
 			serverBuffer[k] = '\0';
 			clientMailboxID = atoi(&serverBuffer[j]);
