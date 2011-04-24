@@ -408,10 +408,12 @@ void handleIncomingRequests(){
 			serverOutMailHdr.to = firstPacket->clientMailboxID;
 			serverOutMailHdr.length = strlen(ack) + 1;
 			serverOutMailHdr.from = 0;
-			printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",firstPacket->clientMachineID, firstPacket->clientMailboxID, ack);
+			
 			if (firstPacket->forwardingServerMachineID == postOffice->getNetAddr()) { //only send reply if we are the originally requested server
+				printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",firstPacket->clientMachineID, firstPacket->clientMailboxID, ack);
 				serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
 			} else {
+				printf("Not responding to Client because we are not the original request server.\n");
 				serverSuccess = true;
 			}
 			
