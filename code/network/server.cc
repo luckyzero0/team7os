@@ -225,7 +225,8 @@ void handleIncomingRequests(){
 	}
 
 	printf("Listening for clients on the network...\n");
-	while(true){                                            
+	while(true){  
+		bzero(serverBuffer, MaxMailSize);
 		postOffice->Receive(0, &serverInPktHdr, &serverInMailHdr, serverBuffer);
 
 		printf("Got \"%s\" from %d, box %d\n",serverBuffer,serverInPktHdr.from,serverInMailHdr.from);
@@ -240,7 +241,9 @@ void handleIncomingRequests(){
 		} else { // we have a request from a client, or forwarded request from another server
 			if (sender < NUM_SERVERS) { //process the forwarded request, strip out forwarding shit
 				int newStart = extractServer();
-				strcpy(serverBuffer, &serverBuffer[newStart]);
+				char tmp[MaxMailSize];
+				strcpy(tmp, &serverBuffer[newStart]);
+				strcpy(serverBuffer, tmp);
 				timestamp = getTimestamp();
 				lastTimestampReceived[postOffice->getNetAddr()] = timestamp;
 				broadcastTimestampMsg();
@@ -458,7 +461,7 @@ int extractServer() {
 		if ( serverBuffer[j] == ',' ) {
 			serverBuffer[j] = '\0';
 			clientMachineID = atoi(&serverBuffer[i]);
-	//		j++;
+			j++;
 			break;
 		}
 	}
@@ -468,7 +471,7 @@ int extractServer() {
 		if ( serverBuffer[k] == ',' ) {
 			serverBuffer[k] = '\0';
 			clientMailboxID = atoi(&serverBuffer[j]);
-	//		k++;
+			k++;
 			break;
 		}
 	}
