@@ -443,7 +443,7 @@ int extractServer(char* serverBuffer) {
 		}
 	}
 
-	for (j = i; j < strlen(serverBuffer); j++) {
+	for (j = i; j < strlen(&serverBuffer[i]); j++) {
 		if ( serverBuffer[j] == ',' ) {
 			serverBuffer[j] = '\0';
 			clientMachineID = atoi(&serverBuffer[i]);
@@ -452,7 +452,7 @@ int extractServer(char* serverBuffer) {
 		}
 	}
 
-	for (k = j; k < strlen(serverBuffer); k++) {
+	for (k = j; k < strlen(&serverBuffer[j]); k++) {
 		if ( serverBuffer[k] == ',' ) {
 			serverBuffer[k] = '\0';
 			clientMailboxID = atoi(&serverBuffer[j]);
