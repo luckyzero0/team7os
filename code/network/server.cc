@@ -242,7 +242,7 @@ void handleIncomingRequests(){
 				int newStart = extractServer(serverBuffer);
 				strcpy(serverBuffer, &serverBuffer[newStart]);
 				timestamp = getTimestamp();
-				lastTimestampRecevied[postOffice->getNetAddr()] = timestamp;
+				lastTimestampReceived[postOffice->getNetAddr()] = timestamp;
 				broadcastTimestampMsg();
 			} else { // not forwarded
 				// send to other people
