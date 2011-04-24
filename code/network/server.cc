@@ -140,7 +140,7 @@ void RunServer(void){
 }
 
 
-	
+
 
 
 
@@ -178,7 +178,7 @@ void broadcastTimestampMsg() {
 			postOffice->Send(serverOutPktHdr, serverOutMailHdr, timestampMsg);
 		}
 	}
-	
+
 }
 
 void forwardMsg() {
@@ -208,16 +208,16 @@ void forwardMsg() {
 }
 
 /* Main loop for handling incoming requests
-	* We receive a packet/request to mailbox 0,
-	* and parse the packet to determine the 
-	* request:
-	* A packet sent from exception.cc will contain
-	*      1.) syscall enum
-	*      2.) parameters required to complete the syscall
-	* the packet is parsed and then stored and then processed.
-	* If the request completes, a msg is sent back to the client.
-	* Otherwise, we listen for the next request.
-	*/
+* We receive a packet/request to mailbox 0,
+* and parse the packet to determine the 
+* request:
+* A packet sent from exception.cc will contain
+*      1.) syscall enum
+*      2.) parameters required to complete the syscall
+* the packet is parsed and then stored and then processed.
+* If the request completes, a msg is sent back to the client.
+* Otherwise, we listen for the next request.
+*/
 void handleIncomingRequests(){
 
 	for (int i = 0; i < NUM_SERVERS; i++) {
@@ -403,15 +403,21 @@ void handleIncomingRequests(){
 			* client back right away, as this would allow them to bypass
 			* the waitqueue of the lock.
 			*/
-			if(!requestCompleted)   
+			if(!requestCompleted)  {
+				packetList.pop_front(); // get rid of the element we just used
+				if (packetList.empty()) {
+					break;
+				}
+				firstPacket = packetList.front(); //prepare for loop condition check
+				serverSuccess = false;
 				continue;                    
-
+			}
 			//prepare the messsage and send it out.
 			serverOutPktHdr.to = firstPacket->clientMachineID;
 			serverOutMailHdr.to = firstPacket->clientMailboxID;
 			serverOutMailHdr.length = strlen(ack) + 1;
 			serverOutMailHdr.from = 0;
-			
+
 			if (firstPacket->forwardingServerMachineID == postOffice->getNetAddr()) { //only send reply if we are the originally requested server
 				printf("Sending reply to Client[%d], Box[%d] MSG = [%s]\n",firstPacket->clientMachineID, firstPacket->clientMailboxID, ack);
 				serverSuccess = postOffice->Send(serverOutPktHdr, serverOutMailHdr, ack);
@@ -419,7 +425,7 @@ void handleIncomingRequests(){
 				printf("Not responding to Client because we are not the original request server.\n");
 				serverSuccess = true;
 			}
-			
+
 			//clear everything out for the next message
 			ack = "";
 			for(int x = 0; x < 4; x++)
@@ -435,6 +441,7 @@ void handleIncomingRequests(){
 				break;
 			}
 			firstPacket = packetList.front(); //prepare for loop condition check
+			serverSuccess = false;
 		}
 
 	}
@@ -473,7 +480,7 @@ int extractServer() {
 	printf("ClientMachineID = [%d]\n",clientMachineID);
 
 
-	
+
 	for (k = j; k < strlen(serverBuffer); k++) {
 		printf("[%c]",serverBuffer[k]);
 		if ( serverBuffer[k] == ',' ) {
@@ -485,7 +492,7 @@ int extractServer() {
 		}
 	}
 	printf("ClientMailboxID = [%d]\n",clientMailboxID);
-	
+
 	return k;
 }
 
