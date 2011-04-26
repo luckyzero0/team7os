@@ -22,7 +22,7 @@ To build all the tests:
 	make all (inside the test directory)
 	make netOffice (inside the test directory)
 
-To run the office (MUST USE 5 SERVERS!), instructions for fewer servers are found below:
+To run the office (MUST USE 5 SERVERS!), instructions for fewer servers are found at the end of section III:
 	nachos -m 0 -o 1 (Server0)
 	nachos -m 1 -o 1 (Server1)
 	nachos -m 2 -o 1 (Server2)
@@ -57,42 +57,27 @@ II. ASSUMPTIONS
 
 III. DESIGN
 
-	Parts 1/2:
-		Our design follows the pattern set by Professor Crowley in the lecture.
-		Main steps:
-			1. Check the TLB for virtual page
-			2. If not in the TLB, page fault.
-			3. Check the IPT for the correct virtual page
-				a. If it's there copy to the TLB and return.
-				b. If it's not, look for an available physical page.
-				c. If no physical pages are available, select a RANDOM or FIFO one to evict.
-					i. Propagate dirty bit up from the TLB to the IPT.
-					ii. If IPT page is dirty, write it to the swap file.
-					iii. Update the page table for the evicted page.
-				d. Read the needed virtual page into physical memory from the executable, swap file, or by bzero'ing.
-			4. Copy the entry from the IPT to the TLB.
-			5. Restart the user instruction.
-			
-	Part 3:
-		We used Post as our abstraction for message sending, and did all the message handling on the server and client kernel code.
-				No changes in any user program have to be made for RPCs to work.
+	Part 1:
+		In part one, we basically just had to convert our original multi-threaded Passport Office into seperate, single-threaded
+		processes which communicate and synchronize through one central server.  To do this, all we really had to do was to have each
+		entity call CreateXXX() for each monitor, lock, and condition that it uses.  Then the main() method for each entity just calls the
+		Run() function for each entity.
 		
-		Since the current implementation of Locks/CVs cause threads to sleep, we had to create versions of these that did the same job but did not cause any thread to sleep.
-		We created a version of CVs and Locks that are compatible with our networking design, named ServerCondition and ServerLock respectively.
-		Server does all the work for Syscalls relating to CVs, Locks, or MVs. Clients always pass their current thread's ID when messaging the server.
-		The server uniquely identifies a client thread from:
-			a. The Client Address, stored in the PacketHeader when Send is called.
-			b. The Thread ID which is stored in the message.
-		Hence, servers send messages to the post box which corresponds to the desired thread's ID, and the thread itself only Receives on this mailbox.
+		The  first client entity to run actually creates all the monitors / locks / condition objects on the server, and the other entities'
+		CreateXXX() calls return handles to those objects.  In this way, the original synchronization is preserved, even in the distributed
+		environment.
 		
-		Main Steps:
-			1. If userprog uses a syscall related to locks, condition variables or monitors, check whether networking is enabled. If not, continue using syscalls as in assignment 2.
-			2. If it is, validate parameters and then send server a request to perform the syscall, passing along any needed information, and wait for a reply.
-			3. Server constantly checks if it has received a message. If it has, handle one message a time:
-				a. Find out what the client requested.
-				b. Do what the client requested.
-				c. If necessary, send an acknowledgement message back to the client.
-			4. Upon receiving a message from the server, client finishes syscall, returning some value if needed.
+	Part 2:
+		The second part of the assignment called for having multiple servers, all of which maintained the exact same state of RPC objects.
+		We achieved this through the Total Ordering algorithm described in class.
+		
+		1. Client randomly selects which server to send a request to.
+		2. The server generates a timestamp for this request, and forwards the request to all other servers.
+		3. Servers collect the request and place it into a queue of requests to be processed, sorted by timestamp and forwarding machine ID.
+		4. The servers that received a forwarded request broadcast their current timestamp to all other servers.
+		5. All servers keep track of the most recent timestamp received from each other server.
+		6. The server is free to process messages from its queue until the next message in the queue has a timestamp greater than the smallest
+			timestamp of any the servers.
 	
 !! IF YOU WANT TO CHANGE THE NUMBER OF SERVERS, YOU MUST CHANGE THE FOLLOWING: !!
 	In the file: "threads/system.h", change:
@@ -106,111 +91,33 @@ IV. IMPLEMENTATION
 	Parts 1/2:
 	+ Files Modified
 		- exception.cc
-		- addrspace.h/cc
 		- system.cc
 		
 		- syscall.h
+		- system.h
 		- synch.h/cc
 		- server.cc
 	
 	+ Files Added
-		- test/* (All the tests in the test directory)
-		- vm/ipt.h
+		- test/net* (all the test files prefixed with "net" are new)
 		
 	+ Data Structures Added
-		Lock* iptLock;
-		IPTEntry ipt[];
-		
+		In server.cc:
+			list<Packet*> packetList; (queue for packets sorted by timestamp and server machine id)
+			unsigned int lastTimestampReceived[NUM_SERVERS]; (keeps track of the last timestamp received for each server)
 		
 	+ Data Structures Modified
-		Added Lock* pageTableLock to each AddrSpace.
-		Changed class of pageTable to IPTEntry*.
+		NONE
 			
 	+ Functions Added
 		- New syscalls
-			. HandlePageFault()
-			+ Supporting Subroutines
-				- HandleIPTMiss()
-				- UpdateTLB()
-				- EvictPageFromTLB()
-				- HandleFullMemory()
-				
-	Part 3:
-	+ Files Modified
-		- synch.h/cc
-		- exception.cc
-		- syscall.h
-		- start.s
-		- main.cc
+			CreateMonitorArray();
+			SetMonitorArrayValue();
+			GetMonitorArrayValue();
+			DestroyMonitorArray();
 		
-
-	
-	+ Files Added
-		- server.cc
-		
-	+ Data Structures Added
-	
-		In server.cc:
-			1. LockEntry - uses ServerLock instead of Lock
-			2. ConditionEntry - uses ServerCondition instead of Condition
-			3. MonitorEntry
-			4. LockEntry serverLocks[MAX_LOCKS];
-			5. ConditionEntry serverCVs[MAX_CONDITIONS];
-			6. MonitorEntry serverMVs[MAX_MONITORS];
-		
-		In synch.h:
-			1. ServerLock - differs from locks in the following ways:
-				a) Ownership is checked via ints (clientID, threadID) instead of actual thread pointers. These are passed in the constructor.
-				b) Thread does not fall asleep if it is trying to acquire a lock that has already been acquired. Instead, message is just not sent back to client. The client still has to wait for a message in the future.
-			
-			2. ServerCondition - differs from Conditions in the following ways:
-				a) Takes in a ServerLock instead of a Lock
-				b) Ownership is checked via ints (clientID, threadID) instead of actual thread pointers.
-				c) Thread does not fall asleep when a CV calls Wait - just don't send a message to the client. 
-				
-			3. ClientThreadPair - struct which stores a ClientID, ThreadID pair.
-				
-		In exception.cc:
-			1. char buffer[MaxMailSize] - character array which is sent as a packet across the network
-		
-	+ Data Structures Modified
-		In synch.h/cc:
-			1. ServerLocks are just modified versions of Locks
-			2. ServerCondition are just modified version of Conditions.
-			
-			
-	+ Functions Added
-	
-		In server.cc:
-			1. void RunServer(void) - Causes the server to start.
-			2. void handleIncomingRequests() - Constantly runs and handles client requests, one at a time. Calls the requested server-end syscall handle function.
-			3. void parsePacket(char* serverBuffer) - Parses an incoming message. We chose each token to be seperated by the ',' character, and our endline character is "*"
-			4. void initServerData() - Initializes server data
-			5. Server-end syscall handle functions:
-					a) LockID CreateLock_Syscall_Server(char* name)
-					b) void Acquire_Syscall_Server(LockID id)
-					c) void Release_Syscall_Server(LockID id
-					d) void DestroyLock_Syscall_Server(LockID id)
-					e) ConditionID CreateCondition_Syscall_Server(char* name)
-					f) void Signal_Syscall_Server(ConditionID conditionID, LockID lockID)
-					g) void Wait_Syscall_Server(ConditionID conditionID, LockID lockID)
-					h) void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID)
-					i) void DestroyCondition_Syscall_Server(ConditionID id)
-					j) MonitorID CreateMonitor_Syscall_Server(char* name)
-					k) int GetMonitor_Syscall_Server(MonitorID monitorID)
-					l) void SetMonitor_Syscall_Server(MonitorID monitorID, int value)
-			6. Helping sub-routines:
-					a) int getAvailableServerLockID()
-					b) void deleteServerLock(int id)
-					c) int getAvailableServerMonitorID()
-					d) int getAvailableServerConditionID()
-					e) void deleteServerCondition(int id)
-		
-		In exception.cc:
-			1. More syscalls:
-				a) MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len)
-				b) GetMonitor_Syscall(MonitorID monitorID)
-				c) SetMonitor_Syscall(MonitorID monitorID, int value)
+		// these were all used because so much of our global data in the post office was arrays of monitors
+		// this helps alot, instead of having to create 20 separate variables for each array.
 		
 V. TESTING
 
@@ -264,14 +171,16 @@ V. TESTING
 		 */
 		 
 		 
-				/*NetOffice*/
+				/*netOffice*/
 		/*
 		 * Our main test was running the full PassPortOffice simulation,
 		 * as it has been tested thoroughly in previous assignments and
 		 * is known to work without issues. Here's how to set it up:
 		 *     - in /test/, make netOffice
 		 *     - in separate windows, in /network/, create 5 servers (nachos -m 0 -o 1, nachos -m 1 -o 1, etc)
-		 *                *NOTE* Servers must have a NetworkID < NUM_SERVERS (which by default = 5)
+		 *                *NOTE* Servers must have a NetworkID < NUM_SERVERS (which by default = 5) and there must
+		 *							be EXACTLY NUM_SERVERS servers started and running for clients to work properly,
+		 *							they depend on being able to randomly choose one of these NUM_SERVERS machines to send to.
 		 *     - the client programs are listed below, run each in a separate terminal:
 		 */
 
@@ -300,17 +209,14 @@ V. TESTING
 
 VI. DISCUSSION
 
-The only wierd issue we ran into was with backgrounding servers and clients (ex nachos -m 0 -o 1 & nachos -m 1 -o 1 etc), basically using one unix box for the 5 servers, and the other for the 4 client nachos. For some reason, running the simulation in this manner locks up with more than 4 servers, but works fine for 4 or less. However, running everything on separate boxes works just fine. Not really sure why.
+The only wierd issue we ran into was with backgrounding servers and clients (ex nachos -m 0 -o 1 & nachos -m 1 -o 1 etc), basically using 
+one unix box for the 5 servers, and the other for the 4 client nachos. For some reason, running the simulation in this manner locks up with
+more than 4 servers, but works fine for 4 or less. However, running everything on separate boxes works just fine. Not really sure why.
 
-VII. MISCELLANEOUS
-
-Please feel free to contact us if you have any questions. We'd be happy to meet to meet up and discuss any issues/what's going on in our code.
-Please contact us by emailing Nick Bopp at nbopp@usc.edu.
-
-
-	
-
-
+Also, we changed the MaxPacketSize because of the length of our timestamps and our lock and monitor names.  This only caused issues in one run
+out of ~100.  It randomly failed some assertion in sysdep.cc about the length of the packet.  It had something to do with the underlying UNIX
+socket call.  As I said this only happened once, and doesn't have anything to do with our simulation, so if this randomly happens to you, just
+run the simulation again.
 
 VII. MISCELLANEOUS
 
