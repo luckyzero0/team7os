@@ -1,0 +1,406 @@
+#WRITEUP#
+
+Writeup for Project 4, Spring2011
+04/24/2011
+
+
+Team 24:	Nick Bopp		nbopp@usc.edu
+
+			Mihir Sheth		mihirshe@usc.edu
+
+			James Cramer	jcramer@usc.edu
+
+
+---USAGE---
+To build coff2noff:
+	gmake coff2noff (inside the bin directory)
+	
+To build Nachos:
+	gmake (inside the network directory)
+	
+To build all the tests:
+	make all (inside the test directory)
+	make netOffice (inside the test directory)
+
+To run the office (MUST USE 5 SERVERS!), instructions for fewer servers are found below:
+	nachos -m 0 -o 1 (Server0)
+	nachos -m 1 -o 1 (Server1)
+	nachos -m 2 -o 1 (Server2)
+	nachos -m 3 -o 1 (Server3)
+	nachos -m 4 -o 1 (Server4)
+	
+	nachos -m 5 -x ../test/net10Cust (exec's 10 netCustomers)
+	nachos -m 6 -x ../test/net10Cust (exec's 10 more netCustomers)
+	nachos -m 7 -x ../test/netAPPM (execs 3 App Clerks, 3 Pic Clerks, 3 Passport Clerks, and 1 Manager)
+	nachos -m 8 -x ../test/netCashSen (exec's 3 Senators, and 3 Cashier Clerks)
+
+
+---DOCUMENTATION---
+
+I. REQUIREMENTS
+
+	Project 4 has two main components.  The first was to make each entity of the Passport Office a single threaded program which
+	uses RPC's to share data and locking primitives with other entities.
+	
+	The second was to go from one server, to five fully redundant servers.  The client must randomly select which server to request from.
+	That server must then forward the request to all the other servers.  Using the total ordering algorithm, all servers process all requests
+	in the same order.
+
+II. ASSUMPTIONS
+
+	1. All servers process each request to maintain consistent state, but only the server that was originally contacted by the client
+		sends a response message back.
+		
+	2. The number of servers is set at compile time, with the constant #define NUM_SERVERS in "system.h" in the threads directory.
+		The tester must run exactly this many server processes for the application to function correctly. (Machines 0 - (NUM_SERVERS - 1)
+		are the machine ID's for servers, which is used for broadcasting forwarded messages and timestamps).
+
+III. DESIGN
+
+	Parts 1/2:
+		Our design follows the pattern set by Professor Crowley in the lecture.
+		Main steps:
+			1. Check the TLB for virtual page
+			2. If not in the TLB, page fault.
+			3. Check the IPT for the correct virtual page
+				a. If it's there copy to the TLB and return.
+				b. If it's not, look for an available physical page.
+				c. If no physical pages are available, select a RANDOM or FIFO one to evict.
+					i. Propagate dirty bit up from the TLB to the IPT.
+					ii. If IPT page is dirty, write it to the swap file.
+					iii. Update the page table for the evicted page.
+				d. Read the needed virtual page into physical memory from the executable, swap file, or by bzero'ing.
+			4. Copy the entry from the IPT to the TLB.
+			5. Restart the user instruction.
+			
+	Part 3:
+		We used Post as our abstraction for message sending, and did all the message handling on the server and client kernel code.
+				No changes in any user program have to be made for RPCs to work.
+		
+		Since the current implementation of Locks/CVs cause threads to sleep, we had to create versions of these that did the same job but did not cause any thread to sleep.
+		We created a version of CVs and Locks that are compatible with our networking design, named ServerCondition and ServerLock respectively.
+		Server does all the work for Syscalls relating to CVs, Locks, or MVs. Clients always pass their current thread's ID when messaging the server.
+		The server uniquely identifies a client thread from:
+			a. The Client Address, stored in the PacketHeader when Send is called.
+			b. The Thread ID which is stored in the message.
+		Hence, servers send messages to the post box which corresponds to the desired thread's ID, and the thread itself only Receives on this mailbox.
+		
+		Main Steps:
+			1. If userprog uses a syscall related to locks, condition variables or monitors, check whether networking is enabled. If not, continue using syscalls as in assignment 2.
+			2. If it is, validate parameters and then send server a request to perform the syscall, passing along any needed information, and wait for a reply.
+			3. Server constantly checks if it has received a message. If it has, handle one message a time:
+				a. Find out what the client requested.
+				b. Do what the client requested.
+				c. If necessary, send an acknowledgement message back to the client.
+			4. Upon receiving a message from the server, client finishes syscall, returning some value if needed.
+	
+!! IF YOU WANT TO CHANGE THE NUMBER OF SERVERS, YOU MUST CHANGE THE FOLLOWING: !!
+	In the file: "threads/system.h", change:
+		#define NUM_SERVERS 5
+	to
+		#define NUM_SERVERS (number of servers you desire)
+!!!!!!
+
+IV. IMPLEMENTATION
+
+	Parts 1/2:
+	+ Files Modified
+		- exception.cc
+		- addrspace.h/cc
+		- system.cc
+		
+		- syscall.h
+		- synch.h/cc
+		- server.cc
+	
+	+ Files Added
+		- test/* (All the tests in the test directory)
+		- vm/ipt.h
+		
+	+ Data Structures Added
+		Lock* iptLock;
+		IPTEntry ipt[];
+		
+		
+	+ Data Structures Modified
+		Added Lock* pageTableLock to each AddrSpace.
+		Changed class of pageTable to IPTEntry*.
+			
+	+ Functions Added
+		- New syscalls
+			. HandlePageFault()
+			+ Supporting Subroutines
+				- HandleIPTMiss()
+				- UpdateTLB()
+				- EvictPageFromTLB()
+				- HandleFullMemory()
+				
+	Part 3:
+	+ Files Modified
+		- synch.h/cc
+		- exception.cc
+		- syscall.h
+		- start.s
+		- main.cc
+		
+
+	
+	+ Files Added
+		- server.cc
+		
+	+ Data Structures Added
+	
+		In server.cc:
+			1. LockEntry - uses ServerLock instead of Lock
+			2. ConditionEntry - uses ServerCondition instead of Condition
+			3. MonitorEntry
+			4. LockEntry serverLocks[MAX_LOCKS];
+			5. ConditionEntry serverCVs[MAX_CONDITIONS];
+			6. MonitorEntry serverMVs[MAX_MONITORS];
+		
+		In synch.h:
+			1. ServerLock - differs from locks in the following ways:
+				a) Ownership is checked via ints (clientID, threadID) instead of actual thread pointers. These are passed in the constructor.
+				b) Thread does not fall asleep if it is trying to acquire a lock that has already been acquired. Instead, message is just not sent back to client. The client still has to wait for a message in the future.
+			
+			2. ServerCondition - differs from Conditions in the following ways:
+				a) Takes in a ServerLock instead of a Lock
+				b) Ownership is checked via ints (clientID, threadID) instead of actual thread pointers.
+				c) Thread does not fall asleep when a CV calls Wait - just don't send a message to the client. 
+				
+			3. ClientThreadPair - struct which stores a ClientID, ThreadID pair.
+				
+		In exception.cc:
+			1. char buffer[MaxMailSize] - character array which is sent as a packet across the network
+		
+	+ Data Structures Modified
+		In synch.h/cc:
+			1. ServerLocks are just modified versions of Locks
+			2. ServerCondition are just modified version of Conditions.
+			
+			
+	+ Functions Added
+	
+		In server.cc:
+			1. void RunServer(void) - Causes the server to start.
+			2. void handleIncomingRequests() - Constantly runs and handles client requests, one at a time. Calls the requested server-end syscall handle function.
+			3. void parsePacket(char* serverBuffer) - Parses an incoming message. We chose each token to be seperated by the ',' character, and our endline character is "*"
+			4. void initServerData() - Initializes server data
+			5. Server-end syscall handle functions:
+					a) LockID CreateLock_Syscall_Server(char* name)
+					b) void Acquire_Syscall_Server(LockID id)
+					c) void Release_Syscall_Server(LockID id
+					d) void DestroyLock_Syscall_Server(LockID id)
+					e) ConditionID CreateCondition_Syscall_Server(char* name)
+					f) void Signal_Syscall_Server(ConditionID conditionID, LockID lockID)
+					g) void Wait_Syscall_Server(ConditionID conditionID, LockID lockID)
+					h) void Broadcast_Syscall_Server(ConditionID conditionID, LockID lockID)
+					i) void DestroyCondition_Syscall_Server(ConditionID id)
+					j) MonitorID CreateMonitor_Syscall_Server(char* name)
+					k) int GetMonitor_Syscall_Server(MonitorID monitorID)
+					l) void SetMonitor_Syscall_Server(MonitorID monitorID, int value)
+			6. Helping sub-routines:
+					a) int getAvailableServerLockID()
+					b) void deleteServerLock(int id)
+					c) int getAvailableServerMonitorID()
+					d) int getAvailableServerConditionID()
+					e) void deleteServerCondition(int id)
+		
+		In exception.cc:
+			1. More syscalls:
+				a) MonitorID CreateMonitor_Syscall(unsigned int vaddr, int len)
+				b) GetMonitor_Syscall(MonitorID monitorID)
+				c) SetMonitor_Syscall(MonitorID monitorID, int value)
+		
+V. TESTING
+
+	+ How to Test
+	
+		See USAGE above.
+		
+		The .c's listed below are the tests.  For example, to build, just do "gmake forkTest".
+		
+		PARTS 1 AND 2: ----------------------------------------------------------------------
+		
+				/* matmult.c 
+		 *    Test program to do matrix multiplication on large arrays.
+		 *
+		 *    Intended to stress virtual memory system.
+		 *
+		 *    Ideally, we could read the matrices off of the file system,
+		 *	and store the result back to the file system!
+		 */
+		 
+				/* sort.c 
+		*    Test program to sort a large number of integers.
+		*
+		*    Intention is to stress virtual memory system.
+		*
+		*    Ideally, we could read the unsorted array off of the file system,
+		*	and store the result back to the file system!
+		*/
+		
+		-- exec_matmult /* Exec's 2 matmults */
+		-- exec_sort /* Exec's 2 sorts */
+		-- forkSort /* Forks two sorts, sorting two different arrays */
+		
+		These are the most useful tests for verifying the correctness of the TLB, those below are just extras we had from the previous
+		projects.  Some have the "page fault forever" problem if you -rs them because there are so many threads.
+		
+		-----------------------------------------------------------------
+	
+				/*forkTest.c*/
+		/* 
+		 * Tests for forking. Checks against bad construction data,
+		 * and confirms that two threads can run concurrently modifying
+		 * global data.
+		 * If successfull, x = 10 at the end of the test.
+		 */
+		 
+				 /* halt.c
+		 *	Simple program to test whether running a user program works.
+		 *	
+		 *	Just do a "syscall" that shuts down the OS.
+		 *
+		 * 	NOTE: for some reason, user programs with global data structures 
+		 *	sometimes haven't worked in the Nachos environment.  So be careful
+		 *	out there!  One option is to allocate data structures as 
+		 * 	automatics within a procedure, but if you do this, you have to
+		 *	be careful to allocate a big enough stack to hold the automatics!
+		 */
+		 
+
+		 
+				/*randTest.c*/
+		*	Produces a few random numbers.
+		*	Should always produce the exact same numbers for a given -rs value
+		*/
+		
+				/*testConditions.c*/
+		/*
+		 * Tests CVs. Attempt to pass bad construction data,
+		 * as well as access CVs with bad parameters.
+		 * If successfully, bad CVs are not created, and
+		 * t2 will run before t1.
+		 * Finally, tests broadcast. If successful, all threads will
+		 * exit.
+		 */
+		 
+				 /*execTest.c*/ -- DO NOT RS, too many threads for it to handle, as mentioned in other sections of the writeup
+		/*
+		 *	Tests the Exec function call with some bad input
+		 *	as well as a normative case.
+		 */
+		 
+				 /* exec_testLocks.c */ -- DO NOT RS, too many threads for it to handle, as mentioned in other sections of the writeup
+		/*	This will run the test "testLocks"
+		*	in 9 processes simultaneously, then shutdown.
+		*/
+		 
+				/* forkArg.c */
+		/*	This test tries out the GetForkArg syscall to make sure that
+		*	threads receive the appropriate argument. The behavior for
+		*	GetForkArg on threads not forked with an arg is not guaranteed,
+		*	but right now the implementation always returns -2.
+		*/
+		
+				/* testLocks.c */
+		/*	Quick test program to check if lock related SYSCALLS are working.
+		* 	Performs a few tests to check bad construction data, as well as
+		* 	Passing bad lock IDs to demonstrate attempting to acquire non-owned
+		* 	locks.
+		* 	The final test demonstrates a small mutex scenario, in which the final
+		* 	result of raceCondition should should be 0, 5, or 10, depending on which
+		* 	thread runs first, but never any value in between.
+		*/
+
+		
+		PART 3: Networking/RPCs ---------------------------------------------------------------------------------------------
+		
+		*NOTE: All of the below tests are meant to be run on a NachOS server. If you're unfamiliar, here's how to set it up:
+		
+		terminal1 (server):  nachos -m 0 -o 1
+		terminal2 (client):  nachos -m 1 -x ../test/testName
+		
+		Also, for the multiClientTest test, you can type the command:
+			bash multiClientTest (from within the network dir)
+		
+		You will get some warnings, but it will run 4 clients running the test, make sure you have a server up first.
+		
+				/* officeMain.c */
+		/*	This runs the office with the default values of 3 of each clerk,
+		*	20 customers, and 3 senators.  Everything should escape the office,
+		*	and the sum of cashier money should be $2300. Works on the network.
+		*   Note that this does not halt at the moment because we do not have explicit shutdown code.
+		*   Also, you need to run a fresh version of the server every time you run this, because of
+		*   the same name issues.  Also, this doesn't work on some -rs values, because we made a quick change,
+		*   to our office.  This is not an RPC issue, this is a user code issue, the same values fail in 
+		*   the userprog directory.
+		*/
+		
+				/* officeMainDEBUG.c */
+		/*	This runs the office with the default values of 3 of each clerk,
+		*	20 customers, and 3 senators, with TESTING flag turned on for 
+		*   enhanced output. Everything should escape the office,
+		*	and the sum of cashier money should be $2300.
+		*/
+		
+				/* testLocks.c */
+		/*	Recycled from project 2. A Quick test program to check if lock 
+		*	related SYSCALLS are working over the network.
+		* 	Performs a few tests to check bad construction data, as well as
+		* 	Passing bad lock IDs to demonstrate attempting to acquire non-owned
+		* 	locks.
+		* 	The final test demonstrates a small mutex scenario, in which the final
+		* 	result of raceCondition should should be 0, 5, or 10, depending on which
+		* 	thread runs first, but never any value in between.
+		*/
+
+				/*testConditions.c*/
+		/*
+		 * Tests CVs on the network. Attempt to pass bad construction data,
+		 * as well as access CVs with bad parameters.
+		 * If successfully, bad CVs are not created, and
+		 * t2 will run before t1.
+		 * Finally, tests broadcast. If successful, all threads will
+		 * exit.
+		 * NOTE: This test is not designed to work with -rs'ing.
+		 */
+		 
+				/*testMonitors.c*/
+		/*
+		 * Small series of tests that demonstrate Monitor syscalls over
+		 * the network. Creates, sets, and retrieves the value of a
+		 * monitor variable.
+		 */
+		 
+		 		/*multiClientTest.c*/
+		/*
+		 * This is designed to test multiple clients connected to a server.
+		 * Creates locks, CVs, MVs, and performs operations on them, then
+		 * deletes the lock and CV before exiting. Because it is multiple 
+		 * instances of the same program, all clients will share the same lock, CV, and MV
+		 * To run this, set up a nachos server, and execute "bash multiClientTest.sh" 
+		 * from the network directory.
+		 */
+
+VI. DISCUSSION
+
+The only really weird thing we have experienced with this project is the EXTREME slowness when using more than 3 processes or threads.
+They constantly interrupt each other and invalidate the TLB, so only in lucky changes (where context switches are temporarily spaced apart),
+does a thread get the CPU long enough to execute a few lines of user instruction.  The program looks like it is hanging, but it really isn't, 
+it is just constantly context switching and causing the necessary page faults.  Programs will complete, just in a VERY long amount of time (like an
+hour if exec 4 matmults).  Note that this only happens with -rs values, because if you don't -rs, we don't get the crazy often context switches.
+
+It turns out that disabling interrupts at the top of HandlePageFault actually speeds up our code dramatically in this case, because threads are
+able to complete their work without invalidating the TLB and doing it over and over again.  In our submitted code, we DO NOT disable interrupts
+for the whole page fault, despite this speed up when running more than 3-4 processes / threads with -rs enabled.
+
+
+VII. MISCELLANEOUS
+
+Please feel free to contact us if you have any questions. We'd be happy to meet to meet up and discuss any issues/what's going on in our code.
+Please contact us by emailing Nick Bopp at nbopp@usc.edu.
+
+
+	
