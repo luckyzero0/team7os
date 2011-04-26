@@ -151,12 +151,14 @@ bool comparePacket (const Packet* first, const Packet* second) {
 	} else if (first->timestamp > second->timestamp) {
 		return false;
 	}
+	else
+		return true;
 
-	if (first->forwardingServerMachineID < second->forwardingServerMachineID) {
+	/*if (first->forwardingServerMachineID < second->forwardingServerMachineID) {
 		return true;
 	} else {
 		return false;
-	}
+	}*/
 }
 
 void insertIntoPacketList(Packet* packet) {
