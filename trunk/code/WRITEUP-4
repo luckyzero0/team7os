@@ -138,7 +138,7 @@ V. TESTING
 		terminal1 (server):  nachos -m 0 -o 1 		
 		terminal2 (client):  nachos -m 1 -x ../test/testName
 
-		Create separate boxes for each client and each server.
+		Create separate terminal window for each client and each server.
 										
 		
 				/* testLocks.c */
@@ -168,6 +168,12 @@ V. TESTING
 		 * Small series of tests that demonstrate Monitor syscalls over
 		 * the network. Creates, sets, and retrieves the value of a
 		 * monitor variable.
+		 */
+		 
+				/*mc_wait.c and mc_signal.c*/
+		/*	Start mc_wait one on client, then run mc_signal on another client.
+		 *  The first client will wait to be signalled by the second.
+		 *  When the mc_signal program runs, it will wake up the mc_wait, and they will both exit.
 		 */
 		 
 		 
