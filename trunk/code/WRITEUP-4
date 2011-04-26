@@ -222,131 +222,20 @@ V. TESTING
 		
 		PARTS 1 AND 2: ----------------------------------------------------------------------
 		
-				/* matmult.c 
-		 *    Test program to do matrix multiplication on large arrays.
-		 *
-		 *    Intended to stress virtual memory system.
-		 *
-		 *    Ideally, we could read the matrices off of the file system,
-		 *	and store the result back to the file system!
-		 */
-		 
-				/* sort.c 
-		*    Test program to sort a large number of integers.
-		*
-		*    Intention is to stress virtual memory system.
-		*
-		*    Ideally, we could read the unsorted array off of the file system,
-		*	and store the result back to the file system!
-		*/
-		
-		-- exec_matmult /* Exec's 2 matmults */
-		-- exec_sort /* Exec's 2 sorts */
-		-- forkSort /* Forks two sorts, sorting two different arrays */
-		
-		These are the most useful tests for verifying the correctness of the TLB, those below are just extras we had from the previous
-		projects.  Some have the "page fault forever" problem if you -rs them because there are so many threads.
-		
-		-----------------------------------------------------------------
-	
-				/*forkTest.c*/
-		/* 
-		 * Tests for forking. Checks against bad construction data,
-		 * and confirms that two threads can run concurrently modifying
-		 * global data.
-		 * If successfull, x = 10 at the end of the test.
-		 */
-		 
-				 /* halt.c
-		 *	Simple program to test whether running a user program works.
-		 *	
-		 *	Just do a "syscall" that shuts down the OS.
-		 *
-		 * 	NOTE: for some reason, user programs with global data structures 
-		 *	sometimes haven't worked in the Nachos environment.  So be careful
-		 *	out there!  One option is to allocate data structures as 
-		 * 	automatics within a procedure, but if you do this, you have to
-		 *	be careful to allocate a big enough stack to hold the automatics!
-		 */
-		 
+		As part one consists of just running the distributed passport office on one server,
+		if you want to explicitly test part1, you'll need to redefine NUM_SERVERS in system.h
+		and recompile.
 
-		 
-				/*randTest.c*/
-		*	Produces a few random numbers.
-		*	Should always produce the exact same numbers for a given -rs value
-		*/
-		
-				/*testConditions.c*/
-		/*
-		 * Tests CVs. Attempt to pass bad construction data,
-		 * as well as access CVs with bad parameters.
-		 * If successfully, bad CVs are not created, and
-		 * t2 will run before t1.
-		 * Finally, tests broadcast. If successful, all threads will
-		 * exit.
-		 */
-		 
-				 /*execTest.c*/ -- DO NOT RS, too many threads for it to handle, as mentioned in other sections of the writeup
-		/*
-		 *	Tests the Exec function call with some bad input
-		 *	as well as a normative case.
-		 */
-		 
-				 /* exec_testLocks.c */ -- DO NOT RS, too many threads for it to handle, as mentioned in other sections of the writeup
-		/*	This will run the test "testLocks"
-		*	in 9 processes simultaneously, then shutdown.
-		*/
-		 
-				/* forkArg.c */
-		/*	This test tries out the GetForkArg syscall to make sure that
-		*	threads receive the appropriate argument. The behavior for
-		*	GetForkArg on threads not forked with an arg is not guaranteed,
-		*	but right now the implementation always returns -2.
-		*/
-		
-				/* testLocks.c */
-		/*	Quick test program to check if lock related SYSCALLS are working.
-		* 	Performs a few tests to check bad construction data, as well as
-		* 	Passing bad lock IDs to demonstrate attempting to acquire non-owned
-		* 	locks.
-		* 	The final test demonstrates a small mutex scenario, in which the final
-		* 	result of raceCondition should should be 0, 5, or 10, depending on which
-		* 	thread runs first, but never any value in between.
-		*/
-
-		
-		PART 3: Networking/RPCs ---------------------------------------------------------------------------------------------
-		
 		*NOTE: All of the below tests are meant to be run on a NachOS server. If you're unfamiliar, here's how to set it up:
 		
-		terminal1 (server):  nachos -m 0 -o 1
+		terminal1 (server):  nachos -m 0 -o 1 		
 		terminal2 (client):  nachos -m 1 -x ../test/testName
-		
-		Also, for the multiClientTest test, you can type the command:
-			bash multiClientTest (from within the network dir)
-		
-		You will get some warnings, but it will run 4 clients running the test, make sure you have a server up first.
-		
-				/* officeMain.c */
-		/*	This runs the office with the default values of 3 of each clerk,
-		*	20 customers, and 3 senators.  Everything should escape the office,
-		*	and the sum of cashier money should be $2300. Works on the network.
-		*   Note that this does not halt at the moment because we do not have explicit shutdown code.
-		*   Also, you need to run a fresh version of the server every time you run this, because of
-		*   the same name issues.  Also, this doesn't work on some -rs values, because we made a quick change,
-		*   to our office.  This is not an RPC issue, this is a user code issue, the same values fail in 
-		*   the userprog directory.
-		*/
-		
-				/* officeMainDEBUG.c */
-		/*	This runs the office with the default values of 3 of each clerk,
-		*	20 customers, and 3 senators, with TESTING flag turned on for 
-		*   enhanced output. Everything should escape the office,
-		*	and the sum of cashier money should be $2300.
-		*/
+
+		Create separate boxes for each client and each server.
+										
 		
 				/* testLocks.c */
-		/*	Recycled from project 2. A Quick test program to check if lock 
+		/*	Recycled from projects 2 & 3. A Quick test program to check if lock 
 		*	related SYSCALLS are working over the network.
 		* 	Performs a few tests to check bad construction data, as well as
 		* 	Passing bad lock IDs to demonstrate attempting to acquire non-owned
@@ -374,27 +263,53 @@ V. TESTING
 		 * monitor variable.
 		 */
 		 
-		 		/*multiClientTest.c*/
+		 
+				/*NetOffice*/
 		/*
-		 * This is designed to test multiple clients connected to a server.
-		 * Creates locks, CVs, MVs, and performs operations on them, then
-		 * deletes the lock and CV before exiting. Because it is multiple 
-		 * instances of the same program, all clients will share the same lock, CV, and MV
-		 * To run this, set up a nachos server, and execute "bash multiClientTest.sh" 
-		 * from the network directory.
+		 * Our main test was running the full PassPortOffice simulation,
+		 * as it has been tested thoroughly in previous assignments and
+		 * is known to work without issues. Here's how to set it up:
+		 *     - in /test/, make netOffice
+		 *     - in separate windows, in /network/, create 5 servers (nachos -m 0 -o 1, nachos -m 1 -o 1, etc)
+		 *                *NOTE* Servers must have a NetworkID < NUM_SERVERS (which by default = 5)
+		 *     - the client programs are listed below, run each in a separate terminal:
 		 */
+
+				/*net10Cust*/
+		/*
+		 * Creates 10 Customer processes on the network. 
+		 * You will need to run this twice to ensure that
+		 * 20 customers go through the passport office,
+		 * otherwise the simulation will not complete.
+		 */
+
+				/*netAPPM*/
+		/*
+		 * Creates the Application, Picture, and Passport Clerk processes, and the
+		 * manager.
+		 */
+		 
+				/*netCashSen*/
+		 /*
+		  * Creates the Cashier and 3 Senator processes.
+		  */
+		  
+
+
+
 
 VI. DISCUSSION
 
-The only really weird thing we have experienced with this project is the EXTREME slowness when using more than 3 processes or threads.
-They constantly interrupt each other and invalidate the TLB, so only in lucky changes (where context switches are temporarily spaced apart),
-does a thread get the CPU long enough to execute a few lines of user instruction.  The program looks like it is hanging, but it really isn't, 
-it is just constantly context switching and causing the necessary page faults.  Programs will complete, just in a VERY long amount of time (like an
-hour if exec 4 matmults).  Note that this only happens with -rs values, because if you don't -rs, we don't get the crazy often context switches.
+The only wierd issue we ran into was with backgrounding servers and clients (ex nachos -m 0 -o 1 & nachos -m 1 -o 1 etc), basically using one unix box for the 5 servers, and the other for the 4 client nachos. For some reason, running the simulation in this manner locks up with more than 4 servers, but works fine for 4 or less. However, running everything on separate boxes works just fine. Not really sure why.
 
-It turns out that disabling interrupts at the top of HandlePageFault actually speeds up our code dramatically in this case, because threads are
-able to complete their work without invalidating the TLB and doing it over and over again.  In our submitted code, we DO NOT disable interrupts
-for the whole page fault, despite this speed up when running more than 3-4 processes / threads with -rs enabled.
+VII. MISCELLANEOUS
+
+Please feel free to contact us if you have any questions. We'd be happy to meet to meet up and discuss any issues/what's going on in our code.
+Please contact us by emailing Nick Bopp at nbopp@usc.edu.
+
+
+	
+
 
 
 VII. MISCELLANEOUS
