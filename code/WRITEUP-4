@@ -9,6 +9,22 @@ Team 24:	Nick Bopp		nbopp@usc.edu
 			Mihir Sheth		mihirshe@usc.edu
 
 			James Cramer	jcramer@usc.edu
+			
+DEAR GRADER, BEFORE RUNNING:
+	We made a change in machine/network.h that we need you to make as well before compiling.
+	
+	Replace the line:
+		#define MaxWireSize 64
+	with
+		#define MaxWireSize 128
+		
+	Also please note that we originally submitted Monday (using our last skip day).  This latest submission is on Wednesday.
+	The only change to the submission has been to include this note in the WRITEUP for you, the grader.  We spoke to Professor
+	Crowley, and received his permission to make this late submission WITHOUT being charged for the two late days.  We can forward
+	the appropriate emails to you if you like.
+	
+	Thanks.
+
 
 
 ---USAGE---
