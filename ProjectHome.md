@@ -1,0 +1,1 @@
+This is the central repository for all our semester projects.
